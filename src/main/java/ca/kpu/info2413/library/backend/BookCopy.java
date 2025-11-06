@@ -12,10 +12,9 @@ import java.time.LocalDate;
 public class BookCopy {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    private String title;
-    private BigDecimal price;
-    private LocalDate publishDate;
+    private int serial_barcode;
+    private java.sql.Date date_acquired;
+    private int isbn_13_Publication;
 
     // for JPA only, no use
     public BookCopy() {
