@@ -8,8 +8,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface PublicationRepository extends JpaRepository<Publication, Long> {
+public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    List<Publication> findByIsbn_13(int isbn_13);
+    List<Account> findByAccount_id(int account_id);
+
 
 }
