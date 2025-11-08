@@ -14,5 +14,28 @@
       <working-dir>$ProjectFileDir$</working-dir>
       <time-zone>America/Vancouver</time-zone>
     </data-source>
+    <data-source source="LOCAL" name="info2413@info2413-postgresql.lonk-ladon.ts.net 2" uuid="54a45050-d56d-4395-ad0c-27a892c3ddb5">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <imported>true</imported>
+      <remarks>$PROJECT_DIR$/src/main/resources/application.properties</remarks>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://info2413-postgresql.lonk-ladon.ts.net:5432/info2413</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.host.port" />
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+        <property name="com.intellij.clouds.kubernetes.db.container.port" />
+      </jdbc-additional-properties>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="info2413@info2413-postgresql.lonk-ladon.ts.net" uuid="1bbcff2a-5f65-4c07-a8ec-d2a438d7d4db">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <imported>true</imported>
+      <remarks>$PROJECT_DIR$/src/main/resources/application.properties</remarks>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://info2413-postgresql.lonk-ladon.ts.net:5432/info2413</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
