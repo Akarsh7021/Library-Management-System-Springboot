@@ -8,8 +8,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface PublicationRepository extends JpaRepository<Publication, Long> {
+public interface PublicationRepository extends JpaRepository<Publication, Integer> {
 
-    List<Publication> findByIsbn_13(int isbn_13);
+    @Query("SELECT p FROM Publication p WHERE p.isbn_13 = :isbn_13")
+    List<Publication> findByIsbn_13(@Param("isbn_13") int isbn_13);
 
 }

@@ -8,10 +8,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface BorrowRenewalDateRepository extends JpaRepository<BorrowRenewalDate, Long> {
+public interface BorrowRenewalDateRepository extends JpaRepository<BorrowRenewalDate, java.sql.Date> {
 
-    List<BorrowRenewalDate> findByRenewal_date(java.sql.Date renewal_date);
-    List<BorrowRenewalDate> findByBorrow_id_Borrow(int borrow_id_Borrow);
+    @Query("SELECT brd FROM BorrowRenewalDate brd WHERE brd.renewal_date = :renewal_date")
+    List<BorrowRenewalDate> findByRenewal_date(@Param("renewal_date") java.sql.Date renewal_date);
 
+    @Query("SELECT brd FROM BorrowRenewalDate brd WHERE brd.borrow_id_Borrow = :borrow_id_Borrow")
+    List<BorrowRenewalDate> findByBorrow_id_Borrow(@Param("borrow_id_Borrow") int borrow_id_Borrow);
 
 }

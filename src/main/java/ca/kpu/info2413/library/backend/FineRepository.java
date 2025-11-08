@@ -8,8 +8,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface FineRepository extends JpaRepository<Fine, Long> {
+public interface FineRepository extends JpaRepository<Fine, Integer> {
 
-    List<Fine> findByFine_id(int  fine_id);
+    @Query("SELECT f FROM Fine f WHERE f.fine_id = :fine_id")
+    List<Fine> findByFine_id(@Param("fine_id") int fine_id);
 
 }

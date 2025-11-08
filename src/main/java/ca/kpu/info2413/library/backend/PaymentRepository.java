@@ -8,9 +8,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface PaymentRepository extends JpaRepository<Payment, Long> {
+public interface PaymentRepository extends JpaRepository<Payment, Integer> {
 
-    List<Payment> findByPayment_id(int payment_id);
-
+    @Query("SELECT p FROM Payment p WHERE p.payment_id = :payment_id")
+    List<Payment> findByPayment_id(@Param("payment_id") int payment_id);
 
 }
