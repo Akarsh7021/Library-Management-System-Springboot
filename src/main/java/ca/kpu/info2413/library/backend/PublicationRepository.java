@@ -8,5 +8,8 @@ import java.util.List;
 public interface PublicationRepository extends JpaRepository<Publication, Integer> {
 
     List<Publication> findByIsbn13(Integer isbn13);
+    List<Publication> findByTitle(String title);
+    List<Publication> findByGenre(String genre);
+    List<Publication> findByPublicationDate(java.time.LocalDate publicationDate);
 
 }
