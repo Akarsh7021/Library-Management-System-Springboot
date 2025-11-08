@@ -1,5 +1,6 @@
 package ca.kpu.info2413.library.backend;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,8 +13,11 @@ import java.time.LocalDate;
 public class BookCopyConditionNotes {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String condition_notes;
-    private int serial_barcode_BookCopy;
+    @Column(name = "condition_notes")
+    private String conditionNotes;
+
+    @Column(name = "serial_barcode_BookCopy")
+    private Integer serialBarcodeBookCopy;
 
     // for JPA only, no use
     public BookCopyConditionNotes() {

@@ -1,5 +1,6 @@
 package ca.kpu.info2413.library.backend;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,8 +13,11 @@ import java.time.LocalDate;
 public class ManyAuthorHasManyPublication {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int author_id_Author;
-    private int isbn_13_Publication;
+    @Column(name = "author_id_Author")
+    private Integer authorIdAuthor;
+
+    @Column(name = "isbn_13_Publication")
+    private Integer isbn13Publication;
 
 
     // for JPA only, no use

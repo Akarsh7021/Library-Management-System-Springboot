@@ -1,5 +1,6 @@
 package ca.kpu.info2413.library.backend;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,11 +13,20 @@ import java.time.LocalDate;
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int payment_id;
-    private java.sql.Date payment_date;
-    private String payment_method;
-    private String processed_by;
-    private int account_id_Account;
+    @Column(name = "payment_id")
+    private Integer paymentId;
+
+    @Column(name = "payment_date")
+    private LocalDate paymentDate;
+
+    @Column(name = "payment_method")
+    private String paymentMethod;
+
+    @Column(name = "processed_by")
+    private String processedBy;
+
+    @Column(name = "account_id_Account")
+    private Integer accountIdAccount;
 
     // for JPA only, no use
     public Payment() {
