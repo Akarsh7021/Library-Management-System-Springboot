@@ -8,9 +8,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface BookCopyConditionNotesRepository extends JpaRepository<BookCopyConditionNotes, Long> {
+public interface BookCopyConditionNotesRepository extends JpaRepository<BookCopyConditionNotes, String> {
 
-    List<BookCopyConditionNotes> findByCondition_notes(String condition_notes);
-    List<BookCopyConditionNotes> findBySerial_barcode_BookCopy(int serial_barcode_BookCopy);
+    @Query("SELECT c FROM BookCopyConditionNotes c WHERE c.condition_notes = :condition_notes")
+    List<BookCopyConditionNotes> findByCondition_notes(@Param("condition_notes") String condition_notes);
+
+    @Query("SELECT c FROM BookCopyConditionNotes c WHERE c.serial_barcode_BookCopy = :serial_barcode_BookCopy")
+    List<BookCopyConditionNotes> findBySerial_barcode_BookCopy(@Param("serial_barcode_BookCopy") int serial_barcode_BookCopy);
 
 }
