@@ -1,20 +1,19 @@
 package ca.kpu.info2413.library.backend;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 public class BorrowRenewalDate {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private java.sql.Date renewal_date;
-    private int borrow_id_Borrow;
+    @Column(name = "renewal_date")
+    private LocalDate renewalDate;
 
+    @Column(name = "borrow_id_Borrow")
+    private Integer borrowIdBorrow;
 
     // for JPA only, no use
     public BorrowRenewalDate() {

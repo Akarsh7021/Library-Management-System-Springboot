@@ -1,15 +1,12 @@
 package ca.kpu.info2413.library.backend;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface AuthorRepository extends JpaRepository<Author, Long> {
+public interface AuthorRepository extends JpaRepository<Author, Integer> {
 
-    List<Author> findByAuthor_id(int author_id);
+    List<Author> findByAuthorId(Integer authorId);
 
 }
