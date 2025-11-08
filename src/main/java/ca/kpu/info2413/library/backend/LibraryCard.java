@@ -1,20 +1,22 @@
 package ca.kpu.info2413.library.backend;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 @Entity
 public class LibraryCard {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int card_number;
+    @Column(name = "card_number")
+    private Integer cardNumber;
+
     private boolean valid;
-    private int account_id_Account;
+
+    @Column(name = "account_id_Account")
+    private Integer accountIdAccount;
 
     // for JPA only, no use
     public LibraryCard() {
