@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface BookCopyConditionNotesRepository extends JpaRepository<BookCopyConditionNotes, String> {
+public interface BookCopyConditionNotesRepository extends JpaRepository<BookCopyConditionNotes, BookCopyConditionNotes.BookCopyConditionNotesId> {
 
     List<BookCopyConditionNotes> findByConditionNotes(String conditionNotes);
 

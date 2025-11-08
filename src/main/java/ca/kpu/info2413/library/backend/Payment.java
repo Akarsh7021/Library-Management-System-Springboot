@@ -16,7 +16,7 @@ public class Payment {
     @Column(name = "payment_id")
     private Integer paymentId;
 
-    @Column(name = "payment_date")
+    @Column(name = "payment_date", columnDefinition = "DATE DEFAULT CURRENT_DATE")
     private LocalDate paymentDate;
 
     @Column(name = "payment_method")

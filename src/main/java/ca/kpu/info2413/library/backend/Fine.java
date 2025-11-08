@@ -15,13 +15,13 @@ public class Fine {
     @Column(name = "fine_id")
     private Integer fineId;
 
-    @Column(name = "fine_amount")
+    @Column(name = "fine_amount", columnDefinition = "INTEGER DEFAULT 0")
     private Integer fineAmount;
 
     @Column(name = "issue_date")
     private LocalDate issueDate;
 
-    @Column(name = "waived_reversed")
+    @Column(name = "waived_reversed", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean waivedReversed;
 
     @Column(name = "borrow_id_Borrow")
