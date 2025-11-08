@@ -8,8 +8,5 @@ import java.util.List;
 public interface FineRepository extends JpaRepository<Fine, Integer> {
 
     List<Fine> findByFineId(Integer fineId);
-    List<Fine> findByBorrowIdBorrow(Integer borrowIdBorrow);
-    List<Fine> findByIssueDate(java.time.LocalDate issueDate);
-    List<Fine> findByWaivedReversed(boolean waivedReversed);
 
 }

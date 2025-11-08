@@ -17,7 +17,7 @@ public class Borrow {
 
     private String status;
 
-    @Column(name = "borrowed_date", columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @Column(name = "borrowed_date")
     private LocalDate borrowedDate;
 
     @Column(name = "returned_date")

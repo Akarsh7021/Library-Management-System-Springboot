@@ -22,7 +22,7 @@ public class Account {
     @Column(name = "notification_email")
     private String notificationEmail;
 
-    @Column(name = "phone_number", nullable = true)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     @Column(name = "full_name")

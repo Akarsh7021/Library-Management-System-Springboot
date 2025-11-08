@@ -8,7 +8,5 @@ import java.util.List;
 public interface LibraryCardRepository extends JpaRepository<LibraryCard, Integer> {
 
     List<LibraryCard> findByCardNumber(Integer cardNumber);
-    List<LibraryCard> findByAccountIdAccount(Integer accountIdAccount);
-    List<LibraryCard> findByValid(boolean valid);
 
 }

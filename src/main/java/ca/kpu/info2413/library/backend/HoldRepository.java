@@ -8,8 +8,5 @@ import java.util.List;
 public interface HoldRepository extends JpaRepository<Hold, Integer> {
 
     List<Hold> findByBookHoldId(Integer bookHoldId);
-    List<Hold> findByAccountIdAccount(Integer accountIdAccount);
-    List<Hold> findBySerialBarcodeBookCopy(Integer serialBarcodeBookCopy);
-    List<Hold> findByHoldExpiryBefore(java.time.LocalDate date);
 
 }

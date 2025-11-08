@@ -18,7 +18,7 @@ public class Hold {
     @Column(name = "hold_expiry")
     private LocalDate holdExpiry;
 
-    @Column(name = "held_since", columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @Column(name = "held_since")
     private LocalDate heldSince;
 
     @Column(name = "serial_barcode_BookCopy")

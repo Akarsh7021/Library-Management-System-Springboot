@@ -8,7 +8,5 @@ import java.util.List;
 public interface BookCopyRepository extends JpaRepository<BookCopy, Integer> {
 
     List<BookCopy> findBySerialBarcode(Integer serialBarcode);
-    List<BookCopy> findByIsbn13Publication(Integer isbn13Publication);
-    List<BookCopy> findByDateAcquired(java.time.LocalDate dateAcquired);
 
 }

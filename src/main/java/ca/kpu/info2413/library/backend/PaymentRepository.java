@@ -9,8 +9,5 @@ import java.util.List;
 public interface PaymentRepository extends JpaRepository<Payment, Integer> {
 
     List<Payment> findByPaymentId(Integer paymentId);
-    List<Payment> findByAccountIdAccount(Integer accountIdAccount);
-    List<Payment> findByPaymentDate(java.time.LocalDate paymentDate);
-    List<Payment> findByPaymentMethod(String paymentMethod);
 
 }
