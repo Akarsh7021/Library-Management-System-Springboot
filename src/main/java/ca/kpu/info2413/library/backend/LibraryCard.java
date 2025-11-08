@@ -13,7 +13,6 @@ public class LibraryCard {
     @Column(name = "card_number")
     private Integer cardNumber;
 
-    @Column(name = "valid", columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean valid;
 
     @Column(name = "account_id_Account")
