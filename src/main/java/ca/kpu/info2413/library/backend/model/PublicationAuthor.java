@@ -1,4 +1,4 @@
-package ca.kpu.info2413.library.backend;
+package ca.kpu.info2413.library.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
