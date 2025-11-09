@@ -10,7 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-public class ManyPublicationHasManyPublication {
+public class PublicationPublication
+{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "isbn_13_publication")
@@ -26,7 +27,7 @@ public class ManyPublicationHasManyPublication {
     private LocalDate publishDate;
 
     // for JPA only, no use
-    public ManyPublicationHasManyPublication() {
+    public PublicationPublication() {
     }
 
     // getters, setters and constructor
