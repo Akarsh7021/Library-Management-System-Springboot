@@ -19,7 +19,8 @@ public class BookCopy
     @Column(name = "date_acquired")
     private LocalDate dateAcquired;
 
-    @Column(name = "isbn_13_Publication")
-    private Integer isbn13Publication;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "isbn_13_Publication", nullable = false)
+    private Publication publication;
 }
 
