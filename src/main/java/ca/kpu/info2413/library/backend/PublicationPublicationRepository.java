@@ -7,8 +7,8 @@ import java.util.List;
 // Spring Data JPA creates CRUD implementation at runtime automatically.
 public interface PublicationPublicationRepository extends JpaRepository<PublicationPublication, Integer> {
 
-    List<PublicationPublication> findByIsbn13Publication(Integer isbn13Publication);
+    List<PublicationPublication> findByPublication(Publication publication);
 
-    List<PublicationPublication> findByIsbn13Publication1(Integer isbn13Publication1);
+    List<PublicationPublication> findByPublication1(Publication publication1);
 
 }
