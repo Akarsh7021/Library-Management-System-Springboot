@@ -13,7 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class AccountPublicationId implements Serializable
+public final class AccountPublicationId implements Serializable
 {
     @Serial
     private static final long serialVersionUID = 1L;
