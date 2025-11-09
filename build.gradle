@@ -22,7 +22,10 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation 'org.springframework.security:spring-security-crypto'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
+    compileOnly("org.projectlombok:lombok:1.18.42")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
+    testCompileOnly("org.projectlombok:lombok:1.18.42")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
 }
 
 test {
