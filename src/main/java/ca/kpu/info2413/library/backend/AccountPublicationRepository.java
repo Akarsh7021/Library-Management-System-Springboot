@@ -9,8 +9,8 @@ public interface AccountPublicationRepository extends JpaRepository<AccountPubli
 
     List<AccountPublication> findByWaitlistPosition(Integer waitlistPosition);
 
-    List<AccountPublication> findByAccountIdAccount(Integer accountIdAccount);
+    List<AccountPublication> findByAccount(Account account);
 
-    List<AccountPublication> findByIsbn13Publication(Integer isbn13Publication);
+    List<AccountPublication> findByPublication(Publication publication);
 
 }
