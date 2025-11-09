@@ -7,7 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class AuthorPublication
+public class PublicationAuthor
 {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,7 +19,7 @@ public class AuthorPublication
 
 
     // for JPA only, no use
-    public AuthorPublication() {
+    public PublicationAuthor() {
     }
 
     // getters, setters and constructor

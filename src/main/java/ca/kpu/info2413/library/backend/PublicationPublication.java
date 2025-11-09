@@ -20,12 +20,6 @@ public class PublicationPublication
     @Column(name = "isbn_13_publication1")
     private Integer isbn13Publication1;
 
-    @Column(name = "price")
-    private BigDecimal price;
-
-    @Column(name = "publishDate")
-    private LocalDate publishDate;
-
     // for JPA only, no use
     public PublicationPublication() {
     }
