@@ -1,4 +1,4 @@
-package ca.kpu.info2413.library.backend;
+package ca.kpu.info2413.library.backend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,23 +9,18 @@ import java.time.LocalDate;
 @Entity
 @Data
 @NoArgsConstructor
-public class Borrow
+public class Hold
 {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "borrow_id")
-    private Integer borrowId;
+    @Column(name = "book_hold_id")
+    private Integer bookHoldId;
 
-    private String status;
+    @Column(name = "hold_expiry")
+    private LocalDate holdExpiry;
 
-    @Column(name = "borrowed_date")
-    private LocalDate borrowedDate;
-
-    @Column(name = "returned_date")
-    private LocalDate returnedDate;
-
-    @Column(name = "due_date")
-    private LocalDate dueDate;
+    @Column(name = "held_since")
+    private LocalDate heldSince;
 
     @Column(name = "serial_barcode_BookCopy")
     private Integer serialBarcodeBookCopy;
