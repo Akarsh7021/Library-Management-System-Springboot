@@ -6,7 +6,12 @@ import jakarta.persistence.Id;
 
 import java.time.LocalDate;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class BorrowRenewalDate {
     @Id
     @Column(name = "renewal_date")
@@ -14,10 +19,4 @@ public class BorrowRenewalDate {
 
     @Column(name = "borrow_id_Borrow")
     private Integer borrowIdBorrow;
-
-    // for JPA only, no use
-    public BorrowRenewalDate() {
-    }
-
-    // getters, setters and constructor
 }

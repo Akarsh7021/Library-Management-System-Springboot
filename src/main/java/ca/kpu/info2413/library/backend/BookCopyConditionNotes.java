@@ -9,7 +9,12 @@ import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class BookCopyConditionNotes {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -18,10 +23,4 @@ public class BookCopyConditionNotes {
 
     @Column(name = "serial_barcode_BookCopy")
     private Integer serialBarcodeBookCopy;
-
-    // for JPA only, no use
-    public BookCopyConditionNotes() {
-    }
-
-    // getters, setters and constructor
 }

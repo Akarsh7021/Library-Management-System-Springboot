@@ -9,7 +9,12 @@ import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class PublicationPublication
 {
     @Id
@@ -19,10 +24,4 @@ public class PublicationPublication
 
     @Column(name = "isbn_13_publication1")
     private Integer isbn13Publication1;
-
-    // for JPA only, no use
-    public PublicationPublication() {
-    }
-
-    // getters, setters and constructor
 }

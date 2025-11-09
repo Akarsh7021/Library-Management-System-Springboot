@@ -6,7 +6,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,10 +32,4 @@ public class Account {
 
     @Column(name = "full_name")
     private String fullName;
-
-    // for JPA only, no use
-    public Account() {
-    }
-
-    // getters, setters and constructor
 }

@@ -8,7 +8,12 @@ import jakarta.persistence.Id;
 
 import java.time.LocalDate;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class BookCopy {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,11 +25,5 @@ public class BookCopy {
 
     @Column(name = "isbn_13_Publication")
     private Integer isbn13Publication;
-
-    // for JPA only, no use
-    public BookCopy() {
-    }
-
-    // getters, setters and constructor
 }
 

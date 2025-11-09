@@ -8,7 +8,12 @@ import jakarta.persistence.Id;
 
 import java.time.LocalDate;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class Fine {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,10 +31,4 @@ public class Fine {
 
     @Column(name = "borrow_id_Borrow")
     private Integer borrowIdBorrow;
-
-    // for JPA only, no use
-    public Fine() {
-    }
-
-    // getters, setters and constructor
 }
