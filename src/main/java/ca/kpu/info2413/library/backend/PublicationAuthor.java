@@ -1,19 +1,7 @@
 package ca.kpu.info2413.library.backend;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "PublicationAuthor")
@@ -23,7 +11,8 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA requires a no-arg ctor (protected is fine)
 @AllArgsConstructor
 @Builder
-public class PublicationAuthor {
+public class PublicationAuthor
+{
 
     @EmbeddedId
     private PublicationAuthorId id;
@@ -39,7 +28,8 @@ public class PublicationAuthor {
     private Publication publication;
 
 
-    public PublicationAuthor(Author author, Publication publication) {
+    public PublicationAuthor(Author author, Publication publication)
+    {
         this.author = author;
         this.publication = publication;
         this.id = new PublicationAuthorId(

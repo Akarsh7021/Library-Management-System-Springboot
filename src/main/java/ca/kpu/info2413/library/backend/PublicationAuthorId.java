@@ -2,12 +2,9 @@ package ca.kpu.info2413.library.backend;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.*;
+
 import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Embeddable
 @Getter
@@ -15,7 +12,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public final class PublicationAuthorId implements Serializable {
+public final class PublicationAuthorId implements Serializable
+{
     private static final long serialVersionUID = 1L;
 
     @Column(name = "author_id_Author", nullable = false)
