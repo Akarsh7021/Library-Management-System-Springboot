@@ -8,7 +8,12 @@ import jakarta.persistence.Id;
 
 import java.time.LocalDate;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class Hold {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,10 +31,4 @@ public class Hold {
 
     @Column(name = "account_id_Account")
     private Integer accountIdAccount;
-
-    // for JPA only, no use
-    public Hold() {
-    }
-
-    // getters, setters and constructor
 }

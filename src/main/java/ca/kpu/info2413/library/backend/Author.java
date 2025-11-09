@@ -6,7 +6,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -15,10 +20,4 @@ public class Author {
 
     @Column(name = "author_name")
     private String authorName;
-
-    // for JPA only, no use
-    public Author() {
-    }
-
-    // getters, setters and constructor
 }

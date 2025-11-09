@@ -6,7 +6,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class LibraryCard {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,10 +22,4 @@ public class LibraryCard {
 
     @Column(name = "account_id_Account")
     private Integer accountIdAccount;
-
-    // for JPA only, no use
-    public LibraryCard() {
-    }
-
-    // getters, setters and constructor
 }

@@ -8,7 +8,12 @@ import jakarta.persistence.Id;
 
 import java.time.LocalDate;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class Publication {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,10 +29,4 @@ public class Publication {
     private Integer pageCount;
 
     private String genre;
-
-    // for JPA only, no use
-    public Publication() {
-    }
-
-    // getters, setters and constructor
 }

@@ -9,7 +9,12 @@ import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,10 +32,4 @@ public class Payment {
 
     @Column(name = "account_id_Account")
     private Integer accountIdAccount;
-
-    // for JPA only, no use
-    public Payment() {
-    }
-
-    // getters, setters and constructor
 }
