@@ -15,13 +15,20 @@ import lombok.NoArgsConstructor;
 @Entity
 @Data
 @NoArgsConstructor
+@Builder
 public class PublicationPublication
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "isbn_13_publication")
-    private Integer isbn13Publication;
+    @EmbeddedId
+    private PublicationPublicationId id;
 
-    @Column(name = "isbn_13_publication1")
-    private Integer isbn13Publication1;
+    @MapsId("isbn13Publication")
+    @ManyToOne(fetch = FetchType.LAZY, optional=false)
+    @JoinColumn(name = "isbn_13_publication")
+    private Publication publication;
+
+    @MapsId("isbn13Publication1")
+    @ManyToOne(fetch = FetchType.LAZY, optional=false)
+    @JoinColumn(name = "isbn_13_publication1")
+    private Publication publication1;
+
 }
