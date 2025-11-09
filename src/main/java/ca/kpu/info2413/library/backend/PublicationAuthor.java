@@ -38,9 +38,7 @@ public class PublicationAuthor {
     @JoinColumn(name = "isbn_13_Publication", nullable = false)
     private Publication publication;
 
-    /**
-     * Convenience ctor. Adjust the getter names below if your Author/Publication use different method names.
-     */
+
     public PublicationAuthor(Author author, Publication publication) {
         this.author = author;
         this.publication = publication;

@@ -1,20 +1,22 @@
 package ca.kpu.info2413.library.backend;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.Table;
+import lombok.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
-@Data
-@NoArgsConstructor
+@Table(name = "PublicationPublication")
+@Getter
+@Setter
+@ToString(exclude = {"publication", "publication1"}) // avoid lazy-loading / recursion in toString
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA requires a no-arg ctor (protected is fine)
+@AllArgsConstructor
 @Builder
 public class PublicationPublication
 {
@@ -31,4 +33,13 @@ public class PublicationPublication
     @JoinColumn(name = "isbn_13_publication1")
     private Publication publication1;
 
+
+    public PublicationPublication(Publication publication, Publication publication1) {
+        this.publication = publication;
+        this.publication1 = publication1;
+        this.id = new PublicationPublicationId(
+                publication != null ? publication.getIsbn13() : null,           // adjust if your getter is getId()
+                publication1 != null ? publication1.getIsbn13() : null // adjust if different
+        );
+    }
 }
