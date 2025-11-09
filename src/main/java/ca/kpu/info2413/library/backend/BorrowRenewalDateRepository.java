@@ -6,9 +6,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface BorrowRenewalDateRepository extends JpaRepository<BorrowRenewalDate, LocalDate> {
+public interface BorrowRenewalDateRepository extends JpaRepository<BorrowRenewalDate, LocalDate>
+{
 
     List<BorrowRenewalDate> findByRenewalDate(LocalDate renewalDate);
+
     List<BorrowRenewalDate> findByBorrowIdBorrow(Integer borrowIdBorrow);
 
 }

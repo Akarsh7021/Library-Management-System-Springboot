@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
-public interface FineRepository extends JpaRepository<Fine, Integer> {
+public interface FineRepository extends JpaRepository<Fine, Integer>
+{
 
     List<Fine> findByFineId(Integer fineId);
 
