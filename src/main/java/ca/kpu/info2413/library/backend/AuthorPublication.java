@@ -6,24 +6,20 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 @Entity
-public class ManyAccountHasManyPublication {
+public class AuthorPublication
+{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "waitlist_position")
-    private Integer waitlistPosition;
-
-    @Column(name = "account_id_Account")
-    private Integer accountIdAccount;
+    @Column(name = "author_id_Author")
+    private Integer authorIdAuthor;
 
     @Column(name = "isbn_13_Publication")
     private Integer isbn13Publication;
 
+
     // for JPA only, no use
-    public ManyAccountHasManyPublication() {
+    public AuthorPublication() {
     }
 
     // getters, setters and constructor

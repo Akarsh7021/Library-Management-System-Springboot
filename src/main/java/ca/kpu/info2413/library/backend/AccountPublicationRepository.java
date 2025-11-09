@@ -1,0 +1,16 @@
+package ca.kpu.info2413.library.backend;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+// Spring Data JPA creates CRUD implementation at runtime automatically.
+public interface AccountPublicationRepository extends JpaRepository<AccountPublication, Integer> {
+
+    List<AccountPublication> findByWaitlistPosition(Integer waitlistPosition);
+
+    List<AccountPublication> findByAccountIdAccount(Integer accountIdAccount);
+
+    List<AccountPublication> findByIsbn13Publication(Integer isbn13Publication);
+
+}
