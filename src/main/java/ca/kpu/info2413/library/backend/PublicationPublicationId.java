@@ -4,7 +4,7 @@ import jakarta.persistence.Column;
 
 import java.io.Serializable;
 
-public class PublicationPublicationId implements Serializable
+public final class PublicationPublicationId implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
