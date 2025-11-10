@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "Author")
 @Data
 @NoArgsConstructor
 public class Author
