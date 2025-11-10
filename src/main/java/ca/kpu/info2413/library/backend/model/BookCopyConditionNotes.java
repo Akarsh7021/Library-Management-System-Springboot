@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "BookCopyConditionNotes")
 @Data
 @NoArgsConstructor
 public class BookCopyConditionNotes

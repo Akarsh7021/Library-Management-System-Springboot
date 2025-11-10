@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "LibraryCard")
 @Data
 @NoArgsConstructor
 public class LibraryCard
