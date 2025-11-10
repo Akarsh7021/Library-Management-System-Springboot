@@ -27,5 +27,5 @@ public class AccountPublication
     private Publication publication;
 
     @Column(name = "waitlist_position")
-    private Integer waitlistPosition;
+    private Short waitlistPosition;
 }
