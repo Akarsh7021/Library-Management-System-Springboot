@@ -57,6 +57,12 @@ public class AccountController
         return accountService.findByLibraryCard(card_number);
     }
 
+    @GetMapping("/find/full_name/{full_name}")
+    public List<Account> findByFullName(@PathVariable String full_name)
+    {
+        return accountService.findByFullName(full_name);
+    }
+
     @GetMapping("/find/notification_email/{notification_email}")
     public List<Account> findByNotificationEmail(@PathVariable String notification_email)
     {
