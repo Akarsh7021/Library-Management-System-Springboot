@@ -10,6 +10,4 @@ public interface LibraryCardRepository extends JpaRepository<LibraryCard, Intege
 {
 
     List<LibraryCard> findByCardNumber(Integer cardNumber);
-
-    List<LibraryCard> findByAccountId(Integer accountId);
 }
