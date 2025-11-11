@@ -11,4 +11,9 @@ public interface BorrowRepository extends JpaRepository<Borrow, Integer>
 
     List<Borrow> findByBorrowId(Integer borrowId);
 
+    void deleteByBorrowId(Integer borrowId);
+
+    List<Borrow> findBySerialBarcodeBookCopy(Integer serialBarcodeBookCopy);
+
+    List<Borrow> findByAccountIdAccount(Integer accountIdAccount);
 }
