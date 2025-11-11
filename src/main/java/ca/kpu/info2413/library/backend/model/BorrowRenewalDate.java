@@ -16,9 +16,9 @@ import java.time.LocalDate;
 public class BorrowRenewalDate
 {
     @Id
-    @Column(name = "renewal_date")
-    private LocalDate renewalDate;
-
     @Column(name = "borrow_id_Borrow")
     private Integer borrowIdBorrow;
+
+    @Column(name = "renewal_date")
+    private LocalDate renewalDate;
 }
