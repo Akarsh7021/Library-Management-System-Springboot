@@ -12,5 +12,4 @@ public interface BookCopyConditionNotesRepository extends JpaRepository<BookCopy
     List<BookCopyConditionNotes> findByConditionNotes(String conditionNotes);
 
     List<BookCopyConditionNotes> findBySerialBarcodeBookCopy(Integer serialBarcodeBookCopy);
-
 }

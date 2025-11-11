@@ -48,6 +48,6 @@ public class BookCopyService
 
     public List<BookCopy> findByIsbn13(Integer isbn13)
     {
-        return findByPublication(publicationRepository.findByIsbn13(isbn13).orElse(null));
+        return findByPublication(publicationRepository.findByIsbn13(isbn13).getFirst());
     }
 }
