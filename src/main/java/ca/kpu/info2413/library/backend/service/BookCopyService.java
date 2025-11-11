@@ -38,6 +38,9 @@ public class BookCopyService
         bookCopyRepository.deleteById(serialBarcode);
     }
 
+    /// ////////////////////
+
+
     public List<BookCopy> findByPublication(Publication publication)
     {
         return bookCopyRepository.findByPublication(publication);

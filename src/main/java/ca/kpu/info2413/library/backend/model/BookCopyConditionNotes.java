@@ -12,9 +12,13 @@ public class BookCopyConditionNotes
 {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "serial_barcode_BookCopy")
+    private Integer serialBarcodeBookCopy;
+
     @Column(name = "condition_notes")
     private String conditionNotes;
 
-    @Column(name = "serial_barcode_BookCopy")
-    private Integer serialBarcodeBookCopy;
+
+    public static void deleteBySerialBarcodeBookCopy(Integer serialBarcodeBookCopy) {
+    }
 }

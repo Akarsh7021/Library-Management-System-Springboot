@@ -1,0 +1,71 @@
+package ca.kpu.info2413.library.backend.controller;
+
+import ca.kpu.info2413.library.backend.model.Account;
+import ca.kpu.info2413.library.backend.service.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/account")
+public class AccountController
+{
+
+    @Autowired
+    private AccountService accountService;
+
+    @GetMapping
+    public List<Account> findAll()
+    {
+        return accountService.findAll();
+    }
+
+    @GetMapping("/{account_id}")
+    public List<Account> findByAccountId(@PathVariable Integer account_id)
+    {
+        return accountService.findByAccountId(account_id);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping
+    public Account create(@RequestBody Account account)
+    {
+        return accountService.save(account);
+    }
+
+    @PutMapping
+    public Account update(@RequestBody Account account)
+    {
+        return accountService.save(account);
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{account_id}")
+    public void deleteByAccountId(@PathVariable Integer account_id)
+    {
+        accountService.deleteByAccountId(account_id);
+    }
+
+    /// ///
+
+
+    @GetMapping("/find/card_number/{card_number}")
+    public List<Account> findByCardNumber(@PathVariable Integer card_number)
+    {
+        return accountService.findByLibraryCard(card_number);
+    }
+
+    @GetMapping("/find/notification_email/{notification_email}")
+    public List<Account> findByNotificationEmail(@PathVariable String notification_email)
+    {
+        return accountService.findByNotificationEmail(notification_email);
+    }
+
+    @GetMapping("/find/phone_number/{phone_number}")
+    public List<Account> findByPhoneNumber(@PathVariable String phone_number)
+    {
+        return accountService.findByPhoneNumber(phone_number);
+    }
+}
