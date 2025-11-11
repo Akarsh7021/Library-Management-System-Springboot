@@ -51,7 +51,7 @@ public class AccountService
         return accountRepository.findByAccountId(libraryCardRepository.findByCardNumber(libraryCard).getFirst().getAccountIdAccount());
     }
 
-    public List<LibraryCard> findBYLibraryCardByAccountId(Integer accountId)
+    public List<LibraryCard> findByLibraryCardByAccountId(Integer accountId)
     {
         return libraryCardRepository.findByAccountId(accountId);
     }
