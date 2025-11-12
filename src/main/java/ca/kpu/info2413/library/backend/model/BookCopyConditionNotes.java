@@ -19,6 +19,7 @@ public class BookCopyConditionNotes
     private String conditionNotes;
 
 
-    public static void deleteBySerialBarcodeBookCopy(Integer serialBarcodeBookCopy) {
+    public static void deleteBySerialBarcodeBookCopy(Integer serialBarcodeBookCopy)
+    {
     }
 }

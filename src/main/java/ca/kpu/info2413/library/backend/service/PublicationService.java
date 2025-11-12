@@ -1,13 +1,12 @@
 package ca.kpu.info2413.library.backend.service;
 
 import ca.kpu.info2413.library.backend.model.Publication;
-import ca.kpu.info2413.library.backend.repository.PublicationRepository;
 import ca.kpu.info2413.library.backend.repository.LibraryCardRepository;
+import ca.kpu.info2413.library.backend.repository.PublicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PublicationService
