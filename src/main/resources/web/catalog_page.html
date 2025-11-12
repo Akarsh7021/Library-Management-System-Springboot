@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>City Library | Catalog</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000000;
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        main {
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 20px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tab-container button {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .tab-container button:hover, .tab-container button.active {
+            background-color: #0077b6;
+            color: white;
+            border-color: #0077b6;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            font-size: 1em;
+        }
+
+        .search-bar button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-bar button:hover {
+            background-color: #005f8c;
+        }
+
+        .book-card {
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .book-image {
+            width: 90px;
+            height: 120px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            margin-right: 20px;
+        }
+
+        .book-info h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .book-info p {
+            margin: 6px 0 12px 0;
+            color: #555;
+        }
+
+        .book-info button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .book-info button:hover {
+            background-color: #005f8c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #777;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>City Library</h1>
+</header>
+
+<nav>
+    <a href="Homepage.html">Home</a>
+    <a href="catalog_page.html">Catalog</a>
+    <a href="borrow page.html">Borrow</a>
+    <a href="Place Hold.html">Hold</a>
+    <a href="Payment page.html">Payment</a>
+    <a href="Account Login.html">Account</a>
+    <a href="index.html">Reports</a>
+    <a href="Admin Page.html">Admin</a>
+</nav>
+
+<main>
+    <div class="section-title">Catalog</div>
+
+    <div class="tab-container">
+        <button class="active" onclick="filterBy('book')">Books</button>
+        <button onclick="filterBy('author')">Author</button>
+        <button onclick="filterBy('genre')">Genre</button>
+    </div>
+
+    <div class="search-bar">
+        <input id="catalogSearch" placeholder="Search books by title, author or genre" type="text">
+        <button onclick="searchCatalog()">🔍</button>
+    </div>
+
+    <div class="book-card" id="bookResult">
+        <div class="book-image"></div>
+        <div class="book-info">
+            <h3>Book Title and Info</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer id magna nec justo.</p>
+            <button onclick="placeHold()">Place Hold</button>
+        </div>
+    </div>
+</main>
+
+<footer>
+    © 2025 City Library
+</footer>
+
+<script>
+    // --- Function to handle searching in the catalog ---
+    function searchCatalog() {
+        const query = document.getElementById("catalogSearch").value.trim();
+
+        if (!query) {
+            alert("Please enter a title, author, or genre to search.");
+            return;
+        }
+
+        console.log("Searching for:", query);
+
+        // Placeholder fetch request until backend API is ready
+        fetch("http://localhost:8080/api/catalog/search?query=" + encodeURIComponent(query))
+            .then(response => {
+                console.log("Received response:", response);
+                alert("Search request sent successfully! (This will show real results when API is ready)");
+            })
+            .catch(error => {
+                console.error("Error connecting to API:", error);
+                alert("Unable to reach server right now.");
+            });
+    }
+
+    // --- Function to simulate category filtering ---
+    function filterBy(type) {
+        console.log("Filtering catalog by:", type);
+        alert("Filter applied: " + type + " (function ready for API integration)");
+    }
+
+    // --- Function to simulate placing a hold on a book ---
+    function placeHold() {
+        const bookTitle = "Book Title and Info"; // Later this will come dynamically
+        console.log("Placing hold on:", bookTitle);
+
+        // Mock request for backend
+        fetch("http://localhost:8080/api/holds", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({bookTitle: bookTitle, accountId: 1}) // Example payload
+        })
+            .then(response => console.log("Hold request sent:", response))
+            .catch(error => console.error("Error sending hold request:", error));
+
+        alert("Hold request prepared for book: " + bookTitle);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>City Library | Admin Book Management</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        main {
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 30px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+            text-align: left;
+        }
+
+        .forms-container {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .form-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            width: 350px;
+            text-align: left;
+        }
+
+        .form-box h2 {
+            color: #0077b6;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .form-box label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-box input, .form-box select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .form-box button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            font-size: 1em;
+        }
+
+        .form-box button:hover {
+            background-color: #005f8c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #777;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>City Library</h1>
+</header>
+
+<nav>
+    <a href="Homepage.html">Home</a>
+    <a href="catalog_page.html">Catalog</a>
+    <a href="borrow page.html">Borrow</a>
+    <a href="Place Hold.html">Hold</a>
+    <a href="Payment page.html">Payment</a>
+    <a href="Account Login.html">Account</a>
+    <a href="index.html">Reports</a>
+    <a href="Admin Page.html">Admin</a>
+</nav>
+
+<main>
+    <div class="section-title">Admin Book Management</div>
+
+    <div class="forms-container">
+        <!-- Update Book Form -->
+        <div class="form-box">
+            <h2>Edit Book Details</h2>
+            <form id="updateBookForm">
+                <label for="bookId1">Book ID</label>
+                <input id="bookId1" name="bookId1" placeholder="Enter Book ID" required type="text">
+
+                <label for="isbn1">ISBN</label>
+                <input id="isbn1" name="isbn1" placeholder="Enter ISBN" required type="text">
+
+                <label for="title1">Title</label>
+                <input id="title1" name="title1" placeholder="Enter Title" required type="text">
+
+                <label for="author1">Author</label>
+                <input id="author1" name="author1" placeholder="Enter Author" required type="text">
+
+                <label for="genre1">Genre</label>
+                <select id="genre1" name="genre1" required>
+                    <option value="">--Select Genre--</option>
+                    <option value="AI">AI</option>
+                    <option value="Fiction">Fiction</option>
+                    <option value="History">History</option>
+                    <option value="NonFiction">Non-Fiction</option>
+                    <option value="Programming">Programming</option>
+                    <option value="science">Science</option>
+                </select>
+
+                <button type="submit">Update</button>
+            </form>
+        </div>
+
+        <!-- Add Book Form -->
+        <div class="form-box">
+            <h2>Add Book</h2>
+            <form id="addBookForm">
+                <label for="bookId2">Book ID</label>
+                <input id="bookId2" name="bookId2" placeholder="Enter Book ID" required type="text">
+
+                <label for="isbn2">ISBN</label>
+                <input id="isbn2" name="isbn2" placeholder="Enter ISBN" required type="text">
+
+                <label for="title2">Title</label>
+                <input id="title2" name="title2" placeholder="Enter Title" required type="text">
+
+                <label for="author2">Author</label>
+                <input id="author2" name="author2" placeholder="Enter Author" required type="text">
+
+                <label for="genre2">Genre</label>
+                <select id="genre2" name="genre2" required>
+                    <option value="">--Select Genre--</option>
+                    <option value="AI">AI</option>
+                    <option value="Fiction">Fiction</option>
+                    <option value="History">History</option>
+                    <option value="NonFiction">Non-Fiction</option>
+                    <option value="Programming">Programming</option>
+                    <option value="science">Science</option>
+                </select>
+
+                <button type="submit">Add</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer>
+    © 2025 City Library
+</footer>
+
+<script>
+    // --- Update Book (PUT) ---
+    document.getElementById("updateBookForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const book = {
+            bookId: document.getElementById("bookId1").value,
+            isbn: document.getElementById("isbn1").value,
+            title: document.getElementById("title1").value,
+            author: document.getElementById("author1").value,
+            genre: document.getElementById("genre1").value
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/api/books/update", {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(book)
+            });
+
+            if (response.ok) {
+                alert("Book details updated successfully!");
+            } else {
+                alert("Update failed. Please check your inputs.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not connect to the server.");
+        }
+    });
+
+    // --- Add Book (POST) ---
+    document.getElementById("addBookForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const book = {
+            bookId: document.getElementById("bookId2").value,
+            isbn: document.getElementById("isbn2").value,
+            title: document.getElementById("title2").value,
+            author: document.getElementById("author2").value,
+            genre: document.getElementById("genre2").value
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/api/books/add", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(book)
+            });
+
+            if (response.ok) {
+                alert("Book added successfully!");
+            } else {
+                alert("Failed to add book. Please check inputs.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not connect to the server.");
+        }
+    });
+</script>
+</body>
+</html>

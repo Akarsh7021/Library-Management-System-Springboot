@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>City Library | Payments and Fines</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        main {
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 30px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+            text-align: left;
+        }
+
+        .payment-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            max-width: 600px;
+            margin: 40px auto;
+        }
+
+        .payment-box label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .payment-box input, .payment-box select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #005f8c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #777;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>City Library</h1>
+</header>
+
+<nav>
+    <a href="Homepage.html">Home</a>
+    <a href="catalog_page.html">Catalog</a>
+    <a href="borrow page.html">Borrow</a>
+    <a href="Place Hold.html">Hold</a>
+    <a href="Payment page.html">Payment</a>
+    <a href="Account Login.html">Account</a>
+    <a href="index.html">Reports</a>
+    <a href="Admin Page.html">Admin</a>
+</nav>
+
+<main>
+    <div class="section-title">Payments and Fines</div>
+
+    <div class="payment-box">
+        <form id="paymentForm">
+            <label for="accountId">Account ID</label>
+            <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
+
+            <label for="outstanding">Outstanding Balance</label>
+            <input id="outstanding" name="outstanding" placeholder="$0.00" readonly type="text">
+
+            <label for="paymentAmount">Payment Amount</label>
+            <input id="paymentAmount" name="paymentAmount" placeholder="Enter amount" required type="number">
+
+            <label for="paymentMethod">Payment Method</label>
+            <select id="paymentMethod" name="paymentMethod" required>
+                <option value="">--Select Method--</option>
+                <option value="cash">Cash</option>
+                <option value="credit">Credit</option>
+                <option value="debit">Debit</option>
+            </select>
+
+            <div class="button-group">
+                <button type="submit">Pay</button>
+                <button id="printReceipt" type="button">Print/Save Receipt</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer>
+    © 2025 City Library
+</footer>
+
+<script>
+    const accountIdInput = document.getElementById("accountId");
+    const outstandingField = document.getElementById("outstanding");
+
+    //  Auto-fetch outstanding balance when user enters Account ID
+    accountIdInput.addEventListener("blur", async () => {
+        const accountId = accountIdInput.value.trim();
+        if (!accountId) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/fines/${accountId}`);
+            if (response.ok) {
+                const data = await response.json();
+                outstandingField.value = `$${data.balance.toFixed(2)}`;
+            } else {
+                outstandingField.value = "Account not found";
+            }
+        } catch (error) {
+            console.error("Error fetching fines:", error);
+            outstandingField.value = "Server error";
+        }
+    });
+
+    //  Submit payment
+    document.getElementById("paymentForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const payment = {
+            accountId: document.getElementById("accountId").value,
+            amount: parseFloat(document.getElementById("paymentAmount").value),
+            method: document.getElementById("paymentMethod").value
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/api/payments", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payment)
+            });
+
+            if (response.ok) {
+                alert("Payment successful!");
+                outstandingField.value = "$0.00";
+                document.getElementById("paymentForm").reset();
+            } else {
+                alert("Payment failed. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error submitting payment:", error);
+            alert("Could not connect to server.");
+        }
+    });
+
+    // Print or Save Receipt
+    //document.getElementById("printReceipt").addEventListener("click", () => {
+    //window.print();
+    //});
+</script>
+<script>
+    document.querySelector('button[type="button"]').addEventListener('click', generateInvoice);
+
+    function generateInvoice() {
+        const accountId = document.getElementById("accountId").value;
+        const paymentAmount = document.getElementById("paymentAmount").value;
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        const outstanding = document.getElementById("outstanding").value || "$0.00";
+
+        if (!accountId || !paymentAmount || !paymentMethod) {
+            alert("Please fill out all payment details before generating a receipt.");
+            return;
+        }
+
+        const today = new Date();
+        const formattedDate = today.toLocaleDateString();
+        const formattedTime = today.toLocaleTimeString();
+
+        // Create a printable invoice window
+        const invoiceWindow = window.open('', '_blank');
+        invoiceWindow.document.write(`
+    <html>
+      <head>
+        <title>Payment Receipt - City Library</title>
+        <style>
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 30px;
+            background-color: #f9fafc;
+            color: #333;
+          }
+          .receipt-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          }
+          h1 {
+            text-align: center;
+            color: #0077b6;
+            margin-bottom: 10px;
+          }
+          .info {
+            text-align: center;
+            font-size: 0.95em;
+            color: #666;
+            margin-bottom: 20px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+          }
+          th {
+            background-color: #0077b6;
+            color: white;
+          }
+          .total {
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.1em;
+          }
+          .footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 30px;
+          }
+          .print-btn {
+            display: block;
+            margin: 20px auto 0;
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+          }
+          .print-btn:hover {
+            background-color: #005f8c;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="receipt-box">
+          <h1>City Library Receipt</h1>
+          <div class="info">
+            <p>Date: ${formattedDate} | Time: ${formattedTime}</p>
+            <p>Transaction ID: ${"INV-" + Math.floor(Math.random() * 90000 + 10000)}</p>
+          </div>
+          <table>
+            <tr><th>Account ID</th><td>${accountId}</td></tr>
+            <tr><th>Payment Method</th><td>${paymentMethod}</td></tr>
+            <tr><th>Outstanding Balance</th><td>${outstanding}</td></tr>
+            <tr><th>Payment Amount</th><td>$${paymentAmount}</td></tr>
+          </table>
+          <p class="total">Total Paid: $${paymentAmount}</p>
+          <div class="footer">
+            <p>Thank you for your payment!</p>
+            <p>City Library • www.citylibrary.ca</p>
+          </div>
+          <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+        </div>
+      </body>
+    </html>
+  `);
+        invoiceWindow.document.close();
+    }
+</script>
+
+</body>
+</html>
