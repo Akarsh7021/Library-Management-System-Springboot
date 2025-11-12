@@ -7,6 +7,8 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "Balance")
 @Data
@@ -18,11 +20,11 @@ public class Balance
     private Integer accountId;
 
     @Column(name = "total_fines")
-    private Integer totalFines;
+    private Long totalFines;
 
     @Column(name = "total_payments")
-    private Integer totalPayments;
+    private BigDecimal totalPayments;
 
     @Column(name = "current_balance")
-    private Integer currentBalance;
+    private BigDecimal currentBalance;
 }
