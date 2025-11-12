@@ -28,4 +28,7 @@ public class Payment
 
     @Column(name = "account_id_Account")
     private Integer accountIdAccount;
+
+    @Column(name = "payment_amount")
+    private Integer paymentAmount;
 }
