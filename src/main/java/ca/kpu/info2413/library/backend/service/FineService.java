@@ -1,12 +1,15 @@
 package ca.kpu.info2413.library.backend.service;
 
-import ca.kpu.info2413.library.backend.model.*;
-import ca.kpu.info2413.library.backend.repository.*;
+import ca.kpu.info2413.library.backend.model.Borrow;
+import ca.kpu.info2413.library.backend.model.Fine;
+import ca.kpu.info2413.library.backend.repository.AccountRepository;
+import ca.kpu.info2413.library.backend.repository.BorrowRepository;
+import ca.kpu.info2413.library.backend.repository.FineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FineService
@@ -14,14 +17,16 @@ public class FineService
     @Autowired
     FineRepository fineRepository;
     @Autowired
-    private AccountRepository accountRepository;
+    AccountRepository accountRepository;
+    @Autowired
+    BorrowRepository borrowRepository;
 
     public List<Fine> findAll()
     {
         return fineRepository.findAll();
     }
 
-    public Optional<Fine> findByFineId(Integer fineId)
+    public List<Fine> findByFineId(Integer fineId)
     {
         return fineRepository.findByFineId(fineId);
     }
@@ -41,19 +46,21 @@ public class FineService
 
     //redo using service later
 
-    public Optional<Fine> findByFineId(Integer fineId)
-    {
-        return fineRepository.findByFineId(fineId);
-    }
-
     public List<Fine> findByBorrowIdBorrow(Integer borrowIdBorrow)
     {
-        return fineRepository.findByBorrowIdBorrow(borrowIdBorow);
+        return fineRepository.findByBorrowIdBorrow(borrowIdBorrow);
     }
     //To search if an account has a fine or list accounts that have fines??
-    public List<Account> findByAccountId(Integer accountId)
+    public List<Fine> findByAccountId(Integer accountId)
     {
-        return accountRepository.findByAccountId(accountId);
+        ArrayList<Fine> fineList = new ArrayList<>();
+
+        for (Borrow b : borrowRepository.findByAccountIdAccount(accountId))
+        {
+            fineList.addAll(fineRepository.findByBorrowIdBorrow(b.getBorrowId()));
+        }
+
+        return fineList;
     }
 
 }

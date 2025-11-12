@@ -11,4 +11,6 @@ public interface FineRepository extends JpaRepository<Fine, Integer>
 
     List<Fine> findByFineId(Integer fineId);
 
+    List<Fine> findByBorrowIdBorrow(Integer borrowIdBorrow);
+
 }

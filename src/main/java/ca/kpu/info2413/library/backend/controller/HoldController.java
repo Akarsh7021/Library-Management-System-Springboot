@@ -1,8 +1,6 @@
 package ca.kpu.info2413.library.backend.controller;
 
-import ca.kpu.info2413.library.backend.model.Account;
 import ca.kpu.info2413.library.backend.model.Hold;
-import ca.kpu.info2413.library.backend.service.AccountService;
 import ca.kpu.info2413.library.backend.service.HoldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,12 +50,6 @@ public class HoldController
 
     /// ///
 
-
-    @GetMapping("/find/book_hold_id/{book_hold_id}")
-    public List<Hold> findByBookHoldId(@PathVariable Integer book_hold_id)
-    {
-        return holdService.findByBookHoldId(book_hold_id);
-    }
 
     @GetMapping("/find/serial_barcode_bookcopy/{serial_barcode_bookcopy}")
     public List<Hold> findBySerialBarcodeBookCopy(@PathVariable Integer serial_barcode_bookcopy)

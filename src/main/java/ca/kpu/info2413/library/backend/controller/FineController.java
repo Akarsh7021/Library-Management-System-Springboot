@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/fine")
 public class FineController
 {
 
     @Autowired
     private FineService fineService;
+
+    @Autowired
+    private AccountService accountService;
 
     @GetMapping
     public List<Fine> findAll()
@@ -51,14 +54,6 @@ public class FineController
     }
 
     /// ///
-
-
-    @GetMapping("/find/fine_id/{fine_id}")
-    public List<Fine> findByFineId(@PathVariable Integer fine_id)
-    {
-        return fineService.findByFineId(fine_id);
-    }
-
     @GetMapping("/find/borrow_id_borrow/{borrow_id_borrow}")
     public List<Fine> findByBorrowIdBorrow(@PathVariable Integer borrow_id_borrow)
     {

@@ -1,12 +1,11 @@
 package ca.kpu.info2413.library.backend.service;
 
-import ca.kpu.info2413.library.backend.model.*;
-import ca.kpu.info2413.library.backend.repository.*;
+import ca.kpu.info2413.library.backend.model.Payment;
+import ca.kpu.info2413.library.backend.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PaymentService
@@ -38,13 +37,7 @@ public class PaymentService
 
 
     //redo using service later
-
-    public Optional<Payment> findByPaymentId(Integer paymentId)
-    {
-        return paymentRepository.findByPaymentId(paymentId);
-    }
-
-    public Optional<Payment> findByAccountIdAccount(Integer account_id_account)
+    public List<Payment> findByAccountIdAccount(Integer account_id_account)
     {
         return paymentRepository.findByAccountIdAccount(account_id_account);
     }
