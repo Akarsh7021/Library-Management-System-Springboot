@@ -1,7 +1,6 @@
 package ca.kpu.info2413.library.backend.repository;
 
 import ca.kpu.info2413.library.backend.model.Account;
-import ca.kpu.info2413.library.backend.model.LibraryCard;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

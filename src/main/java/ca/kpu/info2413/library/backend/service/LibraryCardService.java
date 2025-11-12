@@ -38,8 +38,6 @@ public class LibraryCardService
 
 
     //redo using service later
-
-
     public List<LibraryCard> findByAccountIdAccount(Integer accountIdAccount)
     {
         return libraryCardRepository.findByAccountIdAccount(accountIdAccount);

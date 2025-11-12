@@ -1,12 +1,11 @@
 package ca.kpu.info2413.library.backend.service;
 
-import ca.kpu.info2413.library.backend.model.*;
-import ca.kpu.info2413.library.backend.repository.*;
+import ca.kpu.info2413.library.backend.model.Borrow;
+import ca.kpu.info2413.library.backend.repository.BorrowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BorrowService

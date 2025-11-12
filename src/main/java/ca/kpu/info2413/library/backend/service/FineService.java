@@ -45,11 +45,11 @@ public class FineService
 
 
     //redo using service later
-
     public List<Fine> findByBorrowIdBorrow(Integer borrowIdBorrow)
     {
         return fineRepository.findByBorrowIdBorrow(borrowIdBorrow);
     }
+
     //To search if an account has a fine or list accounts that have fines??
     public List<Fine> findByAccountId(Integer accountId)
     {
