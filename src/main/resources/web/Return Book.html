@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>City Library | Admin - Return Book</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        main {
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 30px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+            text-align: left;
+        }
+
+        .form-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: left;
+        }
+
+        .form-box h2 {
+            color: #0077b6;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-box label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .form-box button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .form-box button:hover {
+            background-color: #005f8c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #777;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>City Library</h1>
+</header>
+
+<nav>
+    <a href="Homepage.html">Home</a>
+    <a href="catalog_page.html">Catalog</a>
+    <a href="borrow page.html">Borrow</a>
+    <a href="Place Hold.html">Hold</a>
+    <a href="Payment page.html">Payment</a>
+    <a href="Account Login.html">Account</a>
+    <a href="index.html">Reports</a>
+    <a href="Admin Page.html">Admin</a>
+</nav>
+
+<main>
+    <div class="section-title">Admin Panel</div>
+
+    <div class="form-box">
+        <h2>Return a Book</h2>
+        <form id="returnBookForm">
+            <label for="bookId">Book ID</label>
+            <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="text">
+
+            <label for="isbn">ISBN</label>
+            <input id="isbn" name="isbn" placeholder="Enter ISBN" required type="text">
+
+            <label for="accountId">Account ID</label>
+            <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
+
+            <button type="submit">Return Book</button>
+        </form>
+    </div>
+</main>
+
+<footer>
+    © 2025 City Library
+</footer>
+
+<script>
+    document.getElementById("returnBookForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const bookId = document.getElementById("bookId").value.trim();
+        const isbn = document.getElementById("isbn").value.trim();
+        const accountId = document.getElementById("accountId").value.trim();
+
+        if (!bookId || !isbn || !accountId) {
+            alert("Please fill out all fields.");
+            return;
+        }
+
+        const returnData = {
+            bookId: bookId,
+            isbn: isbn,
+            accountId: accountId
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/api/returns", {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(returnData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(`Book returned successfully! ${result.message || ""}`);
+                e.target.reset();
+            } else if (response.status === 404) {
+                alert("Book or account not found. Please check the details.");
+            } else {
+                alert("Unable to return the book. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not connect to the server.");
+        }
+    });
+</script>
+</body>
+</html>

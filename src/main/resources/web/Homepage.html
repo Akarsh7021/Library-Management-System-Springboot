@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>City Library | Home</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('library-bg.jpg') no-repeat center center/cover;
+            height: 100vh;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
+
+        nav {
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        .hero {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            backdrop-filter: brightness(0.9);
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .search-box h2 {
+            color: #0077b6;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .search-box p {
+            margin: 0 0 15px;
+            font-size: 0.9em;
+            color: #444;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 80px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #0077b6;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background-color: #005f8c;
+        }
+
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-form input[type="text"] {
+            flex: 1;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>City Library</h1>
+</header>
+
+<nav>
+    <a href="Homepage.html">Home</a>
+    <a href="catalog_page.html">Catalog</a>
+    <a href="borrow page.html">Borrow/Return</a>
+    <a href="Place Hold.html">Holds</a>
+    <a href="Payment page.html">Payments</a>
+    <a href="Account Login.html">Account</a>
+</nav>
+
+<div class="hero">
+    <div class="search-box">
+        <p>Good evening</p>
+        <h2>Find Your Next Book</h2>
+        <form class="search-form" onsubmit="searchBook(event)">
+            <input id="searchQuery" placeholder="Title, Author, or ISBN" type="text"/>
+            <button type="submit">Search</button>
+        </form>
+        <div class="actions">
+            <button onclick="goToPage('catalog_page.html')">Browse Catalog</button>
+            <button onclick="goToPage('Account Login.html')">My Account</button>
+        </div>
+    </div>
+</div>
+
+<footer>© 2025 City Library</footer>
+
+<script>
+    // Function to simulate sending a search request to the backend
+    function searchBook(event) {
+        event.preventDefault(); // Prevent page reload
+        const query = document.getElementById("searchQuery").value.trim();
+
+        if (!query) {
+            alert("Please enter a title, author, or ISBN to search.");
+            return;
+        }
+
+        console.log("Preparing to send search query:", query);
+
+        // Placeholder fetch request (will connect when API exists)
+        fetch("http://localhost:8080/api/books/search?query=" + encodeURIComponent(query))
+            .then(response => {
+                console.log("Received response:", response);
+                alert("Search request sent successfully! (This will display results once API is ready)");
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("There was a problem connecting to the server.");
+            });
+    }
+
+    // Simple navigation function for buttons
+    function goToPage(page) {
+        window.location.href = page;
+    }
+</script>
+</body>
+</html>

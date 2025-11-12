@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>City Library | Place Hold</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        main {
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 30px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+            text-align: left;
+        }
+
+        .forms {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .hold-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            width: 350px;
+        }
+
+        .hold-box h2 {
+            color: #0077b6;
+            margin-bottom: 20px;
+        }
+
+        .hold-box label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .hold-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .hold-box button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .hold-box button:hover {
+            background-color: #005f8c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #777;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>City Library</h1>
+</header>
+
+<nav>
+    <a href="Homepage.html">Home</a>
+    <a href="catalog_page.html">Catalog</a>
+    <a href="borrow page.html">Borrow</a>
+    <a href="Place Hold.html">Hold</a>
+    <a href="Payment page.html">Payment</a>
+    <a href="Account Login.html">Account</a>
+    <a href="index.html">Reports</a>
+    <a href="Admin Page.html">Admin</a>
+</nav>
+
+<main>
+    <div class="section-title">Place Hold</div>
+
+    <div class="forms">
+        <!-- Place Hold -->
+        <div class="hold-box">
+            <h2>Place Hold</h2>
+            <form id="placeHoldForm">
+                <label for="bookId">Book ID</label>
+                <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="text">
+
+                <label for="accountId">Account ID</label>
+                <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
+
+                <button type="submit">Place Hold</button>
+            </form>
+        </div>
+
+        <!-- Cancel Hold -->
+        <div class="hold-box">
+            <h2>Cancel Hold</h2>
+            <form id="cancelHoldForm">
+                <label for="cancelBookId">Book ID</label>
+                <input id="cancelBookId" name="cancelBookId" placeholder="Enter Book ID" required type="text">
+
+                <label for="cancelAccountId">Account ID</label>
+                <input id="cancelAccountId" name="cancelAccountId" placeholder="Enter Account ID" required type="text">
+
+                <button type="submit">Cancel Hold</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer>
+    © 2025 City Library
+</footer>
+
+<script>
+    // --- Place Hold ---
+    document.getElementById("placeHoldForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const holdData = {
+            bookId: document.getElementById("bookId").value.trim(),
+            accountId: document.getElementById("accountId").value.trim()
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/api/holds", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(holdData)
+            });
+
+            if (response.ok) {
+                alert("Hold placed successfully!");
+                e.target.reset();
+            } else {
+                alert("Failed to place hold. Please check your inputs or book availability.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not connect to the server.");
+        }
+    });
+
+    // --- Cancel Hold ---
+    document.getElementById("cancelHoldForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const bookId = document.getElementById("cancelBookId").value.trim();
+        const accountId = document.getElementById("cancelAccountId").value.trim();
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/holds?bookId=${bookId}&accountId=${accountId}`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                alert("Hold cancelled successfully!");
+                e.target.reset();
+            } else {
+                alert("Failed to cancel hold. Please check if the hold exists.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not connect to the server.");
+        }
+    });
+</script>
+</body>
+</html>
