@@ -1,10 +1,6 @@
 package ca.kpu.info2413.library.backend.controller;
 
-import ca.kpu.info2413.library.backend.model.Account;
-import ca.kpu.info2413.library.backend.model.Author;
 import ca.kpu.info2413.library.backend.model.BorrowRenewalDate;
-import ca.kpu.info2413.library.backend.service.AccountService;
-import ca.kpu.info2413.library.backend.service.AuthorService;
 import ca.kpu.info2413.library.backend.service.BorrowRenewalDateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +26,7 @@ public class BorrowRenewalDateController
     @GetMapping("/{borrow_id_borrow}")
     public List<BorrowRenewalDate> findByBorrowIdBorrow(@PathVariable Integer borrow_id_borrow)
     {
-        return BorrowRenewalDateService.findByBorrowIdBorrow(borrow_id_borrow);
+        return borrowRenewalDateService.findByBorrowIdBorrow(borrow_id_borrow);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -50,7 +46,7 @@ public class BorrowRenewalDateController
     @DeleteMapping("/{borrow_id_borrow}")
     public void deleteByBorrowIdBorrow(@PathVariable Integer borrow_id_borrow)
     {
-        BorrowRenewalDateService.deleteByBorrowIdBorrow(borrow_id_borrow);
+        borrowRenewalDateService.deleteByBorrowIdBorrow(borrow_id_borrow);
     }
 
     /// ///

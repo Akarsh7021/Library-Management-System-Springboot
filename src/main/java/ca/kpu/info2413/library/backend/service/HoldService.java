@@ -1,12 +1,11 @@
 package ca.kpu.info2413.library.backend.service;
 
-import ca.kpu.info2413.library.backend.model.*;
-import ca.kpu.info2413.library.backend.repository.*;
+import ca.kpu.info2413.library.backend.model.Hold;
+import ca.kpu.info2413.library.backend.repository.HoldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class HoldService
@@ -20,7 +19,7 @@ public class HoldService
         return holdRepository.findAll();
     }
 
-    public Optional<Hold> findByBookHoldId(Integer bookHoldId)
+    public List<Hold> findByBookHoldId(Integer bookHoldId)
     {
         return holdRepository.findByBookHoldId(bookHoldId);
     }
@@ -36,23 +35,14 @@ public class HoldService
     }
 
     /// ////////////////////
-
-
-    //redo using service later
-
-    public Optional<Hold> findByBookHoldId(Integer bookHoldId)
-    {
-        return holdRepository.findByBookHoldId(bookHoldId);
-    }
-
-    public List<Hold> findBySerialBarcodeBookCopy(String serialBarcodeBookCopy)
+    public List<Hold> findBySerialBarcodeBookCopy(Integer serialBarcodeBookCopy)
     {
         return holdRepository.findBySerialBarcodeBookCopy(serialBarcodeBookCopy);
     }
 
     public List<Hold> findByAccountId(Integer accountId)
     {
-        return holdRepository.findByAccountId(accountId);
+        return holdRepository.findByAccountIdAccount(accountId);
     }
 
 }

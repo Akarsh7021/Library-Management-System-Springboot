@@ -11,4 +11,7 @@ public interface HoldRepository extends JpaRepository<Hold, Integer>
 
     List<Hold> findByBookHoldId(Integer bookHoldId);
 
+    List<Hold> findByAccountIdAccount(Integer accountId);
+
+    List<Hold> findBySerialBarcodeBookCopy(Integer serialBarcodeBookCopy);
 }

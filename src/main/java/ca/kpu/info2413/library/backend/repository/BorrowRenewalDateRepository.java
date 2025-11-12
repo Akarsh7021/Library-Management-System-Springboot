@@ -14,4 +14,5 @@ public interface BorrowRenewalDateRepository extends JpaRepository<BorrowRenewal
 
     List<BorrowRenewalDate> findByBorrowIdBorrow(Integer borrowIdBorrow);
 
+    void deleteByBorrowIdBorrow(Integer borrowIdBorrow);
 }
