@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -30,5 +31,5 @@ public class Payment
     private Integer accountIdAccount;
 
     @Column(name = "payment_amount")
-    private Integer paymentAmount;
+    private BigDecimal paymentAmount;
 }
