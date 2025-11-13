@@ -1,4 +1,4 @@
-package ca.kpu.info2413.library.backend;
+package ca.kpu.info2413.library.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

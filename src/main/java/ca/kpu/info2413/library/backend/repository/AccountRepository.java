@@ -16,4 +16,7 @@ public interface AccountRepository extends JpaRepository<Account, Integer>
     List<Account> findByPhoneNumber(String phoneNumber);
 
     List<Account> findByNotificationEmail(String notificationEmail);
+
+    List<Account> findByNotificationEmailIgnoreCase(String notificationEmail);
+
 }
