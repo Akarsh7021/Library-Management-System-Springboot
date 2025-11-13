@@ -1,26 +1,29 @@
 package ca.kpu.info2413.library.backend.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Borrow")
+@Table(name = "Borrow") // use lowercase table name for PostgreSQL
 @Data
 @NoArgsConstructor
-public class Borrow
-{
+@AllArgsConstructor
+public class Borrow {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "borrow_id")
     private Integer borrowId;
 
-    private String status;
+    @Column(name = "status")
+    private String status = "Borrowed"; // default when created
 
     @Column(name = "borrowed_date")
-    private LocalDate borrowedDate;
+    private LocalDate borrowedDate = LocalDate.now();
 
     @Column(name = "returned_date")
     private LocalDate returnedDate;
