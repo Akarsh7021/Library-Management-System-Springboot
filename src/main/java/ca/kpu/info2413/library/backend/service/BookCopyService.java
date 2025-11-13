@@ -14,9 +14,10 @@ import java.util.Optional;
 public class BookCopyService
 {
     @Autowired
-    BookCopyRepository bookCopyRepository;
+    private BookCopyRepository bookCopyRepository;
+
     @Autowired
-    PublicationRepository publicationRepository;
+    private PublicationRepository publicationRepository;
 
     public List<BookCopy> findAll()
     {
@@ -38,16 +39,19 @@ public class BookCopyService
         bookCopyRepository.deleteById(serialBarcode);
     }
 
-    /// ////////////////////
-
-
+    // Find by Publication
     public List<BookCopy> findByPublication(Publication publication)
     {
         return bookCopyRepository.findByPublication(publication);
     }
 
+    // Find by ISBN13
     public List<BookCopy> findByIsbn13(Integer isbn13)
     {
-        return findByPublication(publicationRepository.findByIsbn13(isbn13).getFirst());
+        Optional<Publication> publicationOpt = publicationRepository.findById(isbn13);
+        if (publicationOpt.isEmpty()) {
+            throw new RuntimeException("Publication not found for ISBN: " + isbn13);
+        }
+        return findByPublication(publicationOpt.get());
     }
 }
