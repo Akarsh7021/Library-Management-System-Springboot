@@ -132,6 +132,12 @@
             text-decoration: underline;
         }
 
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -163,7 +169,19 @@
     <div class="section-title">Account / Info</div>
 
     <div class="login-box">
-        <form id="loginForm">
+
+        <!-- Display Spring Security error if login failed -->
+        <div class="error-message">
+            <!-- Check if URL contains ?error=true -->
+            <script>
+                const params = new URLSearchParams(window.location.search);
+                if (params.get("error") === "true") {
+                    document.write("Invalid email or password.");
+                }
+            </script>
+        </div>
+
+        <form id="loginForm" method="post" action="/login">
             <label for="username">Username</label>
             <input id="username" name="username" placeholder="Enter your username" required type="text">
 
@@ -171,7 +189,7 @@
             <input id="password" name="password" placeholder="Enter your password" required type="password">
 
             <div class="remember">
-                <input id="remember" name="remember" type="checkbox">
+                <input id="remember" name="remember-me" type="checkbox">
                 <label for="remember">Remember me</label>
             </div>
 
@@ -189,40 +207,5 @@
     © 2025 City Library
 </footer>
 
-
-
-<script>
-    document.getElementById("loginForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const email = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-
-        const loginData = { notificationEmail: email, password: password };
-
-        try {
-            const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(loginData),
-                credentials: 'same-origin' // IMPORTANT: allow cookies (JSESSIONID) to be stored
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                alert("Login successful!");
-                // now you are authenticated for subsequent requests (cookies set)
-                window.location.href = "/HomePage.html";
-            } else if (response.status === 401) {
-                alert("Invalid email or password.");
-            } else {
-                alert("Login failed. Please try again.");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Could not connect to server.");
-        }
-    });
-</script>
 </body>
 </html>

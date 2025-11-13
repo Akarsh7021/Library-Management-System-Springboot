@@ -1,62 +1,80 @@
 package ca.kpu.info2413.library.backend.config;
 
-import ca.kpu.info2413.library.backend.security.AccountUserDetailsService;
+import ca.kpu.info2413.library.backend.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder; // for plain-text password
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Configuration
 public class SecurityConfig {
 
-    private final AccountUserDetailsService userDetailsService;
-
-    public SecurityConfig(AccountUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // disable CSRF for simplicity in development
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/account/api/login", "/AccountLogin.html", "/css/**", "/js/**").permitAll()
+                        .requestMatchers(
+                                "/AccountLogin.html",
+                                "/AccountLogin", // if needed
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/PasswordRecoveryPage.html",
+                                "/RegisterationPage.html",
+                                "/register"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .authenticationProvider(authProvider) // register the DAO provider
                 .formLogin(form -> form
-                        .loginProcessingUrl("/account/api/login")
-                        .usernameParameter("notificationEmail")
+                        .loginPage("/AccountLogin.html")    // your custom page
+                        .loginProcessingUrl("/login")      // must match form action
+                        .usernameParameter("username")     // form input name
                         .passwordParameter("password")
                         .defaultSuccessUrl("/HomePage.html", true)
+                        .failureUrl("/AccountLogin.html?error=true")
                         .permitAll()
                 )
-                .logout(logout -> logout.permitAll())
-                .httpBasic(httpBasic -> {}); // enable HTTP Basic if needed
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/AccountLogin.html?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                )
+                .csrf(csrf -> csrf.disable()); // keep disabled for testing; enable later for production
 
         return http.build();
     }
 
+    // DaoAuthenticationProvider using our CustomUserDetailsService and provided PasswordEncoder
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder()); // for plain-text
-        return authProvider;
+    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
 
+    // Plain-text password encoder for now (development only).
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // NoOp for plain-text passwords (only for development!)
-        return NoOpPasswordEncoder.getInstance();
-    }
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return rawPassword.toString();
+            }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return rawPassword == null ? false : rawPassword.toString().equals(encodedPassword);
+            }
+        };
     }
 }
