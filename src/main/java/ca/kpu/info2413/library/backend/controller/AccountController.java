@@ -5,6 +5,9 @@ import ca.kpu.info2413.library.backend.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.List;
 
@@ -73,5 +76,48 @@ public class AccountController
     public List<Account> findByPhoneNumber(@PathVariable String phone_number)
     {
         return accountService.findByPhoneNumber(phone_number);
+    }
+
+
+    @PostMapping("/api/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+
+        String email = credentials.get("notificationEmail");
+        String password = credentials.get("password");
+
+        if (email == null || password == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Email and password must be provided.");
+        }
+
+        email = email.trim();
+        password = password.trim();
+
+        System.out.println("Login attempt: email='" + email + "', password='" + password + "'");
+
+        List<Account> accounts = accountService.findByNotificationEmail(email);
+
+        if (accounts.isEmpty()) {
+            System.out.println("No account found for email: " + email);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+        }
+
+        Account account = accounts.get(0);
+        String dbPassword = account.getPasswordHash() != null ? account.getPasswordHash().trim() : "";
+
+        System.out.println("DB password: '" + dbPassword + "'");
+
+        if (!dbPassword.equals(password)) {
+            System.out.println("Password mismatch");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("accountId", account.getAccountId());
+        response.put("fullName", account.getFullName());
+        response.put("email", account.getNotificationEmail());
+        response.put("accountType", account.getAccountType());
+
+        return ResponseEntity.ok(response);
     }
 }
