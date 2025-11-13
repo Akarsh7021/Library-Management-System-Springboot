@@ -172,38 +172,55 @@
     function borrowBook(event) {
         event.preventDefault(); // Prevents page reload
 
-        const bookId = document.getElementById("bookId").value.trim();
-        const accountId = document.getElementById("accountId").value.trim();
+        const bookIdRaw = document.getElementById("bookId").value.trim();
+        const accountIdRaw = document.getElementById("accountId").value.trim();
         const dueDate = document.getElementById("dueDate").value;
 
-        if (!bookId || !accountId || !dueDate) {
+        if (!bookIdRaw || !accountIdRaw || !dueDate) {
             alert("Please fill out all fields before submitting.");
             return;
         }
 
-        // Log collected data for debugging
-        console.log("Borrow Request:", {bookId, accountId, dueDate});
+        // Convert to integers
+        const bookId = parseInt(bookIdRaw, 10);
+        const accountId = parseInt(accountIdRaw, 10);
 
-        // Create request payload
+        if (isNaN(bookId) || isNaN(accountId)) {
+            alert("Book ID and Account ID must be valid integers.");
+            return;
+        }
+
+        // Log collected and converted data for debugging
+        console.log("Borrow Request:", { bookId, accountId, dueDate });
+
+        // Create request payload (matching backend entity field names)
         const requestData = {
-            bookId: bookId,
-            accountId: accountId,
+            serialBarcodeBookCopy: bookId,
+            accountIdAccount: accountId,
             dueDate: dueDate
         };
 
-        // Simulated fetch call to backend API
+        console.log("Payload sent to server:", requestData);
+
+        // Fetch call to backend API
         fetch("http://localhost:8080/api/borrow", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(requestData)
         })
             .then(response => {
-                console.log("Response from server:", response);
-                alert("Borrow request sent! (This will update records when the backend is ready)");
+                if (!response.ok) {
+                    throw new Error(`Server responded with status ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Response from server:", data);
+                alert("Borrow request successfully sent!");
             })
             .catch(error => {
                 console.error("Error:", error);
-                alert("Unable to connect to server.");
+                alert("Unable to connect to server or request failed.");
             });
 
         // Reset form after submission
