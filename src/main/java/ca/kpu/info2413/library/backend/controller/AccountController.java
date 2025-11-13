@@ -78,39 +78,52 @@ public class AccountController
         return accountService.findByPhoneNumber(phone_number);
     }
 
-
     @PostMapping("/api/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
 
         String email = credentials.get("notificationEmail");
         String password = credentials.get("password");
 
+        // Basic validation
         if (email == null || password == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Email and password must be provided.");
         }
 
+        // Trim input to remove hidden spaces
         email = email.trim();
         password = password.trim();
 
-        System.out.println("Login attempt: email='" + email + "', password='" + password + "'");
+        System.out.println("=== Login Attempt ===");
+        System.out.println("Input email: '" + email + "'");
+        System.out.println("Input password: '" + password + "'");
 
+        // Fetch accounts from database
         List<Account> accounts = accountService.findByNotificationEmail(email);
+        System.out.println("Accounts found for email '" + email + "': " + accounts.size());
 
         if (accounts.isEmpty()) {
             System.out.println("No account found for email: " + email);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid email or password.");
         }
 
+        // Pick the first account
         Account account = accounts.get(0);
+
+        // Handle null or extra spaces in DB
         String dbPassword = account.getPasswordHash() != null ? account.getPasswordHash().trim() : "";
+        System.out.println("DB password (trimmed): '" + dbPassword + "'");
 
-        System.out.println("DB password: '" + dbPassword + "'");
-
+        // Compare passwords
         if (!dbPassword.equals(password)) {
-            System.out.println("Password mismatch");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+            System.out.println("Password mismatch for email: " + email);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid email or password.");
         }
+
+        // Successful login
+        System.out.println("Login successful for email: " + email);
 
         Map<String, Object> response = new HashMap<>();
         response.put("accountId", account.getAccountId());
@@ -120,4 +133,5 @@ public class AccountController
 
         return ResponseEntity.ok(response);
     }
+
 }

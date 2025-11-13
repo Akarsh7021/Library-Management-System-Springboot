@@ -213,8 +213,10 @@
                 // window.location.href = "HomePage.html"; // Optional redirect
             } else if (response.status === 401) {
                 alert("Invalid email or password.");
+                console.log(response);
             } else {
                 alert("Login failed. Please try again.");
+                console.log(response);
             }
         } catch (error) {
             console.error("Error:", error);
