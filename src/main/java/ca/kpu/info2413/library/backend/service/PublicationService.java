@@ -52,6 +52,7 @@ public class PublicationService {
                 .collect(Collectors.toList());
     }
 
+    // --- Unified search for catalog buttons ---
     public List<PublicationDTO> search(String type, String query) {
         if (type == null) type = "book";
         switch (type.toLowerCase()) {
@@ -67,7 +68,24 @@ public class PublicationService {
         }
     }
 
-    // Helper: convert entity -> DTO (safe for JSON)
+    // --- Homepage combined search: title, author, or ISBN ---
+    public List<PublicationDTO> searchHomepage(String query) {
+        String lowerQuery = query.toLowerCase();
+
+        return publicationRepository.findAllFetchAuthors()
+                .stream()
+                .filter(pub ->
+                        (pub.getTitle() != null && pub.getTitle().toLowerCase().contains(lowerQuery)) ||
+                                (pub.getPublicationAuthors() != null &&
+                                        pub.getPublicationAuthors().stream()
+                                                .anyMatch(pa -> pa.getAuthor() != null &&
+                                                        pa.getAuthor().getAuthorName().toLowerCase().contains(lowerQuery))) ||
+                                (pub.getIsbn13() != null && pub.getIsbn13().toString().contains(lowerQuery))
+                )
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     private PublicationDTO toDTO(Publication p) {
         List<String> authors = List.of();
         if (p.getPublicationAuthors() != null) {
@@ -89,7 +107,6 @@ public class PublicationService {
         );
     }
 
-    // Save/delete (optional)
     public Publication save(Publication publication) {
         return publicationRepository.save(publication);
     }

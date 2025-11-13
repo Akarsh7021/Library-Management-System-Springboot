@@ -41,12 +41,18 @@ public class PublicationController {
         publicationService.deleteByIsbn13(isbn13);
     }
 
-    // unified search endpoint: type = "book" | "author" | "genre"
+    // --- Catalog button search ---
     @GetMapping("/search")
     public List<PublicationDTO> searchPublications(
             @RequestParam(defaultValue = "book") String type,
             @RequestParam String query
     ) {
         return publicationService.search(type, query);
+    }
+
+    // --- Homepage combined search ---
+    @GetMapping("/searchHomepage")
+    public List<PublicationDTO> searchHomepage(@RequestParam String query) {
+        return publicationService.searchHomepage(query);
     }
 }
