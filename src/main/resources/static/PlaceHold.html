@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>City Library | Borrow</title>
+    <title>City Library | Place Hold</title>
     <style>
         body {
             margin: 0;
@@ -63,26 +63,28 @@
             text-align: left;
         }
 
-        .form-container {
+        .forms {
             display: flex;
             justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
             margin-top: 40px;
         }
 
-        .borrow-box {
+        .hold-box {
             background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 30px;
-            width: 400px;
+            width: 350px;
         }
 
-        .borrow-box h2 {
+        .hold-box h2 {
             color: #0077b6;
             margin-bottom: 20px;
         }
 
-        .borrow-box label {
+        .hold-box label {
             display: block;
             text-align: left;
             margin-bottom: 5px;
@@ -90,7 +92,7 @@
             color: #333;
         }
 
-        .borrow-box input {
+        .hold-box input {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
@@ -100,7 +102,7 @@
             outline: none;
         }
 
-        .borrow-box button {
+        .hold-box button {
             background-color: #0077b6;
             color: white;
             border: none;
@@ -108,9 +110,10 @@
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s;
+            width: 100%;
         }
 
-        .borrow-box button:hover {
+        .hold-box button:hover {
             background-color: #005f8c;
         }
 
@@ -131,33 +134,45 @@
 </header>
 
 <nav>
-    <a href="Homepage.html">Home</a>
-    <a href="catalog_page.html">Catalog</a>
-    <a href="borrow page.html">Borrow</a>
-    <a href="Place Hold.html">Hold</a>
-    <a href="Payment page.html">Payment</a>
-    <a href="Account Login.html">Account</a>
-    <a href="index.html">Reports</a>
-    <a href="Admin Page.html">Admin</a>
+    <a href="HomePage.html">Home</a>
+    <a href="CatalogPage.html">Catalog</a>
+    <a href="BorrowPage.html">Borrow</a>
+    <a href="PlaceHold.html">Hold</a>
+    <a href="PaymentPage.html">Payment</a>
+    <a href="AccountLogin.html">Account</a>
+    <a href="LibraryReportsDashboard.html">Reports</a>
+    <a href="AdminPage.html">Admin</a>
 </nav>
 
 <main>
-    <div class="section-title">Borrow A Book</div>
+    <div class="section-title">Place Hold</div>
 
-    <div class="form-container">
-        <div class="borrow-box">
-            <h2>Borrow Book</h2>
-            <form id="borrowForm" onsubmit="borrowBook(event)">
+    <div class="forms">
+        <!-- Place Hold -->
+        <div class="hold-box">
+            <h2>Place Hold</h2>
+            <form id="placeHoldForm">
                 <label for="bookId">Book ID</label>
                 <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="text">
 
                 <label for="accountId">Account ID</label>
                 <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
 
-                <label for="dueDate">Due Date</label>
-                <input id="dueDate" name="dueDate" required type="date">
+                <button type="submit">Place Hold</button>
+            </form>
+        </div>
 
-                <button type="submit">Borrow</button>
+        <!-- Cancel Hold -->
+        <div class="hold-box">
+            <h2>Cancel Hold</h2>
+            <form id="cancelHoldForm">
+                <label for="cancelBookId">Book ID</label>
+                <input id="cancelBookId" name="cancelBookId" placeholder="Enter Book ID" required type="text">
+
+                <label for="cancelAccountId">Account ID</label>
+                <input id="cancelAccountId" name="cancelAccountId" placeholder="Enter Account ID" required type="text">
+
+                <button type="submit">Cancel Hold</button>
             </form>
         </div>
     </div>
@@ -168,47 +183,57 @@
 </footer>
 
 <script>
-    // --- Function to handle Borrow Book form submission ---
-    function borrowBook(event) {
-        event.preventDefault(); // Prevents page reload
+    // --- Place Hold ---
+    document.getElementById("placeHoldForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-        const bookId = document.getElementById("bookId").value.trim();
-        const accountId = document.getElementById("accountId").value.trim();
-        const dueDate = document.getElementById("dueDate").value;
-
-        if (!bookId || !accountId || !dueDate) {
-            alert("Please fill out all fields before submitting.");
-            return;
-        }
-
-        // Log collected data for debugging
-        console.log("Borrow Request:", {bookId, accountId, dueDate});
-
-        // Create request payload
-        const requestData = {
-            bookId: bookId,
-            accountId: accountId,
-            dueDate: dueDate
+        const holdData = {
+            bookId: document.getElementById("bookId").value.trim(),
+            accountId: document.getElementById("accountId").value.trim()
         };
 
-        // Simulated fetch call to backend API
-        fetch("http://localhost:8080/api/borrow", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(requestData)
-        })
-            .then(response => {
-                console.log("Response from server:", response);
-                alert("Borrow request sent! (This will update records when the backend is ready)");
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("Unable to connect to server.");
+        try {
+            const response = await fetch("http://localhost:8080/api/holds", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(holdData)
             });
 
-        // Reset form after submission
-        document.getElementById("borrowForm").reset();
-    }
+            if (response.ok) {
+                alert("Hold placed successfully!");
+                e.target.reset();
+            } else {
+                alert("Failed to place hold. Please check your inputs or book availability.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not connect to the server.");
+        }
+    });
+
+    // --- Cancel Hold ---
+    document.getElementById("cancelHoldForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const bookId = document.getElementById("cancelBookId").value.trim();
+        const accountId = document.getElementById("cancelAccountId").value.trim();
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/holds?bookId=${bookId}&accountId=${accountId}`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                alert("Hold cancelled successfully!");
+                e.target.reset();
+            } else {
+                alert("Failed to cancel hold. Please check if the hold exists.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not connect to the server.");
+        }
+    });
 </script>
 </body>
 </html>

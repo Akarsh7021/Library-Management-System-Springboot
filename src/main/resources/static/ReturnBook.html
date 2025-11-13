@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>City Library | Account / Info</title>
+    <title>City Library | Admin - Return Book</title>
     <style>
         body {
             margin: 0;
@@ -63,24 +63,31 @@
             text-align: left;
         }
 
-        .login-box {
+        .form-box {
             background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 30px;
-            max-width: 450px;
-            margin: 40px auto;
+            max-width: 400px;
+            margin: 50px auto;
             text-align: left;
         }
 
-        .login-box label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
+        .form-box h2 {
+            color: #0077b6;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
-        .login-box input[type="text"],
-        .login-box input[type="password"] {
+        .form-box label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-box input {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
@@ -90,18 +97,7 @@
             outline: none;
         }
 
-        .login-box .remember {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .login-box .remember label {
-            margin-left: 8px;
-            font-weight: normal;
-        }
-
-        .login-box button {
+        .form-box button {
             background-color: #0077b6;
             color: white;
             border: none;
@@ -110,26 +106,10 @@
             cursor: pointer;
             transition: background-color 0.2s;
             width: 100%;
-            font-size: 1em;
         }
 
-        .login-box button:hover {
+        .form-box button:hover {
             background-color: #005f8c;
-        }
-
-        .login-links {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 0.95em;
-        }
-
-        .login-links a {
-            color: #0077b6;
-            text-decoration: none;
-        }
-
-        .login-links a:hover {
-            text-decoration: underline;
         }
 
         footer {
@@ -149,39 +129,33 @@
 </header>
 
 <nav>
-    <a href="Homepage.html">Home</a>
-    <a href="catalog_page.html">Catalog</a>
-    <a href="borrow page.html">Borrow</a>
-    <a href="Place Hold.html">Hold</a>
-    <a href="Payment page.html">Payment</a>
-    <a href="Account Login.html">Account</a>
-    <a href="index.html">Reports</a>
-    <a href="Admin Page.html">Admin</a>
+    <a href="HomePage.html">Home</a>
+    <a href="CatalogPage.html">Catalog</a>
+    <a href="BorrowPage.html">Borrow</a>
+    <a href="PlaceHold.html">Hold</a>
+    <a href="PaymentPage.html">Payment</a>
+    <a href="AccountLogin.html">Account</a>
+    <a href="LibraryReportsDashboard.html">Reports</a>
+    <a href="AdminPage.html">Admin</a>
 </nav>
 
 <main>
-    <div class="section-title">Account / Info</div>
+    <div class="section-title">Admin Panel</div>
 
-    <div class="login-box">
-        <form id="loginForm">
-            <label for="username">Username</label>
-            <input id="username" name="username" placeholder="Enter your username" required type="text">
+    <div class="form-box">
+        <h2>Return a Book</h2>
+        <form id="returnBookForm">
+            <label for="bookId">Book ID</label>
+            <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="text">
 
-            <label for="password">Password</label>
-            <input id="password" name="password" placeholder="Enter your password" required type="password">
+            <label for="isbn">ISBN</label>
+            <input id="isbn" name="isbn" placeholder="Enter ISBN" required type="text">
 
-            <div class="remember">
-                <input id="remember" name="remember" type="checkbox">
-                <label for="remember">Remember me</label>
-            </div>
+            <label for="accountId">Account ID</label>
+            <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
 
-            <button type="submit">Login</button>
+            <button type="submit">Return Book</button>
         </form>
-
-        <div class="login-links">
-            <p>Forgot Password? Please <a href="Password Recovery Page.html">click here</a></p>
-            <p>Don't have an account? Please <a href="Registeration Page.html">register</a></p>
-        </div>
     </div>
 </main>
 
@@ -190,33 +164,43 @@
 </footer>
 
 <script>
-    // Handle login form submission
-    document.getElementById("loginForm").addEventListener("submit", async function (e) {
-        e.preventDefault(); // Prevent form reload
+    document.getElementById("returnBookForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
+        const bookId = document.getElementById("bookId").value.trim();
+        const isbn = document.getElementById("isbn").value.trim();
+        const accountId = document.getElementById("accountId").value.trim();
 
-        const loginData = {username, password};
+        if (!bookId || !isbn || !accountId) {
+            alert("Please fill out all fields.");
+            return;
+        }
+
+        const returnData = {
+            bookId: bookId,
+            isbn: isbn,
+            accountId: accountId
+        };
 
         try {
-            // Send POST request to backend API
-            const response = await fetch("http://localhost:8080/api/login", {
-                method: "POST",
+            const response = await fetch("http://localhost:8080/api/returns", {
+                method: "PUT",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(loginData)
+                body: JSON.stringify(returnData)
             });
 
             if (response.ok) {
-                const data = await response.json();
-                alert("Login successful! Welcome " + data.username);
-                // window.location.href = "dashboard.html"; // Optional redirect
+                const result = await response.json();
+                alert(`Book returned successfully! ${result.message || ""}`);
+                e.target.reset();
+            } else if (response.status === 404) {
+                alert("Book or account not found. Please check the details.");
             } else {
-                alert("Invalid username or password.");
+                alert("Unable to return the book. Please try again.");
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Could not connect to server.");
+            alert("Could not connect to the server.");
         }
     });
 </script>
