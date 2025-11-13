@@ -60,5 +60,10 @@ public class AccountService
         return accountRepository.findByNotificationEmail(notificationEmail);
     }
 
+    public List<Account> findByNotificationEmailIgnoreCase(String notificationEmail)
+    {
+        return accountRepository.findByNotificationEmailIgnoreCase(notificationEmail);
+    }
+
 }
 
