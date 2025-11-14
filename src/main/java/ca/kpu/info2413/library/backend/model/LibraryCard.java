@@ -8,15 +8,19 @@ import lombok.NoArgsConstructor;
 @Table(name = "LibraryCard")
 @Data
 @NoArgsConstructor
-public class LibraryCard
-{
+public class LibraryCard {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "card_number")
     private Integer cardNumber;
 
-    private boolean valid;
+    // keep column name as-is (DB uses boolean/bit/ tinyint depending on DB)
+    @Column(name = "valid")
+    private Boolean valid;
 
-    @Column(name = "account_id_Account")
-    private Integer accountIdAccount;
+    // Proper JPA relation to Account using the existing FK column name in your DB
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id_Account") // this is the FK column in LibraryCard table
+    private Account account;
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class BookCopyConditionNotes
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "serial_barcode_BookCopy")
     private Integer serialBarcodeBookCopy;
 

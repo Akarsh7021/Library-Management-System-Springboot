@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class Fine
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fine_id")
     private Integer fineId;
 
