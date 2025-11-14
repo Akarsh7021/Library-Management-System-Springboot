@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class Hold
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "book_hold_id")
     private Integer bookHoldId;
 
