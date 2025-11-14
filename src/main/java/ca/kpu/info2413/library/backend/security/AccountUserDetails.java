@@ -8,8 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-public class AccountUserDetails implements UserDetails
-{
+/**
+ * Wrapper that exposes our Account inside Spring Security.
+ */
+public class AccountUserDetails implements UserDetails {
 
     private final Account account;
 
@@ -17,9 +19,12 @@ public class AccountUserDetails implements UserDetails
         this.account = account;
     }
 
+    public Account getAccount() {
+        return account;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // map accountType to a role (adjust if accountType uses values like "admin" or "user")
         String role = account.getAccountType() != null ? account.getAccountType().toUpperCase() : "USER";
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
     }
@@ -45,9 +50,4 @@ public class AccountUserDetails implements UserDetails
 
     @Override
     public boolean isEnabled() { return true; }
-
-    // Expose original account if you need more details later:
-    public Account getAccount() {
-        return account;
-    }
 }

@@ -34,6 +34,13 @@
             font-size: 0.9em;
             color: #555;
         }
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -50,6 +57,7 @@
     <a href="EditUserInformation.html">Account</a>
     <a href="LibraryReportsDashboard.html">Reports</a>
     <a href="AdminPage.html">Admin</a>
+    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
 </nav>
 
 <main>
@@ -137,6 +145,17 @@
     function placeHold(isbn13) {
         console.log("Placing hold on ISBN:", isbn13);
         alert("Hold request prepared for book ISBN: " + isbn13);
+    }
+
+    async function signOut() {
+        try {
+            // Call logout on server
+            await fetch("/logout", { method: "POST", credentials: "include" });
+        } catch (err) {
+            console.warn("Logout request failed:", err);
+        }
+        // Redirect to login page
+        window.location.href = "AccountLogin.html";
     }
 </script>
 </body>

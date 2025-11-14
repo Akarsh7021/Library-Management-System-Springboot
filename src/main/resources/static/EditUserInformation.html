@@ -11,7 +11,6 @@
             background-color: #f9fafc;
             color: #333;
         }
-
         header {
             background-color: #ffffff;
             padding: 10px 40px;
@@ -20,12 +19,7 @@
             align-items: center;
             justify-content: space-between;
         }
-
-        header h1 {
-            font-size: 1.5em;
-            margin: 0;
-            color: #000;
-        }
+        header h1 { font-size: 1.5em; margin: 0; color: #000; }
 
         nav {
             background-color: #ffffff;
@@ -35,25 +29,14 @@
             padding: 12px 40px;
             border-bottom: 1px solid #e0e0e0;
         }
-
-        nav a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        nav a:hover {
-            color: #0077b6;
-        }
-
+        nav a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.2s; cursor: pointer; }
+        nav a:hover { color: #0077b6; }
         main {
             padding: 40px 80px;
             max-width: 1200px;
             margin: auto;
             text-align: center;
         }
-
         .section-title {
             font-size: 1.8em;
             color: #0077b6;
@@ -62,7 +45,6 @@
             padding-left: 10px;
             text-align: left;
         }
-
         .form-box {
             background-color: #ffffff;
             border-radius: 10px;
@@ -72,13 +54,7 @@
             margin: 40px auto;
             text-align: left;
         }
-
-        .form-box label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
+        .form-box label { display: block; margin-bottom: 6px; font-weight: 500; }
         .form-box input[type="text"],
         .form-box input[type="email"],
         .form-box input[type="password"],
@@ -91,13 +67,11 @@
             font-size: 1em;
             outline: none;
         }
-
         .button-group {
             display: flex;
             justify-content: space-between;
             gap: 10px;
         }
-
         .button-group button {
             background-color: #0077b6;
             color: white;
@@ -109,19 +83,9 @@
             width: 48%;
             font-size: 1em;
         }
-
-        .button-group button.delete {
-            background-color: #d9534f;
-        }
-
-        .button-group button:hover {
-            background-color: #005f8c;
-        }
-
-        .button-group button.delete:hover {
-            background-color: #c9302c;
-        }
-
+        .button-group button.delete { background-color: #d9534f; }
+        .button-group button:hover { background-color: #005f8c; }
+        .button-group button.delete:hover { background-color: #c9302c; }
         footer {
             text-align: center;
             padding: 20px;
@@ -139,14 +103,15 @@
 </header>
 
 <nav>
-    <a href="HomePage.html">Home</a>
-    <a href="CatalogPage.html">Catalog</a>
-    <a href="BorrowPage.html">Borrow</a>
-    <a href="PlaceHold.html">Hold</a>
-    <a href="PaymentPage.html">Payment</a>
-    <a href="EditUserInformation.html">Account</a>
-    <a href="LibraryReportsDashboard.html">Reports</a>
-    <a href="AdminPage.html">Admin</a>
+    <a onclick="goTo('HomePage.html')">Home</a>
+    <a onclick="goTo('CatalogPage.html')">Catalog</a>
+    <a onclick="goTo('BorrowPage.html')">Borrow</a>
+    <a onclick="goTo('PlaceHold.html')">Hold</a>
+    <a onclick="goTo('PaymentPage.html')">Payment</a>
+    <a onclick="goTo('EditUserInformation.html')">Account</a>
+    <a onclick="goTo('LibraryReportsDashboard.html')">Reports</a>
+    <a onclick="goTo('AdminPage.html')">Admin</a>
+    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
 </nav>
 
 <main>
@@ -160,14 +125,13 @@
             <label for="email">Email</label>
             <input id="email" name="email" placeholder="Enter email" required type="email">
 
-            <label for="password">Password</label>
-            <input id="password" name="password" placeholder="Enter password" required type="password">
+            <label for="password">Password (leave blank to keep current)</label>
+            <input id="password" name="password" placeholder="Enter new password" type="password">
 
             <label for="phone">Phone Number</label>
             <input id="phone" name="phone" placeholder="(xxx) - xxx - xxx" required type="tel">
 
-            <label for="libraryCard">Library Card</label>
-            <input id="libraryCard" name="libraryCard" placeholder="Enter Library Card ID" required type="text">
+            <input type="hidden" id="libraryCard" name="libraryCard">
 
             <div class="button-group">
                 <button type="submit">Update</button>
@@ -182,62 +146,114 @@
 </footer>
 
 <script>
-    // Handle Update (PUT request)
-    document.getElementById("memberForm").addEventListener("submit", async function (e) {
+    function goTo(page) { window.location.href = page; }
+
+    async function loadCurrentAccount() {
+        try {
+            const response = await fetch("http://localhost:8080/account/current", {
+                credentials: "include"
+            });
+            if (!response.ok) throw new Error("Could not fetch member information.");
+            const data = await response.json();
+            document.getElementById("fullname").value = data.fullName || "";
+            document.getElementById("email").value = data.notificationEmail || "";
+            document.getElementById("phone").value = data.phoneNumber || "";
+            document.getElementById("libraryCard").value = data.accountId || "";
+            document.getElementById("password").value = "";
+        } catch (error) {
+            console.error(error);
+            alert("Could not fetch member information.");
+        }
+    }
+
+    window.addEventListener("DOMContentLoaded", loadCurrentAccount);
+
+    // Update
+    document.getElementById("memberForm").addEventListener("submit", async function(e) {
         e.preventDefault();
+        const accountId = parseInt(document.getElementById("libraryCard").value, 10);
+        if (!accountId) {
+            alert("Missing account ID.");
+            return;
+        }
 
         const member = {
-            fullname: document.getElementById("fullname").value,
-            email: document.getElementById("email").value,
-            password: document.getElementById("password").value,
-            phone: document.getElementById("phone").value,
-            libraryCard: document.getElementById("libraryCard").value
+            accountId: accountId,
+            fullName: document.getElementById("fullname").value,
+            notificationEmail: document.getElementById("email").value,
+            phoneNumber: document.getElementById("phone").value,
+            // send passwordHash only if user entered a value (server will ignore empty)
+            passwordHash: document.getElementById("password").value || null
         };
 
         try {
-            const response = await fetch("http://localhost:8080/api/members/update", {
+            const response = await fetch("http://localhost:8080/account", {
                 method: "PUT",
+                credentials: "include",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(member)
             });
 
             if (response.ok) {
+                const updated = await response.json();
+                // update fields with returned saved values
+                document.getElementById("fullname").value = updated.fullName || "";
+                document.getElementById("email").value = updated.notificationEmail || "";
+                document.getElementById("phone").value = updated.phoneNumber || "";
+                document.getElementById("password").value = "";
                 alert("Member details updated successfully!");
             } else {
-                alert("Update failed. Please check the inputs.");
+                const txt = await response.text();
+                alert("Update failed: " + txt);
             }
         } catch (error) {
-            console.error("Error:", error);
+            console.error(error);
             alert("Could not connect to the server.");
         }
     });
 
-    // Handle Delete (DELETE request)
-    document.getElementById("deleteBtn").addEventListener("click", async function () {
-        const libraryCard = document.getElementById("libraryCard").value;
-
-        if (!libraryCard) {
-            alert("Please enter the Library Card ID to delete a member.");
+    // Delete
+    document.getElementById("deleteBtn").addEventListener("click", async function() {
+        const accountId = document.getElementById("libraryCard").value;
+        if (!accountId) {
+            alert("Could not find account ID.");
             return;
         }
-
-        if (!confirm("Are you sure you want to delete this member?")) return;
+        if (!confirm("Are you sure you want to delete this account?")) return;
 
         try {
-            const response = await fetch(`http://localhost:8080/api/members/delete/${libraryCard}`, {
-                method: "DELETE"
+            const response = await fetch(`http://localhost:8080/account/${accountId}`, {
+                method: "DELETE",
+                credentials: "include"
             });
 
-            if (response.ok) {
-                alert("Member deleted successfully!");
+            if (response.status === 204 || response.ok) {
+                // call logout to be safe (server-side session should be invalidated too)
+                try {
+                    await fetch("/logout", { method: "POST", credentials: "include" });
+                } catch (e) { /* ignore logout failure */ }
+                alert("Account deleted. You will be signed out.");
+                window.location.href = "AccountLogin.html";
             } else {
-                alert("Delete failed. Member not found.");
+                const txt = await response.text();
+                alert("Delete failed: " + txt);
             }
         } catch (error) {
-            console.error("Error:", error);
+            console.error(error);
             alert("Could not connect to the server.");
         }
     });
+
+    // Sign out action (nav)
+    async function signOut() {
+        try {
+            await fetch("/logout", { method: "POST", credentials: "include" });
+        } catch (err) {
+            console.warn("Logout request failed:", err);
+        }
+        // redirect to login page
+        window.location.href = "AccountLogin.html";
+    }
 </script>
 </body>
 </html>
