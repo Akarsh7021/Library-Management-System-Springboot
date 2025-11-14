@@ -5,7 +5,9 @@ import ca.kpu.info2413.library.backend.repository.HoldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HoldService
@@ -45,4 +47,32 @@ public class HoldService
         return holdRepository.findByAccountIdAccount(accountId);
     }
 
+    public Optional<Hold> findByBookAndAccount(Integer serialBarcodeBookCopy, Integer accountIdAccount) {
+        return holdRepository.findFirstBySerialBarcodeBookCopyAndAccountIdAccount(serialBarcodeBookCopy, accountIdAccount);
+    }
+
+    public Hold createHold(Integer bookId, Integer accountId) {
+        Hold hold = new Hold();
+        hold.setSerialBarcodeBookCopy(bookId);
+        hold.setAccountIdAccount(accountId);
+
+        // Set the date it was put on hold
+        LocalDate today = LocalDate.now();
+        hold.setHeldSince(today);
+
+        // Set expiry to 2 weeks later
+        hold.setHoldExpiry(today.plusWeeks(2));
+
+        return holdRepository.save(hold);
+    }
+
+    public boolean cancelHold(Integer bookId, Integer accountId) {
+        Optional<Hold> opt = findByBookAndAccount(bookId, accountId);
+        if (opt.isPresent()) {
+            holdRepository.delete(opt.get());
+            return true;
+        }
+        return false;
+    }
 }
+

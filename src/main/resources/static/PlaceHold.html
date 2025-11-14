@@ -162,11 +162,10 @@
             <form id="placeHoldForm">
                 <label for="bookId">Book ID</label>
                 <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="text">
-
                 <label for="accountId">Account ID</label>
                 <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
-
                 <button type="submit">Place Hold</button>
+                <div id="placeMsg" class="message" aria-live="polite"></div>
             </form>
         </div>
 
@@ -176,11 +175,10 @@
             <form id="cancelHoldForm">
                 <label for="cancelBookId">Book ID</label>
                 <input id="cancelBookId" name="cancelBookId" placeholder="Enter Book ID" required type="text">
-
                 <label for="cancelAccountId">Account ID</label>
                 <input id="cancelAccountId" name="cancelAccountId" placeholder="Enter Account ID" required type="text">
-
                 <button type="submit">Cancel Hold</button>
+                <div id="cancelMsg" class="message" aria-live="polite"></div>
             </form>
         </div>
     </div>
@@ -191,65 +189,105 @@
 </footer>
 
 <script>
-    // --- Place Hold ---
-    document.getElementById("placeHoldForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
+    document.addEventListener("DOMContentLoaded", () => {
+        const API_BASE = "http://localhost:8080/hold";
 
-        const holdData = {
-            bookId: document.getElementById("bookId").value.trim(),
-            accountId: document.getElementById("accountId").value.trim()
-        };
+        // grab elements safely
+        const placeForm = document.getElementById("placeHoldForm");
+        const cancelForm = document.getElementById("cancelHoldForm");
+        const placeMsg = document.getElementById("placeMsg");
+        const cancelMsg = document.getElementById("cancelMsg");
 
-        try {
-            const response = await fetch("http://localhost:8080/api/holds", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(holdData)
+        // helper to set message
+        function setMessage(elem, text, isError = false) {
+            if (!elem) return;
+            elem.textContent = text || "";
+            elem.classList.remove("success", "error");
+            if (isError) elem.classList.add("error");
+            else if (text) elem.classList.add("success");
+        }
+
+        // guard: if the form isn't on the page, do nothing (prevents null errors)
+        if (placeForm) {
+            placeForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                setMessage(placeMsg, "", false);
+
+                const bookId = (document.getElementById("bookId")?.value || "").trim();
+                const accountId = (document.getElementById("accountId")?.value || "").trim();
+
+                if (!bookId || !accountId) {
+                    setMessage(placeMsg, "Book ID and Account ID are required.", true);
+                    return;
+                }
+
+                const payload = { bookId: bookId, accountId: accountId };
+
+                try {
+                    const res = await fetch(API_BASE, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify(payload)
+                    });
+
+                    const text = await res.text();
+                    if (res.ok) {
+                        setMessage(placeMsg, "Hold placed successfully.");
+                        placeForm.reset();
+                    } else {
+                        // show server message or fallback status
+                        setMessage(placeMsg, `Failed to place hold: ${text || res.statusText}`, true);
+                        console.warn("Place hold failed:", res.status, text);
+                    }
+                } catch (err) {
+                    console.error("Network error placing hold:", err);
+                    setMessage(placeMsg, "Could not connect to the server.", true);
+                }
             });
+        }
 
-            if (response.ok) {
-                alert("Hold placed successfully!");
-                e.target.reset();
-            } else {
-                alert("Failed to place hold. Please check your inputs or book availability.");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Could not connect to the server.");
+        if (cancelForm) {
+            cancelForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                setMessage(cancelMsg, "", false);
+
+                const bookId = (document.getElementById("cancelBookId")?.value || "").trim();
+                const accountId = (document.getElementById("cancelAccountId")?.value || "").trim();
+
+                if (!bookId || !accountId) {
+                    setMessage(cancelMsg, "Book ID and Account ID are required.", true);
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`${API_BASE}?bookId=${encodeURIComponent(bookId)}&accountId=${encodeURIComponent(accountId)}`, {
+                        method: "DELETE",
+                        credentials: "include"
+                    });
+
+                    const text = await res.text();
+                    if (res.ok) {
+                        setMessage(cancelMsg, "Hold cancelled successfully.");
+                        cancelForm.reset();
+                    } else {
+                        setMessage(cancelMsg, `Failed to cancel hold: ${text || res.statusText}`, true);
+                        console.warn("Cancel hold failed:", res.status, text);
+                    }
+                } catch (err) {
+                    console.error("Network error cancelling hold:", err);
+                    setMessage(cancelMsg, "Could not connect to the server.", true);
+                }
+            });
         }
     });
 
-    // --- Cancel Hold ---
-    document.getElementById("cancelHoldForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const bookId = document.getElementById("cancelBookId").value.trim();
-        const accountId = document.getElementById("cancelAccountId").value.trim();
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/holds?bookId=${bookId}&accountId=${accountId}`, {
-                method: "DELETE"
-            });
-
-            if (response.ok) {
-                alert("Hold cancelled successfully!");
-                e.target.reset();
-            } else {
-                alert("Failed to cancel hold. Please check if the hold exists.");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Could not connect to the server.");
-        }
-    });
     async function signOut() {
         try {
-            // Call logout on server
             await fetch("/logout", { method: "POST", credentials: "include" });
         } catch (err) {
             console.warn("Logout request failed:", err);
         }
-        // Redirect to login page
         window.location.href = "AccountLogin.html";
     }
 </script>
