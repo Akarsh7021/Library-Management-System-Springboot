@@ -10,20 +10,25 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Loads account by email and returns AccountUserDetails.
+ */
 @Service
 public class AccountUserDetailsService implements UserDetailsService {
 
+    private final AccountRepository accountRepository;
+
     @Autowired
-    private AccountRepository accountRepository;
+    public AccountUserDetailsService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // username is notificationEmail
         List<Account> accounts = accountRepository.findByNotificationEmailIgnoreCase(username);
         if (accounts.isEmpty()) {
             throw new UsernameNotFoundException("No account with email: " + username);
         }
-        // pick first account (or decide how to handle duplicates)
         Account account = accounts.get(0);
         return new AccountUserDetails(account);
     }

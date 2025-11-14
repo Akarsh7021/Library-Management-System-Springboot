@@ -177,6 +177,13 @@
         .book-info button:hover {
             background-color: #005f8c;
         }
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -187,11 +194,12 @@
 <nav>
     <a href="HomePage.html">Home</a>
     <a href="CatalogPage.html">Catalog</a>
-    <a href="BorrowPage.html">Borrow/Return</a>
+    <a href="BorrowPage.html">Borrow</a>
     <a href="PlaceHold.html">Holds</a>
     <a href="PaymentPage.html">Payments</a>
     <a href="EditUserInformation.html">Account</a>
     <a href="AdminPage.html">Admin</a>
+    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
 </nav>
 
 <div class="hero">
@@ -264,6 +272,16 @@
 
     function goToPage(page) {
         window.location.href = page;
+    }
+    async function signOut() {
+        try {
+            // Call logout on server
+            await fetch("/logout", { method: "POST", credentials: "include" });
+        } catch (err) {
+            console.warn("Logout request failed:", err);
+        }
+        // Redirect to login page
+        window.location.href = "AccountLogin.html";
     }
 </script>
 </body>
