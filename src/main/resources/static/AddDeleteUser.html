@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>City Library | Add / Delete Users</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        main {
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 30px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+            text-align: left;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .user-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 28px;
+            width: 420px;
+            text-align: left;
+        }
+
+        .user-box h2 {
+            color: #0077b6;
+            margin-bottom: 16px;
+        }
+
+        .user-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .user-box input[type="text"],
+        .user-box input[type="email"],
+        .user-box input[type="password"],
+        .user-box input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .user-box button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        .user-box button:hover {
+            background-color: #005f8c;
+        }
+
+        .hint {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .msg {
+            margin-top: 12px;
+            font-weight: 600;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #777;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 40px;
+        }
+
+        nav a {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>City Library</h1>
+</header>
+
+<nav>
+    <a href="HomePage.html">Home</a>
+    <a href="CatalogPage.html">Catalog</a>
+    <a href="PlaceHold.html">Hold</a>
+    <a href="EditUserInformation.html">Account</a>
+    <a href="AdminPage.html">Admin</a>
+    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+</nav>
+
+<main>
+    <div class="section-title">Add / Delete Users</div>
+
+    <div class="form-container">
+        <!-- Create user -->
+        <div class="user-box">
+            <h2>Create user</h2>
+            <p class="hint">Create a user and link to an existing library card (enter card ID if available).</p>
+
+            <label for="fullName">Full name</label>
+            <input id="fullName" type="text" placeholder="Jane Doe" required>
+
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="jane@example.com" required>
+
+            <label for="password">Password</label>
+            <input id="password" type="password" required>
+
+            <label for="confirmPassword">Confirm password</label>
+            <input id="confirmPassword" type="password" required>
+
+            <label for="phone">Phone</label>
+            <input id="phone" type="tel" placeholder="(xxx) - xxx - xxxx">
+
+            <label for="libraryCard">Library card (ID)</label>
+            <input id="libraryCard" type="text" placeholder="Optional: existing card #">
+
+            <button id="createBtn">Create user</button>
+
+            <div id="createMsg" class="msg" aria-live="polite"></div>
+        </div>
+
+        <!-- Delete user -->
+        <div class="user-box">
+            <h2>Delete user</h2>
+            <p class="hint">Delete an account by its Account ID.</p>
+
+            <label for="deleteAccountId">Account ID</label>
+            <input id="deleteAccountId" type="text" placeholder="e.g. 12">
+
+            <button id="deleteBtn">Delete user</button>
+
+            <div id="deleteMsg" class="msg" aria-live="polite"></div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    © 2025 City Library
+</footer>
+
+<script>
+    // Update these if your backend uses different paths:
+    const REGISTER_URL = 'http://localhost:8080/register';     // POST { fullName, email, password, confirmPassword, phone, libraryCard }
+    const DELETE_ACCOUNT_BASE = 'http://localhost:8080/account'; // DELETE /account/{id}
+
+    async function signOut() {
+        try {
+            await fetch('/logout', { method: 'POST', credentials: 'include' });
+        } catch (err) {
+            console.warn('Logout request failed:', err);
+        }
+        window.location.href = 'AccountLogin.html';
+    }
+
+    // Create user
+    document.getElementById('createBtn').addEventListener('click', async () => {
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const phone = document.getElementById('phone').value.trim();
+        const libraryCard = document.getElementById('libraryCard').value.trim();
+
+        const msgEl = document.getElementById('createMsg');
+        msgEl.style.color = '#333';
+        msgEl.textContent = '';
+
+        if (!fullName || !email || !password || !confirmPassword) {
+            msgEl.style.color = 'crimson';
+            msgEl.textContent = 'Please fill the required fields.';
+            return;
+        }
+        if (password !== confirmPassword) {
+            msgEl.style.color = 'crimson';
+            msgEl.textContent = 'Passwords do not match.';
+            return;
+        }
+
+        const payload = {
+            fullName,
+            email,
+            password,
+            confirmPassword,
+            phone,
+            libraryCard
+        };
+
+        try {
+            const res = await fetch(REGISTER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                msgEl.style.color = 'green';
+                msgEl.textContent = 'User created successfully.';
+                // clear inputs
+                document.getElementById('fullName').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('confirmPassword').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('libraryCard').value = '';
+            } else {
+                const text = await res.text();
+                msgEl.style.color = 'crimson';
+                msgEl.textContent = 'Failed: ' + (text || res.statusText || res.status);
+            }
+        } catch (err) {
+            msgEl.style.color = 'crimson';
+            msgEl.textContent = 'Network error: ' + err.message;
+        }
+    });
+
+    // Delete user
+    document.getElementById('deleteBtn').addEventListener('click', async () => {
+        const id = document.getElementById('deleteAccountId').value.trim();
+        const msgEl = document.getElementById('deleteMsg');
+        msgEl.style.color = '#333';
+        msgEl.textContent = '';
+
+        if (!id) {
+            msgEl.style.color = 'crimson';
+            msgEl.textContent = 'Please enter an Account ID.';
+            return;
+        }
+
+        try {
+            const res = await fetch(`${DELETE_ACCOUNT_BASE}/${encodeURIComponent(id)}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok || res.status === 204) {
+                msgEl.style.color = 'green';
+                msgEl.textContent = 'User deleted (or request accepted).';
+                document.getElementById('deleteAccountId').value = '';
+            } else {
+                const text = await res.text();
+                msgEl.style.color = 'crimson';
+                msgEl.textContent = 'Failed: ' + (text || res.statusText || res.status);
+            }
+        } catch (err) {
+            msgEl.style.color = 'crimson';
+            msgEl.textContent = 'Network error: ' + err.message;
+        }
+    });
+</script>
+</body>
+</html>

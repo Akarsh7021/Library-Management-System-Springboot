@@ -136,11 +136,8 @@
 <nav>
     <a href="HomePage.html">Home</a>
     <a href="CatalogPage.html">Catalog</a>
-    <a href="BorrowPage.html">Borrow</a>
     <a href="PlaceHold.html">Hold</a>
-    <a href="PaymentPage.html">Payment</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="LibraryReportsDashboard.html">Reports</a>
     <a href="AdminPage.html">Admin</a>
     <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
 </nav>
@@ -152,9 +149,6 @@
         <form id="paymentForm">
             <label for="accountId">Account ID</label>
             <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
-
-            <label for="outstanding">Outstanding Balance</label>
-            <input id="outstanding" name="outstanding" placeholder="$0.00" readonly type="text">
 
             <label for="paymentAmount">Payment Amount</label>
             <input id="paymentAmount" name="paymentAmount" placeholder="Enter amount" required type="number">
@@ -181,39 +175,21 @@
 
 <script>
     const accountIdInput = document.getElementById("accountId");
-    const outstandingField = document.getElementById("outstanding");
 
-    //  Auto-fetch outstanding balance when user enters Account ID
-    accountIdInput.addEventListener("blur", async () => {
-        const accountId = accountIdInput.value.trim();
-        if (!accountId) return;
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/fines/${accountId}`);
-            if (response.ok) {
-                const data = await response.json();
-                outstandingField.value = `$${data.balance.toFixed(2)}`;
-            } else {
-                outstandingField.value = "Account not found";
-            }
-        } catch (error) {
-            console.error("Error fetching fines:", error);
-            outstandingField.value = "Server error";
-        }
-    });
 
     //  Submit payment
     document.getElementById("paymentForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const payment = {
-            accountId: document.getElementById("accountId").value,
-            amount: parseFloat(document.getElementById("paymentAmount").value),
-            method: document.getElementById("paymentMethod").value
+            accountIdAccount: document.getElementById("accountId").value,
+            paymentAmount: parseFloat(document.getElementById("paymentAmount").value),
+            paymentMethod: document.getElementById("paymentMethod").value
+
         };
 
         try {
-            const response = await fetch("http://localhost:8080/api/payments", {
+            const response = await fetch("http://localhost:8080/payment", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(payment)
@@ -221,10 +197,11 @@
 
             if (response.ok) {
                 alert("Payment successful!");
-                outstandingField.value = "$0.00";
+
                 document.getElementById("paymentForm").reset();
             } else {
                 alert("Payment failed. Please try again.");
+                console.error(response);
             }
         } catch (error) {
             console.error("Error submitting payment:", error);
@@ -244,7 +221,6 @@
         const accountId = document.getElementById("accountId").value;
         const paymentAmount = document.getElementById("paymentAmount").value;
         const paymentMethod = document.getElementById("paymentMethod").value;
-        const outstanding = document.getElementById("outstanding").value || "$0.00";
 
         if (!accountId || !paymentAmount || !paymentMethod) {
             alert("Please fill out all payment details before generating a receipt.");
@@ -339,7 +315,6 @@
           <table>
             <tr><th>Account ID</th><td>${accountId}</td></tr>
             <tr><th>Payment Method</th><td>${paymentMethod}</td></tr>
-            <tr><th>Outstanding Balance</th><td>${outstanding}</td></tr>
             <tr><th>Payment Amount</th><td>$${paymentAmount}</td></tr>
           </table>
           <p class="total">Total Paid: $${paymentAmount}</p>

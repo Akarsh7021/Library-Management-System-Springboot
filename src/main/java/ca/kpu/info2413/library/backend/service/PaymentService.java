@@ -42,7 +42,7 @@ public class PaymentService
         return paymentRepository.findByAccountIdAccount(account_id_account);
     }
 
-    public List<Payment> findByProcessedBy(String processedBy)
+    public List<Payment> findByProcessedBy(Integer processedBy)
     {
         return paymentRepository.findByProcessedBy(processedBy);
     }
