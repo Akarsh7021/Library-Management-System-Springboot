@@ -25,7 +25,7 @@ public class Payment
     private String paymentMethod;
 
     @Column(name = "processed_by")
-    private String processedBy;
+    private Integer processedBy;
 
     @Column(name = "account_id_Account")
     private Integer accountIdAccount;
