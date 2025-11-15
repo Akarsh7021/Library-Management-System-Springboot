@@ -63,14 +63,22 @@
             text-align: left;
         }
 
+        .forms-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
         .form-box {
             background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 30px;
-            max-width: 400px;
-            margin: 50px auto;
+            width: 420px;
             text-align: left;
+            box-sizing: border-box;
         }
 
         .form-box h2 {
@@ -82,19 +90,27 @@
         .form-box label {
             display: block;
             text-align: left;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             font-weight: 500;
             color: #333;
         }
 
-        .form-box input {
+        .form-box input,
+        .form-box textarea {
             width: 100%;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 1em;
             outline: none;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .form-box textarea {
+            min-height: 120px;
+            line-height: 1.4;
         }
 
         .form-box button {
@@ -106,10 +122,60 @@
             cursor: pointer;
             transition: background-color 0.2s;
             width: 100%;
+            font-size: 1em;
         }
 
         .form-box button:hover {
             background-color: #005f8c;
+        }
+
+        .hint {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        /* results panel spans full width */
+        .results {
+            margin-top: 30px;
+            max-width: 980px;
+            margin-left: auto;
+            margin-right: auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-sizing: border-box;
+        }
+
+        .results h3 {
+            margin-top: 0;
+            color: #0077b6;
+        }
+
+        .note-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+
+        .note-item:last-child {
+            border-bottom: none;
+        }
+
+        .note-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .note-text {
+            white-space: pre-wrap;
+            color: #333;
+        }
+
+        .empty {
+            color: #666;
+            font-style: italic;
         }
 
         footer {
@@ -121,6 +187,7 @@
             border-top: 1px solid #e0e0e0;
             margin-top: 60px;
         }
+
         nav a {
             text-decoration: none;
             color: #333;
@@ -147,20 +214,51 @@
 <main>
     <div class="section-title">Admin Panel</div>
 
-    <div class="form-box">
-        <h2>Return a Book</h2>
-        <form id="returnBookForm">
-            <label for="bookId">Book ID</label>
-            <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="text">
+    <div class="forms-row">
+        <!-- Return Book -->
+        <div class="form-box">
+            <h2>Return a Book</h2>
+            <div class="hint">Enter the book's serial barcode to process a return.</div>
+            <form id="returnBookForm">
+                <label for="bookId">Book Serial Barcode</label>
+                <input id="bookId" name="bookId" placeholder="Enter Book Serial Barcode" required type="text">
+                <button type="submit">Return Book</button>
+            </form>
+        </div>
 
-            <label for="isbn">ISBN</label>
-            <input id="isbn" name="isbn" placeholder="Enter ISBN" required type="text">
+        <!-- Condition Notes (save) -->
+        <div class="form-box">
+            <h2>Add Condition Notes</h2>
+            <div class="hint">Record notes about the physical condition of a specific copy.</div>
+            <form id="conditionForm">
+                <label for="serialBarcode">Serial Barcode</label>
+                <input id="serialBarcode" name="serialBarcode" placeholder="Enter Book Serial Barcode" required type="text">
 
-            <label for="accountId">Account ID</label>
-            <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
+                <label for="conditionNotes">Condition Notes</label>
+                <textarea id="conditionNotes" name="conditionNotes" placeholder="Describe the condition (scratches, torn pages, water damage, etc.)" required></textarea>
 
-            <button type="submit">Return Book</button>
-        </form>
+                <button type="submit">Save Condition Notes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- New: Retrieve Notes form -->
+    <div class="forms-row" style="margin-top: 18px;">
+        <div class="form-box">
+            <h2>View Condition Notes</h2>
+            <div class="hint">Retrieve all saved condition notes for a copy.</div>
+            <form id="viewNotesForm">
+                <label for="viewSerial">Serial Barcode</label>
+                <input id="viewSerial" name="viewSerial" placeholder="Enter Book Serial Barcode" required type="text">
+                <button type="submit">Get Notes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- results -->
+    <div class="results" id="notesResults" aria-live="polite" style="display:none;">
+        <h3>Condition Notes</h3>
+        <div id="notesList"></div>
     </div>
 </main>
 
@@ -169,53 +267,168 @@
 </footer>
 
 <script>
+    // Helper: show results panel and populate
+    function showNotes(notes) {
+        const results = document.getElementById('notesResults');
+        const list = document.getElementById('notesList');
+        list.innerHTML = '';
+        if (!notes || notes.length === 0) {
+            list.innerHTML = '<div class="empty">No notes found for that serial barcode.</div>';
+        } else {
+            notes.forEach(n => {
+                // expected fields: conditionNotes (text), createdAt/createdDate/processedDate, createdBy/author
+                const created = n.createdAt || n.createdDate || n.date || n.noteDate || n.timestamp || n.paymentDate || null;
+                const author = n.createdBy || n.processedBy || n.author || n.user || null;
+                const text = n.conditionNotes || n.note || n.text || '';
+
+                const item = document.createElement('div');
+                item.className = 'note-item';
+                const meta = document.createElement('div');
+                meta.className = 'note-meta';
+                meta.textContent = [
+                    created ? `Date: ${created}` : null,
+                    author ? `By: ${author}` : null
+                ].filter(Boolean).join(' • ');
+                const noteText = document.createElement('div');
+                noteText.className = 'note-text';
+                noteText.textContent = text || '(no text)';
+                if (meta.textContent) item.appendChild(meta);
+                item.appendChild(noteText);
+                list.appendChild(item);
+            });
+        }
+        results.style.display = 'block';
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function fetchConditionNotes(serial) {
+        const base = 'http://localhost:8080/book_copy_condition_notes';
+
+        // fallback attempt: path param
+        try {
+            const altUrl = `${base}/${encodeURIComponent(serial)}`;
+            const resp2 = await fetch(altUrl, { method: 'GET', headers: { 'Accept': 'application/json' }});
+            if (resp2.ok) {
+                return await resp2.json();
+            } else {
+                // bubble up status text
+                const txt = await resp2.text();
+                throw new Error(`Server responded with ${resp2.status}: ${txt}`);
+            }
+        } catch (e2) {
+            throw e2;
+        }
+    }
+
+    // --- Return Book form ---
     document.getElementById("returnBookForm").addEventListener("submit", async function (e) {
         e.preventDefault();
-
-        const bookId = document.getElementById("bookId").value.trim();
-        const isbn = document.getElementById("isbn").value.trim();
-        const accountId = document.getElementById("accountId").value.trim();
-
-        if (!bookId || !isbn || !accountId) {
-            alert("Please fill out all fields.");
+        const bookIdRaw = document.getElementById("bookId").value.trim();
+        if (!bookIdRaw) {
+            alert("Please enter the book serial barcode.");
             return;
         }
-
-        const returnData = {
-            bookId: bookId,
-            isbn: isbn,
-            accountId: accountId
-        };
-
+        const serialBarcode = isNaN(bookIdRaw) ? bookIdRaw : parseInt(bookIdRaw, 10);
+        const returnData = { serialBarcodeBookCopy: serialBarcode };
         try {
             const response = await fetch("http://localhost:8080/api/returns", {
                 method: "PUT",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(returnData)
             });
-
             if (response.ok) {
-                const result = await response.json();
-                alert(`Book returned successfully! ${result.message || ""}`);
+                let msg = "";
+                try { const json = await response.json(); if (json && json.message) msg = " — " + json.message; } catch(_) {}
+                alert("Book returned successfully!" + msg);
                 e.target.reset();
             } else if (response.status === 404) {
-                alert("Book or account not found. Please check the details.");
+                alert("Book not found. Please check the serial barcode.");
             } else {
-                alert("Unable to return the book. Please try again.");
+                const txt = await response.text();
+                console.error("Return failed:", response.status, txt);
+                alert("Unable to return the book. " + (txt || "Please try again."));
             }
         } catch (error) {
-            console.error("Error:", error);
+            console.error("Error returning book:", error);
             alert("Could not connect to the server.");
         }
     });
+
+    // --- Save condition notes ---
+    document.getElementById("conditionForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const serialRaw = document.getElementById("serialBarcode").value.trim();
+        const notes = document.getElementById("conditionNotes").value.trim();
+        if (!serialRaw || !notes) {
+            alert("Please fill out both fields.");
+            return;
+        }
+        const serialBarcode = isNaN(serialRaw) ? serialRaw : parseInt(serialRaw, 10);
+        const payload = {
+            serialBarcodeBookCopy: serialBarcode,
+            conditionNotes: notes
+        };
+        try {
+            const response = await fetch("http://localhost:8080/book_copy_condition_notes", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                alert("Condition notes saved.");
+                e.target.reset();
+            } else if (response.status === 404) {
+                alert("Book not found. Please check the serial barcode.");
+            } else {
+                const txt = await response.text();
+                console.error("Save failed:", response.status, txt);
+                alert("Unable to save condition notes. " + (txt || "Please try again."));
+            }
+        } catch (error) {
+            console.error("Error saving notes:", error);
+            alert("Could not connect to the server.");
+        }
+    });
+
+    // --- View notes form ---
+    document.getElementById("viewNotesForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const serialRaw = document.getElementById("viewSerial").value.trim();
+        if (!serialRaw) {
+            alert("Please enter a serial barcode.");
+            return;
+        }
+        const serialBarcode = isNaN(serialRaw) ? serialRaw : parseInt(serialRaw, 10);
+        // show temporary loading
+        const results = document.getElementById('notesResults');
+        const notesList = document.getElementById('notesList');
+        results.style.display = 'block';
+        notesList.innerHTML = '<div class="empty">Loading…</div>';
+        try {
+            const notes = await fetchConditionNotes(serialBarcode);
+            // Expecting notes to be an array of objects; if backend returns a wrapper object adjust accordingly
+            if (Array.isArray(notes)) {
+                showNotes(notes);
+            } else if (notes && Array.isArray(notes.items)) {
+                showNotes(notes.items);
+            } else if (notes && notes.notes && Array.isArray(notes.notes)) {
+                showNotes(notes.notes);
+            } else {
+                // If single object returned, show it as one item
+                showNotes([notes]);
+            }
+        } catch (err) {
+            console.error("Failed to fetch notes:", err);
+            notesList.innerHTML = `<div class="empty">Failed to retrieve notes: ${err.message || err}</div>`;
+        }
+    });
+
     async function signOut() {
         try {
-            // Call logout on server
             await fetch("/logout", { method: "POST", credentials: "include" });
         } catch (err) {
             console.warn("Logout request failed:", err);
         }
-        // Redirect to login page
         window.location.href = "AccountLogin.html";
     }
 </script>

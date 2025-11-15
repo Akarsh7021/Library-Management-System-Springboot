@@ -31,7 +31,7 @@ public class BookCopyConditionNotesService
 
     public void deleteBySerialBarcodeBookCopy(Integer serialBarcodeBookCopy)
     {
-        BookCopyConditionNotes.deleteBySerialBarcodeBookCopy(serialBarcodeBookCopy);
+        bookCopyConditionNotesRepository.deleteBySerialBarcodeBookCopy(serialBarcodeBookCopy);
     }
 
 
