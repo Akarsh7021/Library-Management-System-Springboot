@@ -5,55 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>City Library | Catalog</title>
     <style>
-        /* Make the document fill the viewport and use column flex layout */
+        /* overall layout so footer stays at bottom */
         html, body {
             height: 100%;
             margin: 0;
         }
 
-        /* Keep body simple; background is moved to a fixed pseudo-element for reliable fixed background + filter */
+        /* body holds layout; background image moved to a fixed pseudo-element so we can filter it reliably */
         body {
             display: flex;
-            flex-direction: column; /* header -> main -> footer */
+            flex-direction: column;
+            min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f9fafc;
             color: #333;
-            min-height: 100vh;
-            position: relative;
-            box-sizing: border-box;
+            position: relative; /* establishes stacking context for the pseudo-element */
         }
 
-        /* Fixed background image placed behind everything so it won't scroll.
-           The visual effect is applied via the overlay's backdrop-filter to avoid unfiltered strips. */
+        /* full-viewport background image with applied filter — covers everything and doesn't scroll */
         body::before {
             content: "";
             position: fixed;
-            inset: 0; /* top:0; right:0; bottom:0; left:0 */
+            inset: 0;                           /* top/right/bottom/left: 0 */
+            z-index: -1;                        /* put behind page content */
             background-image: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg');
-            background-repeat: no-repeat;
             background-position: center center;
+            background-repeat: no-repeat;
             background-size: cover;
-            z-index: -2;
-            /* No filter here — overlay will handle the visual effect */
-            transform: translateZ(0);
+            /* apply filter consistently across the whole image */
+            filter: contrast(35%) brightness(1.5);
+            /* optional subtle overlay so white panels remain easy to read */
+            /* add an rgba overlay with linear-gradient if you want a tint:
+               background-image: linear-gradient(rgba(255,255,255,0.18), rgba(255,255,255,0.18)), url(...);
+            */
+            will-change: transform; /* performance hint */
         }
 
-        /* Overlay that sits above the image and applies the backdrop-filter effect you requested.
-           This ensures the whole image gets the same treatment and prevents unfiltered strips. */
-        body::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            backdrop-filter: contrast(20%) brightness(1.7);
-            -webkit-backdrop-filter: contrast(20%) brightness(1.7);
-            z-index: -1;
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-
-        header { background-color: #ffffff; padding: 10px 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; }
         header h1 { font-size: 1.5em; margin: 0; color: #000; }
 
-        nav { background-color: #ffffff; display: flex; gap: 30px; padding: 12px 40px; border-bottom: 1px solid #e0e0e0; }
-        nav a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.2s; }
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        nav a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.2s; cursor: pointer; }
         nav a:hover { color: #0077b6; }
 
         /* Make main stretch to take remaining space so footer goes to bottom */
@@ -89,20 +95,25 @@
             gap: 0; /* remove gap reserved for image */
         }
 
-        /* hide any existing cover image element (no HTML change needed) */
-        .book-image {
-            display: none !important;
-            width: 0;
-            height: 0;
-            margin: 0;
-            padding: 0;
-            visibility: hidden;
-        }
+
 
         /* left-align details and allow them to grow */
         .book-info {
             text-align: left;
-            flex: 1 1 auto;
+        }
+
+        .form-box label { display: block; margin-bottom: 6px; font-weight: 500; }
+        .form-box input[type="text"],
+        .form-box input[type="email"],
+        .form-box input[type="password"],
+        .form-box input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            outline: none;
         }
 
         .book-info h3 { margin: 0; color: #333; }
@@ -110,30 +121,35 @@
         .book-info button { background-color: #0077b6; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .book-info button:hover { background-color: #005f8c; }
 
+        /* footer — match other pages and remain at bottom */
         footer {
-            text-align: center;
-            padding: 15px;
-            background-color: rgb(255, 255, 255);
+            background-color: #ffffff;
             border-top: 1px solid #e0e0e0;
-            font-size: 0.9em;
-            color: #555;
-            /* footer will naturally sit at the bottom because main is flexible */
+            padding: 15px;
             flex-shrink: 0;
         }
-
-        nav a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.2s;
-            cursor: pointer;
+        .footer-content {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
+        .footer-content p { margin: 0; font-size: 0.9em; color: #777; }
+        .footer-links { display: flex; gap: 20px; }
+        .footer-links a { text-decoration: none; color: #333; font-size: 0.9em; transition: color 0.2s; }
+        .footer-links a:hover { color: #0077b6; }
 
-        /* Small screens: reduce paddings so layout looks ok */
-        @media (max-width: 700px) {
-            header, nav { padding-left: 16px; padding-right: 16px; }
-            main { padding-left: 16px; padding-right: 16px; }
-            .book-card { margin: 10px; padding: 14px; }
+        /* responsive */
+        @media (max-width: 760px) {
+            main { padding: 24px; }
+            nav { padding: 12px 20px; gap: 12px; }
+            .form-box { margin: 20px auto; width: 100%; max-width: 420px; }
+            .footer-content { padding: 0 20px; }
+            .button-group button { width: 100%; }
+            .button-group { flex-direction: column; gap: 12px; }
         }
     </style>
 </head>
