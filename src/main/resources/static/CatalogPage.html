@@ -5,41 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>City Library | Catalog</title>
     <style>
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafc; color: #333; }
+        /* Make the document fill the viewport and use column flex layout */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column; /* header -> main -> footer */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg') no-repeat center center/cover;
+            backdrop-filter: contrast(35%) brightness(1.5);
+            background-color: #f9fafc;
+            color: #333;
+        }
+
         header { background-color: #ffffff; padding: 10px 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; }
         header h1 { font-size: 1.5em; margin: 0; color: #000; }
+
         nav { background-color: #ffffff; display: flex; gap: 30px; padding: 12px 40px; border-bottom: 1px solid #e0e0e0; }
         nav a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.2s; }
         nav a:hover { color: #0077b6; }
-        main { padding: 40px 80px; max-width: 1200px; margin: auto; }
+
+        /* Make main stretch to take remaining space so footer goes to bottom */
+        main {
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: 0 auto; /* center horizontally */
+            flex: 1 0 auto; /* grow and shrink, take available space */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
         .section-title { font-size: 1.8em; color: #0077b6; margin-bottom: 20px; border-left: 4px solid #0077b6; padding-left: 10px; }
         .tab-container { display: flex; gap: 15px; margin-bottom: 20px; }
         .tab-container button { background-color: #fff; border: 1px solid #ccc; padding: 10px 20px; cursor: pointer; border-radius: 6px; font-weight: 500; transition: all 0.2s ease; }
         .tab-container button.active, .tab-container button:hover { background-color: #0077b6; color: #fff; border-color: #0077b6; }
+
         .search-bar { display: flex; margin-bottom: 30px; }
         .search-bar input { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 8px; outline: none; font-size: 1em; }
         .search-bar button { background-color: #0077b6; color: white; border: none; border-radius: 8px; padding: 10px 15px; margin-left: 10px; cursor: pointer; transition: 0.2s; }
         .search-bar button:hover { background-color: #005f8c; }
+
         .book-card { display: flex; align-items: center; background-color: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; max-width: 800px; margin: 15px auto; }
         .book-image { width: 90px; height: 120px; background-color: #e0e0e0; border-radius: 6px; margin-right: 20px; }
         .book-info h3 { margin: 0; color: #333; }
         .book-info p { margin: 6px 0 12px 0; color: #555; }
         .book-info button { background-color: #0077b6; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .book-info button:hover { background-color: #005f8c; }
+
         footer {
             text-align: center;
             padding: 15px;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgb(255, 255, 255);
             border-top: 1px solid #e0e0e0;
             font-size: 0.9em;
             color: #555;
+            /* footer will naturally sit at the bottom because main is flexible */
         }
+
         nav a {
             text-decoration: none;
             color: #333;
             font-weight: 500;
             transition: color 0.2s;
             cursor: pointer;
+        }
+
+        /* Small screens: reduce paddings so layout looks ok */
+        @media (max-width: 700px) {
+            header, nav { padding-left: 16px; padding-right: 16px; }
+            main { padding-left: 16px; padding-right: 16px; }
+            .book-card { margin: 10px; }
         }
     </style>
 </head>

@@ -5,13 +5,23 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>City Library | Place Hold</title>
     <style>
-        body {
+        /* page layout */
+        html, body {
+            height: 100%;
             margin: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* ensures footer can be pushed to bottom */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg') no-repeat center center/cover;
+            backdrop-filter: contrast(35%) brightness(1.5);
             background-color: #f9fafc;
             color: #333;
         }
 
+        /* header */
         header {
             background-color: #ffffff;
             padding: 10px 40px;
@@ -20,13 +30,13 @@
             align-items: center;
             justify-content: space-between;
         }
-
         header h1 {
             font-size: 1.5em;
             margin: 0;
             color: #000;
         }
 
+        /* nav */
         nav {
             background-color: #ffffff;
             display: flex;
@@ -35,23 +45,22 @@
             padding: 12px 40px;
             border-bottom: 1px solid #e0e0e0;
         }
-
         nav a {
             text-decoration: none;
             color: #333;
             font-weight: 500;
             transition: color 0.2s;
+            cursor: pointer;
         }
+        nav a:hover { color: #0077b6; }
 
-        nav a:hover {
-            color: #0077b6;
-        }
-
+        /* main - flexible area grows to fill */
         main {
             padding: 40px 80px;
             max-width: 1200px;
-            margin: auto;
+            margin: 0 auto;
             text-align: center;
+            flex: 1 0 auto; /* allows main to grow and push footer to bottom */
         }
 
         .section-title {
@@ -112,27 +121,58 @@
             transition: background-color 0.2s;
             width: 100%;
         }
+        .hold-box button:hover { background-color: #005f8c; }
 
-        .hold-box button:hover {
-            background-color: #005f8c;
-        }
-
+        /* footer — match other pages and stick to bottom via flex layout */
         footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.9em;
-            color: #777;
             background-color: #ffffff;
             border-top: 1px solid #e0e0e0;
-            margin-top: 60px;
+            padding: 15px;
+            flex-shrink: 0; /* don't shrink footer */
         }
-        nav a {
+
+        .footer-content {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-content p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .footer-links a {
             text-decoration: none;
             color: #333;
-            font-weight: 500;
+            font-size: 0.9em;
             transition: color 0.2s;
-            cursor: pointer;
         }
+        .footer-links a:hover { color: #0077b6; }
+
+        /* small responsive tweak */
+        @media (max-width: 760px) {
+            main { padding: 24px; }
+            nav { padding: 12px 20px; gap: 12px; }
+            .forms { gap: 20px; }
+            .hold-box { width: 100%; max-width: 420px; }
+            .footer-content { padding: 0 20px; }
+        }
+
+        /* optional message styling */
+        .message { margin-top: 8px; font-size: 0.95em; }
+        .message.success { color: #2b8a3e; }
+        .message.error { color: #c53030; }
     </style>
 </head>
 <body>
@@ -159,8 +199,10 @@
             <form id="placeHoldForm">
                 <label for="bookId">Book ID</label>
                 <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="text">
+
                 <label for="accountId">Account ID</label>
                 <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
+
                 <button type="submit">Place Hold</button>
                 <div id="placeMsg" class="message" aria-live="polite"></div>
             </form>
@@ -172,8 +214,10 @@
             <form id="cancelHoldForm">
                 <label for="cancelBookId">Book ID</label>
                 <input id="cancelBookId" name="cancelBookId" placeholder="Enter Book ID" required type="text">
+
                 <label for="cancelAccountId">Account ID</label>
                 <input id="cancelAccountId" name="cancelAccountId" placeholder="Enter Account ID" required type="text">
+
                 <button type="submit">Cancel Hold</button>
                 <div id="cancelMsg" class="message" aria-live="polite"></div>
             </form>
@@ -182,7 +226,9 @@
 </main>
 
 <footer>
-    © 2025 City Library
+    <div class="footer-content">
+        <p>© 2025 City Library</p>
+    </div>
 </footer>
 
 <script>
