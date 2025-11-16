@@ -11,14 +11,43 @@
             margin: 0;
         }
 
+        /* Keep body simple; background is moved to a fixed pseudo-element for reliable fixed background + filter */
         body {
             display: flex;
             flex-direction: column; /* header -> main -> footer */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg') no-repeat center center/cover;
-            backdrop-filter: contrast(35%) brightness(1.5);
             background-color: #f9fafc;
             color: #333;
+            min-height: 100vh;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Fixed background image placed behind everything so it won't scroll.
+           The filter (contrast + brightness) is applied directly to the pseudo-element so
+           you won't get an unfiltered strip at the bottom. */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0; /* top:0; right:0; bottom:0; left:0 */
+            background-image: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+            z-index: -2;
+            /* apply same visual effect you wanted */
+            filter: contrast(0.35) brightness(1.5);
+            /* ensure GPU compositing for smoother rendering */
+            transform: translateZ(0);
+        }
+
+        /* optional subtle overlay so white UI panels remain readable on all parts of the photo */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(249, 250, 252, 0.35); /* slight light overlay */
+            z-index: -1;
         }
 
         header { background-color: #ffffff; padding: 10px 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; }
@@ -48,10 +77,37 @@
         .search-bar button { background-color: #0077b6; color: white; border: none; border-radius: 8px; padding: 10px 15px; margin-left: 10px; cursor: pointer; transition: 0.2s; }
         .search-bar button:hover { background-color: #005f8c; }
 
-        .book-card { display: flex; align-items: center; background-color: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; max-width: 800px; margin: 15px auto; }
-        .book-image { width: 90px; height: 120px; background-color: #e0e0e0; border-radius: 6px; margin-right: 20px; }
+        /* Book card layout */
+        .book-card {
+            display: flex;
+            align-items: flex-start; /* align the details to the top */
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 20px;
+            max-width: 800px;
+            margin: 15px auto;
+            gap: 0; /* remove gap reserved for image */
+        }
+
+        /* hide any existing cover image element (no HTML change needed) */
+        .book-image {
+            display: none !important;
+            width: 0;
+            height: 0;
+            margin: 0;
+            padding: 0;
+            visibility: hidden;
+        }
+
+        /* left-align details and allow them to grow */
+        .book-info {
+            text-align: left;
+            flex: 1 1 auto;
+        }
+
         .book-info h3 { margin: 0; color: #333; }
-        .book-info p { margin: 6px 0 12px 0; color: #555; }
+        .book-info p { margin: 6px 0 12px 0; color: #555; line-height: 1.4; }
         .book-info button { background-color: #0077b6; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .book-info button:hover { background-color: #005f8c; }
 
@@ -63,6 +119,7 @@
             font-size: 0.9em;
             color: #555;
             /* footer will naturally sit at the bottom because main is flexible */
+            flex-shrink: 0;
         }
 
         nav a {
@@ -77,7 +134,7 @@
         @media (max-width: 700px) {
             header, nav { padding-left: 16px; padding-right: 16px; }
             main { padding-left: 16px; padding-right: 16px; }
-            .book-card { margin: 10px; }
+            .book-card { margin: 10px; padding: 14px; }
         }
     </style>
 </head>
@@ -106,7 +163,7 @@
 
     <div class="search-bar">
         <input id="catalogSearch" placeholder="Search..." type="text">
-        <button onclick="searchCatalog()">🔍</button>
+        <button onclick="searchCatalog()">Search</button>
     </div>
 
     <!-- Container for dynamic search results -->
