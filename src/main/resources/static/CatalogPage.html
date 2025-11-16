@@ -16,6 +16,7 @@
             display: flex;
             flex-direction: column; /* header -> main -> footer */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            backdrop-filter: contrast(35%) brightness(1.5);
             background-color: #f9fafc;
             color: #333;
             min-height: 100vh;
@@ -36,7 +37,7 @@
             background-size: cover;
             z-index: -2;
             /* apply same visual effect you wanted */
-            filter: contrast(0.35) brightness(1.5);
+            backdrop-filter: contrast(35%) brightness(1.5);
             /* ensure GPU compositing for smoother rendering */
             transform: translateZ(0);
         }
@@ -46,7 +47,7 @@
             content: "";
             position: fixed;
             inset: 0;
-            background: rgba(249, 250, 252, 0.35); /* slight light overlay */
+            backdrop-filter: contrast(35%) brightness(1.5);
             z-index: -1;
         }
 
