@@ -16,7 +16,6 @@
             display: flex;
             flex-direction: column; /* header -> main -> footer */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            backdrop-filter: contrast(35%) brightness(1.5);
             background-color: #f9fafc;
             color: #333;
             min-height: 100vh;
@@ -25,8 +24,7 @@
         }
 
         /* Fixed background image placed behind everything so it won't scroll.
-           The filter (contrast + brightness) is applied directly to the pseudo-element so
-           you won't get an unfiltered strip at the bottom. */
+           The visual effect is applied via the overlay's backdrop-filter to avoid unfiltered strips. */
         body::before {
             content: "";
             position: fixed;
@@ -36,18 +34,18 @@
             background-position: center center;
             background-size: cover;
             z-index: -2;
-            /* apply same visual effect you wanted */
-            backdrop-filter: contrast(35%) brightness(1.5);
-            /* ensure GPU compositing for smoother rendering */
+            /* No filter here — overlay will handle the visual effect */
             transform: translateZ(0);
         }
 
-        /* optional subtle overlay so white UI panels remain readable on all parts of the photo */
+        /* Overlay that sits above the image and applies the backdrop-filter effect you requested.
+           This ensures the whole image gets the same treatment and prevents unfiltered strips. */
         body::after {
             content: "";
             position: fixed;
             inset: 0;
-            backdrop-filter: contrast(35%) brightness(1.5);
+            backdrop-filter: contrast(20%) brightness(1.7);
+            -webkit-backdrop-filter: contrast(20%) brightness(1.7);
             z-index: -1;
         }
 
