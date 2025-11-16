@@ -5,12 +5,42 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>City Library | Edit Member Details</title>
     <style>
-        body {
+        /* overall layout so footer stays at bottom */
+        html, body {
+            height: 100%;
             margin: 0;
+        }
+
+        /* body holds layout; background image moved to a fixed pseudo-element so we can filter it reliably */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f9fafc;
             color: #333;
+            position: relative; /* establishes stacking context for the pseudo-element */
         }
+
+        /* full-viewport background image with applied filter — covers everything and doesn't scroll */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;                           /* top/right/bottom/left: 0 */
+            z-index: -1;                        /* put behind page content */
+            background-image: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            /* apply filter consistently across the whole image */
+            filter: contrast(35%) brightness(1.5);
+            /* optional subtle overlay so white panels remain easy to read */
+            /* add an rgba overlay with linear-gradient if you want a tint:
+               background-image: linear-gradient(rgba(255,255,255,0.18), rgba(255,255,255,0.18)), url(...);
+            */
+            will-change: transform; /* performance hint */
+        }
+
         header {
             background-color: #ffffff;
             padding: 10px 40px;
@@ -31,12 +61,16 @@
         }
         nav a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.2s; cursor: pointer; }
         nav a:hover { color: #0077b6; }
+
+        /* main area grows to push footer down */
         main {
             padding: 40px 80px;
             max-width: 1200px;
-            margin: auto;
+            margin: 0 auto;
             text-align: center;
+            flex: 1 0 auto;
         }
+
         .section-title {
             font-size: 1.8em;
             color: #0077b6;
@@ -45,6 +79,7 @@
             padding-left: 10px;
             text-align: left;
         }
+
         .form-box {
             background-color: #ffffff;
             border-radius: 10px;
@@ -54,6 +89,7 @@
             margin: 40px auto;
             text-align: left;
         }
+
         .form-box label { display: block; margin-bottom: 6px; font-weight: 500; }
         .form-box input[type="text"],
         .form-box input[type="email"],
@@ -67,6 +103,7 @@
             font-size: 1em;
             outline: none;
         }
+
         .button-group {
             display: flex;
             justify-content: space-between;
@@ -86,14 +123,36 @@
         .button-group button.delete { background-color: #d9534f; }
         .button-group button:hover { background-color: #005f8c; }
         .button-group button.delete:hover { background-color: #c9302c; }
+
+        /* footer — match other pages and remain at bottom */
         footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.9em;
-            color: #777;
             background-color: #ffffff;
             border-top: 1px solid #e0e0e0;
-            margin-top: 60px;
+            padding: 15px;
+            flex-shrink: 0;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .footer-content p { margin: 0; font-size: 0.9em; color: #777; }
+        .footer-links { display: flex; gap: 20px; }
+        .footer-links a { text-decoration: none; color: #333; font-size: 0.9em; transition: color 0.2s; }
+        .footer-links a:hover { color: #0077b6; }
+
+        /* responsive */
+        @media (max-width: 760px) {
+            main { padding: 24px; }
+            nav { padding: 12px 20px; gap: 12px; }
+            .form-box { margin: 20px auto; width: 100%; max-width: 420px; }
+            .footer-content { padding: 0 20px; }
+            .button-group button { width: 100%; }
+            .button-group { flex-direction: column; gap: 12px; }
         }
     </style>
 </head>
@@ -139,7 +198,9 @@
 </main>
 
 <footer>
-    © 2025 City Library
+    <div class="footer-content">
+        <p>© 2025 City Library</p>
+    </div>
 </footer>
 
 <script>
@@ -226,9 +287,7 @@
 
             if (response.status === 204 || response.ok) {
                 // call logout to be safe (server-side session should be invalidated too)
-                try {
-                    await fetch("/logout", { method: "POST", credentials: "include" });
-                } catch (e) { /* ignore logout failure */ }
+                try { await fetch("/logout", { method: "POST", credentials: "include" }); } catch (e) { /* ignore */ }
                 alert("Account deleted. You will be signed out.");
                 window.location.href = "AccountLogin.html";
             } else {
@@ -243,12 +302,7 @@
 
     // Sign out action (nav)
     async function signOut() {
-        try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
-        } catch (err) {
-            console.warn("Logout request failed:", err);
-        }
-        // redirect to login page
+        try { await fetch("/logout", { method: "POST", credentials: "include" }); } catch (err) { console.warn("Logout request failed:", err); }
         window.location.href = "AccountLogin.html";
     }
 </script>
