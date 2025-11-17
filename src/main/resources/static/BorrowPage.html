@@ -125,6 +125,7 @@
             border-top: 1px solid #e0e0e0;
             margin-top: 60px;
         }
+
         nav a {
             text-decoration: none;
             color: #333;
@@ -145,7 +146,7 @@
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
     <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -198,7 +199,7 @@
         }
 
         // Log collected and converted data for debugging
-        console.log("Borrow Request:", { bookId, accountId, dueDate });
+        console.log("Borrow Request:", {bookId, accountId, dueDate});
 
         // Create request payload (matching backend entity field names)
         const requestData = {
@@ -212,7 +213,7 @@
         // Fetch call to backend API
         fetch("http://localhost:8080/api/borrow", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(requestData)
         })
             .then(response => {
@@ -233,10 +234,11 @@
         // Reset form after submission
         document.getElementById("borrowForm").reset();
     }
+
     async function signOut() {
         try {
             // Call logout on server
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }

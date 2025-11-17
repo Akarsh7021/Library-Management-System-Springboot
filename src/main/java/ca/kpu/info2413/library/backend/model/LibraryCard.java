@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "LibraryCard")
 @Data
 @NoArgsConstructor
-public class LibraryCard {
+public class LibraryCard
+{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

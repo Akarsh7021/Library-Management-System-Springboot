@@ -161,7 +161,7 @@
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
     <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -174,26 +174,26 @@
             <p class="hint">Create a user and link to an existing library card (enter card ID if available).</p>
 
             <label for="fullName">Full name</label>
-            <input id="fullName" type="text" placeholder="Jane Doe" required>
+            <input id="fullName" placeholder="Jane Doe" required type="text">
 
             <label for="email">Email</label>
-            <input id="email" type="email" placeholder="jane@example.com" required>
+            <input id="email" placeholder="jane@example.com" required type="email">
 
             <label for="password">Password</label>
-            <input id="password" type="password" required>
+            <input id="password" required type="password">
 
             <label for="confirmPassword">Confirm password</label>
-            <input id="confirmPassword" type="password" required>
+            <input id="confirmPassword" required type="password">
 
             <label for="phone">Phone</label>
-            <input id="phone" type="tel" placeholder="(xxx) - xxx - xxxx">
+            <input id="phone" placeholder="(xxx) - xxx - xxxx" type="tel">
 
             <label for="libraryCard">Library card (ID)</label>
-            <input id="libraryCard" type="text" placeholder="Optional: existing card #">
+            <input id="libraryCard" placeholder="Optional: existing card #" type="text">
 
             <button id="createBtn">Create user</button>
 
-            <div id="createMsg" class="msg" aria-live="polite"></div>
+            <div aria-live="polite" class="msg" id="createMsg"></div>
         </div>
 
         <!-- Delete user -->
@@ -202,11 +202,11 @@
             <p class="hint">Delete an account by its Account ID.</p>
 
             <label for="deleteAccountId">Account ID</label>
-            <input id="deleteAccountId" type="text" placeholder="e.g. 12">
+            <input id="deleteAccountId" placeholder="e.g. 12" type="text">
 
             <button id="deleteBtn">Delete user</button>
 
-            <div id="deleteMsg" class="msg" aria-live="polite"></div>
+            <div aria-live="polite" class="msg" id="deleteMsg"></div>
         </div>
     </div>
 </main>
@@ -222,7 +222,7 @@
 
     async function signOut() {
         try {
-            await fetch('/logout', { method: 'POST', credentials: 'include' });
+            await fetch('/logout', {method: 'POST', credentials: 'include'});
         } catch (err) {
             console.warn('Logout request failed:', err);
         }
@@ -265,7 +265,7 @@
         try {
             const res = await fetch(REGISTER_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
 

@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookCopyConditionNotes {
+public class BookCopyConditionNotes
+{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

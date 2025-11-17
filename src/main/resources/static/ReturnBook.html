@@ -146,7 +146,7 @@
             background: #fff;
             border-radius: 10px;
             padding: 18px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             box-sizing: border-box;
         }
 
@@ -210,7 +210,7 @@
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
     <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -234,10 +234,13 @@
             <div class="hint">Record notes about the physical condition of a specific copy.</div>
             <form id="conditionForm">
                 <label for="serialBarcode">Serial Barcode</label>
-                <input id="serialBarcode" name="serialBarcode" placeholder="Enter Book Serial Barcode" required type="text">
+                <input id="serialBarcode" name="serialBarcode" placeholder="Enter Book Serial Barcode" required
+                       type="text">
 
                 <label for="conditionNotes">Condition Notes</label>
-                <textarea id="conditionNotes" name="conditionNotes" placeholder="Describe the condition (scratches, torn pages, water damage, etc.)" required></textarea>
+                <textarea id="conditionNotes" name="conditionNotes"
+                          placeholder="Describe the condition (scratches, torn pages, water damage, etc.)"
+                          required></textarea>
 
                 <button type="submit">Save Condition Notes</button>
             </form>
@@ -258,7 +261,7 @@
     </div>
 
     <!-- results -->
-    <div class="results" id="notesResults" aria-live="polite" style="display:none;">
+    <div aria-live="polite" class="results" id="notesResults" style="display:none;">
         <h3>Condition Notes</h3>
         <div id="notesList"></div>
     </div>
@@ -300,7 +303,7 @@
             });
         }
         results.style.display = 'block';
-        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        results.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
 
     async function fetchConditionNotes(serial) {
@@ -309,7 +312,7 @@
         // fallback attempt: path param
         try {
             const altUrl = `${base}/${encodeURIComponent(serial)}`;
-            const resp2 = await fetch(altUrl, { method: 'GET', headers: { 'Accept': 'application/json' }});
+            const resp2 = await fetch(altUrl, {method: 'GET', headers: {'Accept': 'application/json'}});
             if (resp2.ok) {
                 return await resp2.json();
             } else {
@@ -331,7 +334,7 @@
             return;
         }
         const serialBarcode = isNaN(bookIdRaw) ? bookIdRaw : parseInt(bookIdRaw, 10);
-        const returnData = { serialBarcodeBookCopy: serialBarcode };
+        const returnData = {serialBarcodeBookCopy: serialBarcode};
         try {
             const response = await fetch("http://localhost:8080/api/returns", {
                 method: "PUT",
@@ -340,7 +343,11 @@
             });
             if (response.ok) {
                 let msg = "";
-                try { const json = await response.json(); if (json && json.message) msg = " — " + json.message; } catch(_) {}
+                try {
+                    const json = await response.json();
+                    if (json && json.message) msg = " — " + json.message;
+                } catch (_) {
+                }
                 alert("Book returned successfully!" + msg);
                 e.target.reset();
             } else if (response.status === 404) {
@@ -427,7 +434,7 @@
 
     async function signOut() {
         try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }

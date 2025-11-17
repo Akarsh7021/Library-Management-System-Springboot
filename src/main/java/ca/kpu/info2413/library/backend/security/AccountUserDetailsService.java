@@ -14,19 +14,23 @@ import java.util.List;
  * Loads account by email and returns AccountUserDetails.
  */
 @Service
-public class AccountUserDetailsService implements UserDetailsService {
+public class AccountUserDetailsService implements UserDetailsService
+{
 
     private final AccountRepository accountRepository;
 
     @Autowired
-    public AccountUserDetailsService(AccountRepository accountRepository) {
+    public AccountUserDetailsService(AccountRepository accountRepository)
+    {
         this.accountRepository = accountRepository;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+    {
         List<Account> accounts = accountRepository.findByNotificationEmailIgnoreCase(username);
-        if (accounts.isEmpty()) {
+        if (accounts.isEmpty())
+        {
             throw new UsernameNotFoundException("No account with email: " + username);
         }
         Account account = accounts.get(0);
