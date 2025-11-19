@@ -13,7 +13,7 @@ public class AuthController
 {
 
     // Optional explicit logout endpoint (Spring Security already handles /logout if configured)
-    @PostMapping("/api/auth/logout")
+    @PostMapping("/auth/logout")
     public ResponseEntity<?> logout(HttpServletRequest request)
     {
         try

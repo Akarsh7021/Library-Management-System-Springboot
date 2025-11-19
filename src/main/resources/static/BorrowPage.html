@@ -211,7 +211,7 @@
         console.log("Payload sent to server:", requestData);
 
         // Fetch call to backend API
-        fetch("http://localhost:8080/api/borrow", {
+        fetch("http://localhost:8080/borrow", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(requestData)

@@ -83,7 +83,7 @@ public class HoldController
 
     /**
      * Cancel a hold by bookId and accountId
-     * DELETE /api/holds?bookId=123&accountId=456
+     * DELETE /holds?bookId=123&accountId=456
      */
     @DeleteMapping
     public ResponseEntity<?> cancelHold(@RequestParam Integer bookId, @RequestParam Integer accountId)

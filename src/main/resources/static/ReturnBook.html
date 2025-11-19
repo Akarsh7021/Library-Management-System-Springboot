@@ -286,7 +286,7 @@
 
 <script>
     // Primary endpoints (adjust if necessary)
-    const RETURN_ENDPOINT = 'http://localhost:8080/api/returns'; // existing endpoint you had
+    const RETURN_ENDPOINT = 'http://localhost:8080/returns'; // existing endpoint you had
     const ALT_RETURN_ENDPOINT = 'http://localhost:8080/borrow/return'; // alternative convention
     const BORROW_BASE = 'http://localhost:8080/borrow'; // Borrow entity (GET, PUT)
     const NOTES_BASE = 'http://localhost:8080/book_copy_condition_notes'; // POST to create; GET to retrieve
@@ -305,7 +305,7 @@
         return d.toISOString().slice(0, 10);
     }
 
-    // Attempt the /api/returns endpoint (keeps backward compatibility)
+    // Attempt the /returns endpoint (keeps backward compatibility)
     async function tryApiReturns(serial) {
         try {
             const resp = await fetch(RETURN_ENDPOINT, {
@@ -407,7 +407,7 @@
         btn.disabled = true;
         btn.textContent = 'Processing...';
 
-        // 1) Try /api/returns (existing)
+        // 1) Try /returns (existing)
         try {
             const resp = await tryApiReturns(serial);
             if (resp && (resp.ok || resp.status === 204)) {
@@ -422,9 +422,9 @@
                 btn.textContent = 'Return Book';
                 return;
             }
-            if (resp) console.debug('/api/returns responded', resp.status);
+            if (resp) console.debug('/returns responded', resp.status);
         } catch (err) {
-            console.debug('/api/returns threw', err);
+            console.debug('/returns threw', err);
         }
 
         // 2) Try alternate endpoint POST /borrow/return

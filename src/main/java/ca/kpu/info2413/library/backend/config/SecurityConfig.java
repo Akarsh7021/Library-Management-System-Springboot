@@ -43,7 +43,7 @@ public class SecurityConfig
                                 "/RegisterationPage.html",
                                 "/register",
                                 // Allow registration endpoints (backend mappings vary in your project)
-                                "/api/register",
+                                "/register",
                                 "/account/register"
                         ).permitAll()
                         .anyRequest().authenticated()

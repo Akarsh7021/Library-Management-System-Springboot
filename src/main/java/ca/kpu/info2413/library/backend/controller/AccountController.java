@@ -189,7 +189,7 @@ public class AccountController
     }
 
     // Simple login (kept for compatibility)
-    @PostMapping("/api/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials)
     {
         String email = credentials.get("notificationEmail");

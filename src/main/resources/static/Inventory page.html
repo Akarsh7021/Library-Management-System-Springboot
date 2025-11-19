@@ -261,7 +261,7 @@
             authors: authors.value
         };
 
-        const res = await fetch("http://localhost:8080/api/publication", {
+        const res = await fetch("http://localhost:8080/publication", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload)
@@ -276,7 +276,7 @@
 
         const isbn = deletePubIsbn.value;
 
-        const res = await fetch(`http://localhost:8080/api/publication/${isbn}`, {
+        const res = await fetch(`http://localhost:8080/publication/${isbn}`, {
             method: "DELETE"
         });
 
@@ -292,7 +292,7 @@
             barcode: copyBarcode.value
         };
 
-        const res = await fetch("http://localhost:8080/api/bookcopy", {
+        const res = await fetch("http://localhost:8080/bookcopy", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload)
@@ -307,7 +307,7 @@
 
         const barcode = deleteCopyBarcode.value;
 
-        const res = await fetch(`http://localhost:8080/api/bookcopy/${barcode}`, {
+        const res = await fetch(`http://localhost:8080/bookcopy/${barcode}`, {
             method: "DELETE"
         });
 
@@ -323,7 +323,7 @@
             note: conditionNote.value
         };
 
-        const res = await fetch(`http://localhost:8080/api/bookcopy/condition`, {
+        const res = await fetch(`http://localhost:8080/bookcopy/condition`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload)
@@ -338,7 +338,7 @@
 
         const barcode = lookupBarcode.value;
 
-        const res = await fetch(`http://localhost:8080/api/bookcopy/condition/${barcode}`);
+        const res = await fetch(`http://localhost:8080/bookcopy/condition/${barcode}`);
 
         if (!res.ok) return alert("No notes found.");
 
