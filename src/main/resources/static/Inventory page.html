@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>City Library | Admin Book Management</title>
+    <title>City Library | Inventory Management</title>
+
     <style>
         body {
             margin: 0;
@@ -21,12 +22,6 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-
-        header h1 {
-            font-size: 1.5em;
-            margin: 0;
-            color: #000;
         }
 
         nav {
@@ -68,9 +63,8 @@
         .forms-container {
             display: flex;
             justify-content: center;
-            gap: 60px;
             flex-wrap: wrap;
-            margin-top: 40px;
+            gap: 40px;
         }
 
         .form-box {
@@ -78,32 +72,29 @@
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 30px;
-            width: 350px;
+            width: 340px;
             text-align: left;
         }
 
         .form-box h2 {
             color: #0077b6;
-            font-size: 1.2em;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 15px;
         }
 
         .form-box label {
             display: block;
-            text-align: left;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             font-weight: 500;
-            color: #333;
         }
 
-        .form-box input, .form-box select {
+        .form-box input, .form-box textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 1em;
-            outline: none;
         }
 
         .form-box button {
@@ -131,6 +122,7 @@
             border-top: 1px solid #e0e0e0;
             margin-top: 60px;
         }
+
         nav a {
             text-decoration: none;
             color: #333;
@@ -141,9 +133,8 @@
     </style>
 </head>
 <body>
-<header>
-    <h1>City Library</h1>
-</header>
+
+<header><h1>City Library</h1></header>
 
 <nav>
     <a href="HomePage.html">Home</a>
@@ -151,74 +142,101 @@
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
     <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
-    <div class="section-title">Admin Book Management</div>
+    <div class="section-title">Inventory Management</div>
 
     <div class="forms-container">
-        <!-- Update Book Form -->
+
+        <!-- ADD PUBLICATION -->
         <div class="form-box">
-            <h2>Edit Book Details</h2>
-            <form id="updateBookForm">
-                <label for="bookId1">Book ID</label>
-                <input id="bookId1" name="bookId1" placeholder="Enter Book ID" required type="text">
+            <h2>Add Publication</h2>
+            <form id="addPublicationForm">
+                <label>ISBN</label>
+                <input id="pubIsbn" required>
 
-                <label for="isbn1">ISBN</label>
-                <input id="isbn1" name="isbn1" placeholder="Enter ISBN" required type="text">
+                <label>Page Count</label>
+                <input id="pageCount" required type="number">
 
-                <label for="title1">Title</label>
-                <input id="title1" name="title1" placeholder="Enter Title" required type="text">
+                <label>Publication Date</label>
+                <input id="pubDate" required type="date">
 
-                <label for="author1">Author</label>
-                <input id="author1" name="author1" placeholder="Enter Author" required type="text">
+                <label>Genre</label>
+                <input id="genre" required>
 
-                <label for="genre1">Genre</label>
-                <select id="genre1" name="genre1" required>
-                    <option value="">--Select Genre--</option>
-                    <option value="AI">AI</option>
-                    <option value="Fiction">Fiction</option>
-                    <option value="History">History</option>
-                    <option value="NonFiction">Non-Fiction</option>
-                    <option value="Programming">Programming</option>
-                    <option value="science">Science</option>
-                </select>
+                <label>Title</label>
+                <input id="title" required>
 
-                <button type="submit">Update</button>
+                <label>Author(s)</label>
+                <input id="authors" required>
+
+                <button type="submit">Add Publication</button>
             </form>
         </div>
 
-        <!-- Add Book Form -->
+        <!-- DELETE PUBLICATION -->
         <div class="form-box">
-            <h2>Add Book</h2>
-            <form id="addBookForm">
-                <label for="bookId2">Book ID</label>
-                <input id="bookId2" name="bookId2" placeholder="Enter Book ID" required type="text">
+            <h2>Delete Publication</h2>
+            <form id="deletePublicationForm">
+                <label>ISBN</label>
+                <input id="deletePubIsbn" required>
 
-                <label for="isbn2">ISBN</label>
-                <input id="isbn2" name="isbn2" placeholder="Enter ISBN" required type="text">
-
-                <label for="title2">Title</label>
-                <input id="title2" name="title2" placeholder="Enter Title" required type="text">
-
-                <label for="author2">Author</label>
-                <input id="author2" name="author2" placeholder="Enter Author" required type="text">
-
-                <label for="genre2">Genre</label>
-                <select id="genre2" name="genre2" required>
-                    <option value="">--Select Genre--</option>
-                    <option value="AI">AI</option>
-                    <option value="Fiction">Fiction</option>
-                    <option value="History">History</option>
-                    <option value="NonFiction">Non-Fiction</option>
-                    <option value="Programming">Programming</option>
-                    <option value="science">Science</option>
-                </select>
-
-                <button type="submit">Add</button>
+                <button type="submit">Delete Publication</button>
             </form>
         </div>
+
+        <!-- ADD BOOK COPY -->
+        <div class="form-box">
+            <h2>Add Book Copy</h2>
+            <form id="addBookCopyForm">
+                <label>ISBN</label>
+                <input id="copyIsbn" required>
+
+                <label>Serial Barcode</label>
+                <input id="copyBarcode" required>
+
+                <button type="submit">Add Book Copy</button>
+            </form>
+        </div>
+
+        <!-- DELETE BOOK COPY -->
+        <div class="form-box">
+            <h2>Delete Book Copy</h2>
+            <form id="deleteBookCopyForm">
+                <label>Serial Barcode</label>
+                <input id="deleteCopyBarcode" required>
+
+                <button type="submit">Delete Book Copy</button>
+            </form>
+        </div>
+
+        <!-- ADD CONDITION NOTE -->
+        <div class="form-box">
+            <h2>Add Condition Note</h2>
+            <form id="addConditionForm">
+                <label>Serial Barcode</label>
+                <input id="noteBarcode" required>
+
+                <label>Condition Note</label>
+                <textarea id="conditionNote" required rows="4"></textarea>
+
+                <button type="submit">Add Condition Note</button>
+            </form>
+        </div>
+
+        <!-- LOOKUP CONDITION NOTES -->
+        <div class="form-box">
+            <h2>Lookup Condition Notes</h2>
+            <form id="lookupForm">
+                <label>Serial Barcode</label>
+                <input id="lookupBarcode" required>
+
+                <button type="submit">Lookup Notes</button>
+            </form>
+        </div>
+
     </div>
 </main>
 
@@ -227,75 +245,109 @@
 </footer>
 
 <script>
-    // --- Update Book (PUT) ---
-    document.getElementById("updateBookForm").addEventListener("submit", async function (e) {
+
+    // -------------------------
+    // ADD PUBLICATION
+    // -------------------------
+    document.getElementById("addPublicationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const book = {
-            bookId: document.getElementById("bookId1").value,
-            isbn: document.getElementById("isbn1").value,
-            title: document.getElementById("title1").value,
-            author: document.getElementById("author1").value,
-            genre: document.getElementById("genre1").value
+        const payload = {
+            isbn: pubIsbn.value,
+            pageCount: pageCount.value,
+            publicationDate: pubDate.value,
+            genre: genre.value,
+            title: title.value,
+            authors: authors.value
         };
 
-        try {
-            const response = await fetch("http://localhost:8080/api/books/update", {
-                method: "PUT",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(book)
-            });
+        const res = await fetch("http://localhost:8080/publication", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload)
+        });
 
-            if (response.ok) {
-                alert("Book details updated successfully!");
-            } else {
-                alert("Update failed. Please check your inputs.");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Could not connect to the server.");
-        }
+        alert(res.ok ? "Publication added!" : "Error adding publication");
     });
 
-    // --- Add Book (POST) ---
-    document.getElementById("addBookForm").addEventListener("submit", async function (e) {
+    // DELETE PUBLICATION
+    document.getElementById("deletePublicationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const book = {
-            bookId: document.getElementById("bookId2").value,
-            isbn: document.getElementById("isbn2").value,
-            title: document.getElementById("title2").value,
-            author: document.getElementById("author2").value,
-            genre: document.getElementById("genre2").value
+        const isbn = deletePubIsbn.value;
+
+        const res = await fetch(`http://localhost:8080/publication/${isbn}`, {
+            method: "DELETE"
+        });
+
+        alert(res.ok ? "Publication deleted!" : "Error deleting publication");
+    });
+
+    // ADD BOOK COPY
+    document.getElementById("addBookCopyForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const payload = {
+            isbn: copyIsbn.value,
+            barcode: copyBarcode.value
         };
 
-        try {
-            const response = await fetch("http://localhost:8080/api/books/add", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(book)
-            });
+        const res = await fetch("http://localhost:8080/bookcopy", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload)
+        });
 
-            if (response.ok) {
-                alert("Book added successfully!");
-            } else {
-                alert("Failed to add book. Please check inputs.");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Could not connect to the server.");
-        }
+        alert(res.ok ? "Book copy added!" : "Error adding book copy");
     });
-    async function signOut() {
-        try {
-            // Call logout on server
-            await fetch("/logout", { method: "POST", credentials: "include" });
-        } catch (err) {
-            console.warn("Logout request failed:", err);
-        }
-        // Redirect to login page
-        window.location.href = "AccountLogin.html";
-    }
+
+    // DELETE BOOK COPY
+    document.getElementById("deleteBookCopyForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const barcode = deleteCopyBarcode.value;
+
+        const res = await fetch(`http://localhost:8080/bookcopy/${barcode}`, {
+            method: "DELETE"
+        });
+
+        alert(res.ok ? "Book copy deleted!" : "Error deleting book copy");
+    });
+
+    // ADD CONDITION NOTE
+    document.getElementById("addConditionForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const payload = {
+            barcode: noteBarcode.value,
+            note: conditionNote.value
+        };
+
+        const res = await fetch(`http://localhost:8080/bookcopy/condition`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload)
+        });
+
+        alert(res.ok ? "Condition note added!" : "Error adding note");
+    });
+
+    // LOOKUP CONDITION NOTE
+    document.getElementById("lookupForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const barcode = lookupBarcode.value;
+
+        const res = await fetch(`http://localhost:8080/bookcopy/condition/${barcode}`);
+
+        if (!res.ok) return alert("No notes found.");
+
+        const notes = await res.json();
+
+        alert("Condition Notes:\n\n" + notes.join("\n"));
+    });
+
 </script>
+
 </body>
 </html>

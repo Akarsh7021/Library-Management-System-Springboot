@@ -146,7 +146,7 @@
             background: #fff;
             border-radius: 10px;
             padding: 18px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             box-sizing: border-box;
         }
 
@@ -197,6 +197,16 @@
             transition: color 0.2s;
             cursor: pointer;
         }
+
+        button[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-msg {
+            margin-top: 8px;
+            font-size: 0.95em;
+        }
     </style>
 </head>
 <body>
@@ -210,11 +220,11 @@
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
     <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
-    <div class="section-title">Admin Panel</div>
+    <div class="section-title">Return Book</div>
 
     <div class="forms-row">
         <!-- Return Book -->
@@ -224,7 +234,8 @@
             <form id="returnBookForm">
                 <label for="bookId">Book Serial Barcode</label>
                 <input id="bookId" name="bookId" placeholder="Enter Book Serial Barcode" required type="text">
-                <button type="submit">Return Book</button>
+                <button type="submit" id="returnBtn">Return Book</button>
+                <div id="returnMsg" class="form-msg" aria-live="polite"></div>
             </form>
         </div>
 
@@ -234,12 +245,16 @@
             <div class="hint">Record notes about the physical condition of a specific copy.</div>
             <form id="conditionForm">
                 <label for="serialBarcode">Serial Barcode</label>
-                <input id="serialBarcode" name="serialBarcode" placeholder="Enter Book Serial Barcode" required type="text">
+                <input id="serialBarcode" name="serialBarcode" placeholder="Enter Book Serial Barcode" required
+                       type="text">
 
                 <label for="conditionNotes">Condition Notes</label>
-                <textarea id="conditionNotes" name="conditionNotes" placeholder="Describe the condition (scratches, torn pages, water damage, etc.)" required></textarea>
+                <textarea id="conditionNotes" name="conditionNotes"
+                          placeholder="Describe the condition (scratches, torn pages, water damage, etc.)"
+                          required></textarea>
 
-                <button type="submit">Save Condition Notes</button>
+                <button type="submit" id="saveNoteBtn">Save Condition Notes</button>
+                <div id="saveNoteMsg" class="form-msg" aria-live="polite"></div>
             </form>
         </div>
     </div>
@@ -252,13 +267,14 @@
             <form id="viewNotesForm">
                 <label for="viewSerial">Serial Barcode</label>
                 <input id="viewSerial" name="viewSerial" placeholder="Enter Book Serial Barcode" required type="text">
-                <button type="submit">Get Notes</button>
+                <button type="submit" id="getNotesBtn">Get Notes</button>
+                <div id="getNotesMsg" class="form-msg" aria-live="polite"></div>
             </form>
         </div>
     </div>
 
     <!-- results -->
-    <div class="results" id="notesResults" aria-live="polite" style="display:none;">
+    <div aria-live="polite" class="results" id="notesResults" style="display:none;">
         <h3>Condition Notes</h3>
         <div id="notesList"></div>
     </div>
@@ -269,162 +285,370 @@
 </footer>
 
 <script>
-    // Helper: show results panel and populate
-    function showNotes(notes) {
-        const results = document.getElementById('notesResults');
-        const list = document.getElementById('notesList');
-        list.innerHTML = '';
-        if (!notes || notes.length === 0) {
-            list.innerHTML = '<div class="empty">No notes found for that serial barcode.</div>';
-        } else {
-            notes.forEach(n => {
-                // expected fields: conditionNotes (text), createdAt/createdDate/processedDate, createdBy/author
-                const created = n.createdAt || n.createdDate || n.date || n.noteDate || n.timestamp || n.paymentDate || null;
-                const author = n.createdBy || n.processedBy || n.author || n.user || null;
-                const text = n.conditionNotes || n.note || n.text || '';
+    /* --- Configuration --- */
+    const BORROW_BASE = 'http://localhost:8080/borrow'; // controller provided
+    const NOTES_BASE = 'http://localhost:8080/book_copy_condition_notes';
 
-                const item = document.createElement('div');
-                item.className = 'note-item';
-                const meta = document.createElement('div');
-                meta.className = 'note-meta';
-                meta.textContent = [
-                    created ? `Date: ${created}` : null,
-                    author ? `By: ${author}` : null
-                ].filter(Boolean).join(' • ');
-                const noteText = document.createElement('div');
-                noteText.className = 'note-text';
-                noteText.textContent = text || '(no text)';
-                if (meta.textContent) item.appendChild(meta);
-                item.appendChild(noteText);
-                list.appendChild(item);
-            });
-        }
-        results.style.display = 'block';
-        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    async function fetchConditionNotes(serial) {
-        const base = 'http://localhost:8080/book_copy_condition_notes';
-
-        // fallback attempt: path param
-        try {
-            const altUrl = `${base}/${encodeURIComponent(serial)}`;
-            const resp2 = await fetch(altUrl, { method: 'GET', headers: { 'Accept': 'application/json' }});
-            if (resp2.ok) {
-                return await resp2.json();
-            } else {
-                // bubble up status text
-                const txt = await resp2.text();
-                throw new Error(`Server responded with ${resp2.status}: ${txt}`);
-            }
-        } catch (e2) {
-            throw e2;
-        }
-    }
-
-    // --- Return Book form ---
-    document.getElementById("returnBookForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
-        const bookIdRaw = document.getElementById("bookId").value.trim();
-        if (!bookIdRaw) {
-            alert("Please enter the book serial barcode.");
+    /* --- small helpers --- */
+    function setInlineMessage(id, text, color) {
+        const el = document.getElementById(id);
+        if (!el) {
+            // fallback to alert if inline element missing
+            if (text) console.log(`Message [${id}]: ${text}`);
             return;
         }
-        const serialBarcode = isNaN(bookIdRaw) ? bookIdRaw : parseInt(bookIdRaw, 10);
-        const returnData = { serialBarcodeBookCopy: serialBarcode };
+        el.style.color = color || '#333';
+        el.textContent = text || '';
+    }
+
+    function isoDateToday() {
+        const d = new Date();
+        return d.toISOString().slice(0, 10); // YYYY-MM-DD
+    }
+
+    function parseBorrowId(obj) {
+        return obj.borrowId || obj.borrow_id || obj.id || null;
+    }
+
+    /* --- API helpers for Borrow --- */
+
+    /**
+     * Query the correct endpoint for borrows by serial barcode.
+     * Returns array of borrow objects or null on failure.
+     */
+    async function findBorrowsBySerial(serial) {
+        if (serial === null || serial === undefined) return null;
+        const url = `${BORROW_BASE}/find/serial_barcode_bookcopy/${encodeURIComponent(serial)}`;
         try {
-            const response = await fetch("http://localhost:8080/api/returns", {
-                method: "PUT",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(returnData)
-            });
-            if (response.ok) {
-                let msg = "";
-                try { const json = await response.json(); if (json && json.message) msg = " — " + json.message; } catch(_) {}
-                alert("Book returned successfully!" + msg);
-                e.target.reset();
-            } else if (response.status === 404) {
-                alert("Book not found. Please check the serial barcode.");
-            } else {
-                const txt = await response.text();
-                console.error("Return failed:", response.status, txt);
-                alert("Unable to return the book. " + (txt || "Please try again."));
+            const resp = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' }, credentials: 'include' });
+            if (!resp.ok) {
+                console.debug('findBorrowsBySerial: non-ok', resp.status, url);
+                return null;
             }
-        } catch (error) {
-            console.error("Error returning book:", error);
-            alert("Could not connect to the server.");
+            const json = await resp.json();
+            // controller returns a List<Borrow> (array) - ensure it's an array
+            if (Array.isArray(json)) return json;
+            // sometimes wrapper -> try common keys
+            if (json && Array.isArray(json.items)) return json.items;
+            if (json && Array.isArray(json.data)) return json.data;
+            // if single object returned
+            if (json && (json.borrowId || json.borrow_id)) return [json];
+            return null;
+        } catch (err) {
+            console.debug('findBorrowsBySerial failed', err, url);
+            return null;
+        }
+    }
+
+    /**
+     * Update a Borrow object to mark it returned by sending PUT /borrow
+     * Expects a full borrow object (will set returnedDate and status)
+     */
+    async function updateBorrowToReturned(borrowObj) {
+        if (!borrowObj) throw new Error('No borrow object provided');
+
+        // ensure we have a borrow id
+        const borrowId = parseBorrowId(borrowObj);
+        if (!borrowId) {
+            // It's possible backend uses different key - fail early
+            throw new Error('Could not determine borrow id for record.');
+        }
+
+        // set returned date and status
+        // use property names matching your Borrow entity: returnedDate, status
+        borrowObj.returnedDate = isoDateToday();
+        borrowObj.status = 'Returned';
+
+        const url = `${BORROW_BASE}`; // PUT /borrow expects full object
+        const resp = await fetch(url, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(borrowObj)
+        });
+        return resp;
+    }
+
+    /* --- Main: Return Book handler --- */
+    document.getElementById('returnBookForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const form = e.target;
+        // find the submit button in this form (so we can disable it while processing)
+        const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button');
+        const msgId = 'returnMsg'; // inline message element (best if present in HTML)
+        setInlineMessage(msgId, '', '#333');
+
+        const raw = (document.getElementById('bookId')?.value || '').trim();
+        if (!raw) {
+            setInlineMessage(msgId, 'Please enter the book serial barcode.', 'crimson');
+            return;
+        }
+        const serial = isNaN(raw) ? raw : parseInt(raw, 10);
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.dataset.origText = submitBtn.textContent;
+            submitBtn.textContent = 'Processing...';
+        }
+
+        try {
+            // 1) Query borrows by serial using the correct API
+            const borrows = await findBorrowsBySerial(serial);
+
+            if (!borrows || borrows.length === 0) {
+                setInlineMessage(msgId, 'No Borrow records found for that serial barcode.', 'crimson');
+                return;
+            }
+
+            // 2) Prefer records with status indicating currently borrowed/overdue (case-insensitive)
+            const candidates = borrows.filter(b => {
+                const status = (b.status || '').toString().toLowerCase();
+                return status.includes('borrow') || status.includes('overdue') || status === 'borrowed' || status === 'overdue';
+            });
+
+            // If none match the "active" filter but there are records, use all returned records as candidates.
+            const toUpdate = (candidates.length > 0) ? candidates : borrows;
+
+            // Sort by borrowedDate descending (most recent first) so we update recent ones first
+            toUpdate.sort((a, b) => {
+                const ad = a.borrowedDate ? new Date(a.borrowedDate) : null;
+                const bd = b.borrowedDate ? new Date(b.borrowedDate) : null;
+                if (!ad && !bd) return 0;
+                if (!ad) return 1;
+                if (!bd) return -1;
+                return bd - ad;
+            });
+
+            let successCount = 0;
+            for (const rec of toUpdate) {
+                try {
+                    const res = await updateBorrowToReturned(rec);
+                    if (res && (res.ok || res.status === 204)) {
+                        successCount++;
+                    } else {
+                        // log server text for debugging
+                        const txt = await res.text().catch(() => res.statusText || String(res.status));
+                        console.warn('updateBorrowToReturned failed', parseBorrowId(rec), res && res.status, txt);
+                    }
+                } catch (innerErr) {
+                    console.error('Error updating borrow record', innerErr, rec);
+                }
+            }
+
+            if (successCount > 0) {
+                setInlineMessage(msgId, `Updated ${successCount} Borrow record(s) to Returned.`, 'green');
+                form.reset();
+                return;
+            } else {
+                setInlineMessage(msgId, 'Could not update any Borrow records. Check server logs.', 'crimson');
+                return;
+            }
+        } catch (err) {
+            console.error('Return flow error:', err);
+            setInlineMessage(msgId, 'Unable to return the book. Please check the serial and server logs.', 'crimson');
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = submitBtn.dataset.origText || 'Return Book';
+            }
         }
     });
 
-    // --- Save condition notes ---
-    document.getElementById("conditionForm").addEventListener("submit", async function (e) {
+    /* ---------------------------
+       NOTE: Condition notes code below is kept compatible with your earlier working code.
+       I left the notes handlers untouched (but added small robustness where helpful).
+       Replace or remove if you already have working handlers in your page.
+       --------------------------- */
+
+    /* Save Condition Notes (keeps previous behaviour) */
+    document.getElementById('conditionForm').addEventListener('submit', async function (e) {
         e.preventDefault();
-        const serialRaw = document.getElementById("serialBarcode").value.trim();
-        const notes = document.getElementById("conditionNotes").value.trim();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button');
+        const msgId = 'saveNoteMsg';
+        setInlineMessage(msgId, '', '#333');
+
+        const serialRaw = (document.getElementById('serialBarcode')?.value || '').trim();
+        const notes = (document.getElementById('conditionNotes')?.value || '').trim();
+
         if (!serialRaw || !notes) {
-            alert("Please fill out both fields.");
+            setInlineMessage(msgId, 'Please fill out both fields.', 'crimson');
             return;
         }
+
         const serialBarcode = isNaN(serialRaw) ? serialRaw : parseInt(serialRaw, 10);
         const payload = {
             serialBarcodeBookCopy: serialBarcode,
             conditionNotes: notes
         };
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.dataset.origText = submitBtn.textContent;
+            submitBtn.textContent = 'Saving...';
+        }
+
         try {
-            const response = await fetch("http://localhost:8080/book_copy_condition_notes", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
+            const resp = await fetch(NOTES_BASE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(payload)
             });
-            if (response.ok) {
-                alert("Condition notes saved.");
-                e.target.reset();
-            } else if (response.status === 404) {
-                alert("Book not found. Please check the serial barcode.");
+
+            if (resp.ok || resp.status === 201) {
+                setInlineMessage(msgId, 'Condition notes saved.', 'green');
+                form.reset();
+            } else if (resp.status === 404) {
+                setInlineMessage(msgId, 'Book not found. Please check the serial barcode.', 'crimson');
             } else {
-                const txt = await response.text();
-                console.error("Save failed:", response.status, txt);
-                alert("Unable to save condition notes. " + (txt || "Please try again."));
+                const txt = await resp.text().catch(() => resp.statusText || String(resp.status));
+                setInlineMessage(msgId, 'Unable to save condition notes. ' + (txt || 'Please try again.'), 'crimson');
+                console.error('Save failed', resp.status, txt);
             }
-        } catch (error) {
-            console.error("Error saving notes:", error);
-            alert("Could not connect to the server.");
+        } catch (err) {
+            console.error('Error saving notes:', err);
+            setInlineMessage(msgId, 'Could not connect to the server.', 'crimson');
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = submitBtn.dataset.origText || 'Save Condition Notes';
+            }
         }
     });
 
-    // --- View notes form ---
-    document.getElementById("viewNotesForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const serialRaw = document.getElementById("viewSerial").value.trim();
-        if (!serialRaw) {
-            alert("Please enter a serial barcode.");
+    /* View Notes (keeps previous behaviour) */
+    async function fetchConditionNotes(serial) {
+        const headers = { 'Accept': 'application/json' };
+        // 1) path param
+        try {
+            const url1 = `${NOTES_BASE}/${encodeURIComponent(serial)}`;
+            const r1 = await fetch(url1, { method: 'GET', headers, credentials: 'include' });
+            if (r1.ok) return await r1.json();
+        } catch (e) { console.debug('notes path attempt failed', e); }
+
+        // 2) query param serialBarcodeBookCopy
+        try {
+            const url2 = `${NOTES_BASE}?serialBarcodeBookCopy=${encodeURIComponent(serial)}`;
+            const r2 = await fetch(url2, { method: 'GET', headers, credentials: 'include' });
+            if (r2.ok) return await r2.json();
+        } catch (e) { console.debug('notes query attempt failed', e); }
+
+        // 3) generic ?serial
+        try {
+            const url3 = `${NOTES_BASE}?serial=${encodeURIComponent(serial)}`;
+            const r3 = await fetch(url3, { method: 'GET', headers, credentials: 'include' });
+            if (r3.ok) return await r3.json();
+        } catch (e) { console.debug('notes fallback attempt failed', e); }
+
+        throw new Error('Could not retrieve notes from server (all attempts failed).');
+    }
+
+    function formatDate(value) {
+        if (!value) return null;
+        try {
+            const d = new Date(value);
+            if (!isNaN(d)) return d.toLocaleString();
+        } catch (e) {}
+        return String(value);
+    }
+
+    function showNotes(notes) {
+        const results = document.getElementById('notesResults');
+        const list = document.getElementById('notesList');
+        list.innerHTML = '';
+
+        if (!notes) {
+            list.innerHTML = '<div class="empty">No notes found for that serial barcode.</div>';
+            results.style.display = 'block';
             return;
         }
-        const serialBarcode = isNaN(serialRaw) ? serialRaw : parseInt(serialRaw, 10);
-        // show temporary loading
+
+        if (!Array.isArray(notes)) {
+            if (Array.isArray(notes.items)) notes = notes.items;
+            else if (Array.isArray(notes.notes)) notes = notes.notes;
+            else if (Array.isArray(notes.data)) notes = notes.data;
+            else notes = [notes];
+        }
+
+        if (!notes || notes.length === 0) {
+            list.innerHTML = '<div class="empty">No notes found for that serial barcode.</div>';
+            results.style.display = 'block';
+            return;
+        }
+
+        for (const n of notes) {
+            const createdRaw = n.createdAt || n.createdDate || n.date || n.timestamp || n.noteDate || null;
+            const created = formatDate(createdRaw);
+            const author = n.createdBy || n.processedBy || n.author || n.user || null;
+            const text = n.conditionNotes || n.note || n.text || '';
+
+            const item = document.createElement('div');
+            item.className = 'note-item';
+
+            if (created || author) {
+                const meta = document.createElement('div');
+                meta.className = 'note-meta';
+                meta.textContent = [created ? `Date: ${created}` : null, author ? `By: ${author}` : null].filter(Boolean).join(' • ');
+                item.appendChild(meta);
+            }
+
+            const noteText = document.createElement('div');
+            noteText.className = 'note-text';
+            noteText.textContent = text || '(no text)';
+            item.appendChild(noteText);
+
+            list.appendChild(item);
+        }
+
+        results.style.display = 'block';
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.getElementById('viewNotesForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button');
+        const msgId = 'getNotesMsg';
+        setInlineMessage(msgId, '', '#333');
+
+        const serialRaw = (document.getElementById('viewSerial')?.value || '').trim();
+        if (!serialRaw) {
+            setInlineMessage(msgId, 'Please enter a serial barcode.', 'crimson');
+            return;
+        }
+        const serial = isNaN(serialRaw) ? serialRaw : parseInt(serialRaw, 10);
+
         const results = document.getElementById('notesResults');
         const notesList = document.getElementById('notesList');
         results.style.display = 'block';
         notesList.innerHTML = '<div class="empty">Loading…</div>';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.dataset.origText = submitBtn.textContent;
+            submitBtn.textContent = 'Loading...';
+        }
+
         try {
-            const notes = await fetchConditionNotes(serialBarcode);
-            // Expecting notes to be an array of objects; if backend returns a wrapper object adjust accordingly
-            if (Array.isArray(notes)) {
-                showNotes(notes);
-            } else if (notes && Array.isArray(notes.items)) {
-                showNotes(notes.items);
-            } else if (notes && notes.notes && Array.isArray(notes.notes)) {
-                showNotes(notes.notes);
-            } else {
-                // If single object returned, show it as one item
-                showNotes([notes]);
-            }
+            const notes = await fetchConditionNotes(serial);
+            if (Array.isArray(notes)) showNotes(notes);
+            else if (notes && Array.isArray(notes.items)) showNotes(notes.items);
+            else if (notes && Array.isArray(notes.notes)) showNotes(notes.notes);
+            else showNotes([notes]);
+            setInlineMessage(msgId, '', '#333');
         } catch (err) {
-            console.error("Failed to fetch notes:", err);
+            console.error('Failed to fetch notes:', err);
             notesList.innerHTML = `<div class="empty">Failed to retrieve notes: ${err.message || err}</div>`;
+            setInlineMessage(msgId, 'Failed to retrieve notes. See results for details.', 'crimson');
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = submitBtn.dataset.origText || 'Get Notes';
+            }
         }
     });
 
+    /* --- signOut helper --- */
     async function signOut() {
         try {
             await fetch("/logout", { method: "POST", credentials: "include" });
@@ -434,5 +658,6 @@
         window.location.href = "AccountLogin.html";
     }
 </script>
+
 </body>
 </html>

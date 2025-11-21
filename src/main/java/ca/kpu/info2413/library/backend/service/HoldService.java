@@ -47,11 +47,13 @@ public class HoldService
         return holdRepository.findByAccountIdAccount(accountId);
     }
 
-    public Optional<Hold> findByBookAndAccount(Integer serialBarcodeBookCopy, Integer accountIdAccount) {
+    public Optional<Hold> findByBookAndAccount(Integer serialBarcodeBookCopy, Integer accountIdAccount)
+    {
         return holdRepository.findFirstBySerialBarcodeBookCopyAndAccountIdAccount(serialBarcodeBookCopy, accountIdAccount);
     }
 
-    public Hold createHold(Integer bookId, Integer accountId) {
+    public Hold createHold(Integer bookId, Integer accountId)
+    {
         Hold hold = new Hold();
         hold.setSerialBarcodeBookCopy(bookId);
         hold.setAccountIdAccount(accountId);
@@ -66,9 +68,11 @@ public class HoldService
         return holdRepository.save(hold);
     }
 
-    public boolean cancelHold(Integer bookId, Integer accountId) {
+    public boolean cancelHold(Integer bookId, Integer accountId)
+    {
         Optional<Hold> opt = findByBookAndAccount(bookId, accountId);
-        if (opt.isPresent()) {
+        if (opt.isPresent())
+        {
             holdRepository.delete(opt.get());
             return true;
         }

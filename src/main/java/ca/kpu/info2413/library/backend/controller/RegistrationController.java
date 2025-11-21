@@ -15,7 +15,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
-public class RegistrationController {
+public class RegistrationController
+{
 
     @Autowired
     private AccountService accountService;
@@ -26,17 +27,19 @@ public class RegistrationController {
     /**
      * Expects JSON:
      * {
-     *   "fullName": "...",
-     *   "email": "...",
-     *   "password": "...",
-     *   "confirmPassword": "...",
-     *   "phone": "...",
-     *   "libraryCard": "123"
+     * "fullName": "...",
+     * "email": "...",
+     * "password": "...",
+     * "confirmPassword": "...",
+     * "phone": "...",
+     * "libraryCard": "123"
      * }
      */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> userData) {
-        try {
+    public ResponseEntity<?> register(@RequestBody Map<String, String> userData)
+    {
+        try
+        {
             String fullName = userData.get("fullName");
             String email = userData.get("email");
             String password = userData.get("password");
@@ -46,36 +49,44 @@ public class RegistrationController {
 
             // basic validation
             if (fullName == null || email == null || password == null || confirmPassword == null ||
-                    phone == null || libraryCardStr == null) {
+                    phone == null || libraryCardStr == null)
+            {
                 return ResponseEntity.badRequest().body("All fields are required.");
             }
 
-            if (!password.equals(confirmPassword)) {
+            if (!password.equals(confirmPassword))
+            {
                 return ResponseEntity.badRequest().body("Passwords do not match.");
             }
 
             Integer libraryCardId;
-            try {
+            try
+            {
                 libraryCardId = Integer.parseInt(libraryCardStr);
-            } catch (NumberFormatException e) {
+            }
+            catch (NumberFormatException e)
+            {
                 return ResponseEntity.badRequest().body("Library Card ID must be a number.");
             }
 
             // check duplicate email
-            if (!accountService.findByNotificationEmailIgnoreCase(email).isEmpty()) {
+            if (!accountService.findByNotificationEmailIgnoreCase(email).isEmpty())
+            {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already registered.");
             }
 
             // find library card
             List<LibraryCard> cards = libraryCardService.findByCardNumber(libraryCardId);
-            if (cards == null || cards.isEmpty()) {
+            if (cards == null || cards.isEmpty())
+            {
                 return ResponseEntity.badRequest().body("Library card not found.");
             }
 
             LibraryCard card = cards.get(0);
 
             // IMPORTANT: check relational field (Account object) not a numeric id
-            if (card.getAccount() != null) {
+            if (card.getAccount() != null)
+            {
                 return ResponseEntity.badRequest().body("Library card is already linked to an account.");
             }
 
@@ -94,7 +105,9 @@ public class RegistrationController {
             libraryCardService.save(card);
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Registration successful.");
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             ex.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during registration.");
         }

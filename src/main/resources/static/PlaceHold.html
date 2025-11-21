@@ -10,6 +10,7 @@
             height: 100%;
             margin: 0;
         }
+
         body {
             display: flex;
             flex-direction: column;
@@ -30,6 +31,7 @@
             align-items: center;
             justify-content: space-between;
         }
+
         header h1 {
             font-size: 1.5em;
             margin: 0;
@@ -45,6 +47,7 @@
             padding: 12px 40px;
             border-bottom: 1px solid #e0e0e0;
         }
+
         nav a {
             text-decoration: none;
             color: #333;
@@ -52,7 +55,10 @@
             transition: color 0.2s;
             cursor: pointer;
         }
-        nav a:hover { color: #0077b6; }
+
+        nav a:hover {
+            color: #0077b6;
+        }
 
         /* main - flexible area grows to fill */
         main {
@@ -121,7 +127,10 @@
             transition: background-color 0.2s;
             width: 100%;
         }
-        .hold-box button:hover { background-color: #005f8c; }
+
+        .hold-box button:hover {
+            background-color: #005f8c;
+        }
 
         /* footer — match other pages and stick to bottom via flex layout */
         footer {
@@ -158,21 +167,49 @@
             font-size: 0.9em;
             transition: color 0.2s;
         }
-        .footer-links a:hover { color: #0077b6; }
+
+        .footer-links a:hover {
+            color: #0077b6;
+        }
 
         /* small responsive tweak */
         @media (max-width: 760px) {
-            main { padding: 24px; }
-            nav { padding: 12px 20px; gap: 12px; }
-            .forms { gap: 20px; }
-            .hold-box { width: 100%; max-width: 420px; }
-            .footer-content { padding: 0 20px; }
+            main {
+                padding: 24px;
+            }
+
+            nav {
+                padding: 12px 20px;
+                gap: 12px;
+            }
+
+            .forms {
+                gap: 20px;
+            }
+
+            .hold-box {
+                width: 100%;
+                max-width: 420px;
+            }
+
+            .footer-content {
+                padding: 0 20px;
+            }
         }
 
         /* optional message styling */
-        .message { margin-top: 8px; font-size: 0.95em; }
-        .message.success { color: #2b8a3e; }
-        .message.error { color: #c53030; }
+        .message {
+            margin-top: 8px;
+            font-size: 0.95em;
+        }
+
+        .message.success {
+            color: #2b8a3e;
+        }
+
+        .message.error {
+            color: #c53030;
+        }
     </style>
 </head>
 <body>
@@ -186,7 +223,7 @@
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
     <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -204,7 +241,7 @@
                 <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
 
                 <button type="submit">Place Hold</button>
-                <div id="placeMsg" class="message" aria-live="polite"></div>
+                <div aria-live="polite" class="message" id="placeMsg"></div>
             </form>
         </div>
 
@@ -219,7 +256,7 @@
                 <input id="cancelAccountId" name="cancelAccountId" placeholder="Enter Account ID" required type="text">
 
                 <button type="submit">Cancel Hold</button>
-                <div id="cancelMsg" class="message" aria-live="polite"></div>
+                <div aria-live="polite" class="message" id="cancelMsg"></div>
             </form>
         </div>
     </div>
@@ -264,12 +301,12 @@
                     return;
                 }
 
-                const payload = { bookId: bookId, accountId: accountId };
+                const payload = {bookId: bookId, accountId: accountId};
 
                 try {
                     const res = await fetch(API_BASE, {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
+                        headers: {"Content-Type": "application/json"},
                         credentials: "include",
                         body: JSON.stringify(payload)
                     });
@@ -327,7 +364,7 @@
 
     async function signOut() {
         try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }

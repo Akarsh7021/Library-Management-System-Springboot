@@ -9,7 +9,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PublicationDTO {
+public class PublicationDTO
+{
     private Integer isbn13;
     private String title;
     private List<String> authors;

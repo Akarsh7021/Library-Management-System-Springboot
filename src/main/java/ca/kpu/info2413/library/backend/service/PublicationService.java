@@ -12,40 +12,46 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class PublicationService {
+public class PublicationService
+{
 
     @Autowired
     private PublicationRepository publicationRepository;
 
-    public List<PublicationDTO> findAll() {
+    public List<PublicationDTO> findAll()
+    {
         return publicationRepository.findAllFetchAuthors()
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<PublicationDTO> findByIsbn13(Integer isbn13) {
+    public List<PublicationDTO> findByIsbn13(Integer isbn13)
+    {
         return publicationRepository.findById(isbn13)
                 .map(this::toDTO)
                 .map(List::of)
                 .orElse(List.of());
     }
 
-    public List<PublicationDTO> findByTitle(String title) {
+    public List<PublicationDTO> findByTitle(String title)
+    {
         return publicationRepository.findByTitleContainingIgnoreCaseFetchAuthors(title)
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<PublicationDTO> findByGenre(String genre) {
+    public List<PublicationDTO> findByGenre(String genre)
+    {
         return publicationRepository.findByGenreIgnoreCaseFetchAuthors(genre)
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<PublicationDTO> findByAuthorName(String authorName) {
+    public List<PublicationDTO> findByAuthorName(String authorName)
+    {
         return publicationRepository.findByAuthorNameLikeIgnoreCaseFetch(authorName)
                 .stream()
                 .map(this::toDTO)
@@ -53,9 +59,11 @@ public class PublicationService {
     }
 
     // --- Unified search for catalog buttons ---
-    public List<PublicationDTO> search(String type, String query) {
+    public List<PublicationDTO> search(String type, String query)
+    {
         if (type == null) type = "book";
-        switch (type.toLowerCase()) {
+        switch (type.toLowerCase())
+        {
             case "book":
             case "title":
                 return findByTitle(query);
@@ -69,7 +77,8 @@ public class PublicationService {
     }
 
     // --- Homepage combined search: title, author, or ISBN ---
-    public List<PublicationDTO> searchHomepage(String query) {
+    public List<PublicationDTO> searchHomepage(String query)
+    {
         String lowerQuery = query.toLowerCase();
 
         return publicationRepository.findAllFetchAuthors()
@@ -86,9 +95,11 @@ public class PublicationService {
                 .collect(Collectors.toList());
     }
 
-    private PublicationDTO toDTO(Publication p) {
+    private PublicationDTO toDTO(Publication p)
+    {
         List<String> authors = List.of();
-        if (p.getPublicationAuthors() != null) {
+        if (p.getPublicationAuthors() != null)
+        {
             authors = p.getPublicationAuthors()
                     .stream()
                     .map(PublicationAuthor::getAuthor)
@@ -107,11 +118,13 @@ public class PublicationService {
         );
     }
 
-    public Publication save(Publication publication) {
+    public Publication save(Publication publication)
+    {
         return publicationRepository.save(publication);
     }
 
-    public void deleteByIsbn13(Integer isbn13) {
+    public void deleteByIsbn13(Integer isbn13)
+    {
         publicationRepository.deleteById(isbn13);
     }
 }

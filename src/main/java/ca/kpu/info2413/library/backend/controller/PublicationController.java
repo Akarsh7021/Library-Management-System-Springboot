@@ -11,33 +11,39 @@ import java.util.List;
 @RestController
 @RequestMapping("/publication")
 @CrossOrigin(origins = "*")
-public class PublicationController {
+public class PublicationController
+{
 
     @Autowired
     private PublicationService publicationService;
 
     @GetMapping
-    public List<PublicationDTO> findAll() {
+    public List<PublicationDTO> findAll()
+    {
         return publicationService.findAll();
     }
 
     @GetMapping("/{isbn13}")
-    public List<PublicationDTO> findByIsbn13(@PathVariable Integer isbn13) {
+    public List<PublicationDTO> findByIsbn13(@PathVariable Integer isbn13)
+    {
         return publicationService.findByIsbn13(isbn13);
     }
 
     @PostMapping
-    public Publication create(@RequestBody Publication publication) {
+    public Publication create(@RequestBody Publication publication)
+    {
         return publicationService.save(publication);
     }
 
     @PutMapping
-    public Publication update(@RequestBody Publication publication) {
+    public Publication update(@RequestBody Publication publication)
+    {
         return publicationService.save(publication);
     }
 
     @DeleteMapping("/{isbn13}")
-    public void deleteById(@PathVariable Integer isbn13) {
+    public void deleteById(@PathVariable Integer isbn13)
+    {
         publicationService.deleteByIsbn13(isbn13);
     }
 
@@ -46,13 +52,15 @@ public class PublicationController {
     public List<PublicationDTO> searchPublications(
             @RequestParam(defaultValue = "book") String type,
             @RequestParam String query
-    ) {
+    )
+    {
         return publicationService.search(type, query);
     }
 
     // --- Homepage combined search ---
     @GetMapping("/searchHomepage")
-    public List<PublicationDTO> searchHomepage(@RequestParam String query) {
+    public List<PublicationDTO> searchHomepage(@RequestParam String query)
+    {
         return publicationService.searchHomepage(query);
     }
 }

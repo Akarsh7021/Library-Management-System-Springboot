@@ -32,7 +32,6 @@ public class HoldController
     }
 
 
-
     /// ///
 
 
@@ -49,26 +48,34 @@ public class HoldController
     }
 
     @PostMapping
-    public ResponseEntity<?> createHold(@RequestBody Map<String, String> body) {
-        try {
+    public ResponseEntity<?> createHold(@RequestBody Map<String, String> body)
+    {
+        try
+        {
             String bookIdStr = body.get("bookId");
             String accountIdStr = body.get("accountId");
-            if (bookIdStr == null || accountIdStr == null) {
+            if (bookIdStr == null || accountIdStr == null)
+            {
                 return ResponseEntity.badRequest().body("bookId and accountId are required.");
             }
             Integer bookId = Integer.parseInt(bookIdStr);
             Integer accountId = Integer.parseInt(accountIdStr);
 
             Optional<Hold> exists = holdService.findByBookAndAccount(bookId, accountId);
-            if (exists.isPresent()) {
+            if (exists.isPresent())
+            {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Hold already exists for that book/account.");
             }
 
             Hold created = holdService.createHold(bookId, accountId);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
-        } catch (NumberFormatException nfe) {
+        }
+        catch (NumberFormatException nfe)
+        {
             return ResponseEntity.badRequest().body("bookId and accountId must be numbers.");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating hold.");
         }
@@ -76,14 +83,18 @@ public class HoldController
 
     /**
      * Cancel a hold by bookId and accountId
-     * DELETE /api/holds?bookId=123&accountId=456
+     * DELETE /holds?bookId=123&accountId=456
      */
     @DeleteMapping
-    public ResponseEntity<?> cancelHold(@RequestParam Integer bookId, @RequestParam Integer accountId) {
+    public ResponseEntity<?> cancelHold(@RequestParam Integer bookId, @RequestParam Integer accountId)
+    {
         boolean removed = holdService.cancelHold(bookId, accountId);
-        if (removed) {
+        if (removed)
+        {
             return ResponseEntity.noContent().build();
-        } else {
+        }
+        else
+        {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Hold not found for that book/account.");
         }
     }

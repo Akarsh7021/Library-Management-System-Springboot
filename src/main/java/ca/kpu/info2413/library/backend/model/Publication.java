@@ -15,7 +15,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Publication {
+public class Publication
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "isbn_13")
@@ -37,7 +38,8 @@ public class Publication {
 
     // Derived property for JSON
     @JsonProperty("authors")
-    public List<String> getAuthors() {
+    public List<String> getAuthors()
+    {
         if (publicationAuthors == null) return List.of();
         return publicationAuthors.stream()
                 .map(pa -> pa.getAuthor().getAuthorName())

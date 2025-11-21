@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>City Library | Catalog</title>
     <style>
         /* overall layout so footer stays at bottom */
@@ -26,8 +26,8 @@
         body::before {
             content: "";
             position: fixed;
-            inset: 0;                           /* top/right/bottom/left: 0 */
-            z-index: -1;                        /* put behind page content */
+            inset: 0; /* top/right/bottom/left: 0 */
+            z-index: -1; /* put behind page content */
             background-image: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg');
             background-position: center center;
             background-repeat: no-repeat;
@@ -49,7 +49,12 @@
             align-items: center;
             justify-content: space-between;
         }
-        header h1 { font-size: 1.5em; margin: 0; color: #000; }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
 
         nav {
             background-color: #ffffff;
@@ -59,8 +64,18 @@
             padding: 12px 40px;
             border-bottom: 1px solid #e0e0e0;
         }
-        nav a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.2s; cursor: pointer; }
-        nav a:hover { color: #0077b6; }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
 
         /* Make main stretch to take remaining space so footer goes to bottom */
         main {
@@ -72,15 +87,64 @@
             box-sizing: border-box;
         }
 
-        .section-title { font-size: 1.8em; color: #0077b6; margin-bottom: 20px; border-left: 4px solid #0077b6; padding-left: 10px; }
-        .tab-container { display: flex; gap: 15px; margin-bottom: 20px; }
-        .tab-container button { background-color: #fff; border: 1px solid #ccc; padding: 10px 20px; cursor: pointer; border-radius: 6px; font-weight: 500; transition: all 0.2s ease; }
-        .tab-container button.active, .tab-container button:hover { background-color: #0077b6; color: #fff; border-color: #0077b6; }
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 20px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+        }
 
-        .search-bar { display: flex; margin-bottom: 30px; }
-        .search-bar input { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 8px; outline: none; font-size: 1em; }
-        .search-bar button { background-color: #0077b6; color: white; border: none; border-radius: 8px; padding: 10px 15px; margin-left: 10px; cursor: pointer; transition: 0.2s; }
-        .search-bar button:hover { background-color: #005f8c; }
+        .tab-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tab-container button {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tab-container button.active, .tab-container button:hover {
+            background-color: #0077b6;
+            color: #fff;
+            border-color: #0077b6;
+        }
+
+        .search-bar {
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            font-size: 1em;
+        }
+
+        .search-bar button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .search-bar button:hover {
+            background-color: #005f8c;
+        }
 
         /* Book card layout */
         .book-card {
@@ -88,7 +152,7 @@
             align-items: flex-start; /* align the details to the top */
             background-color: #fff;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 20px;
             max-width: 800px;
             margin: 15px auto;
@@ -96,13 +160,17 @@
         }
 
 
-
         /* left-align details and allow them to grow */
         .book-info {
             text-align: left;
         }
 
-        .form-box label { display: block; margin-bottom: 6px; font-weight: 500; }
+        .form-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
         .form-box input[type="text"],
         .form-box input[type="email"],
         .form-box input[type="password"],
@@ -116,10 +184,30 @@
             outline: none;
         }
 
-        .book-info h3 { margin: 0; color: #333; }
-        .book-info p { margin: 6px 0 12px 0; color: #555; line-height: 1.4; }
-        .book-info button { background-color: #0077b6; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        .book-info button:hover { background-color: #005f8c; }
+        .book-info h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .book-info p {
+            margin: 6px 0 12px 0;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .book-info button {
+            background-color: #0077b6;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .book-info button:hover {
+            background-color: #005f8c;
+        }
 
         /* footer — match other pages and remain at bottom */
         footer {
@@ -132,19 +220,58 @@
             /* footer will naturally sit at the bottom because main is flexible */
             flex-shrink: 0;
         }
-        .footer-content p { margin: 0; font-size: 0.9em; color: #777; }
-        .footer-links { display: flex; gap: 20px; }
-        .footer-links a { text-decoration: none; color: #333; font-size: 0.9em; transition: color 0.2s; }
-        .footer-links a:hover { color: #0077b6; }
+
+        .footer-content p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: #333;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #0077b6;
+        }
 
         /* responsive */
         @media (max-width: 760px) {
-            main { padding: 24px; }
-            nav { padding: 12px 20px; gap: 12px; }
-            .form-box { margin: 20px auto; width: 100%; max-width: 420px; }
-            .footer-content { padding: 0 20px; }
-            .button-group button { width: 100%; }
-            .button-group { flex-direction: column; gap: 12px; }
+            main {
+                padding: 24px;
+            }
+
+            nav {
+                padding: 12px 20px;
+                gap: 12px;
+            }
+
+            .form-box {
+                margin: 20px auto;
+                width: 100%;
+                max-width: 420px;
+            }
+
+            .footer-content {
+                padding: 0 20px;
+            }
+
+            .button-group button {
+                width: 100%;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 12px;
+            }
         }
     </style>
 </head>
@@ -159,7 +286,7 @@
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
     <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -252,7 +379,7 @@
     async function signOut() {
         try {
             // Call logout on server
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }

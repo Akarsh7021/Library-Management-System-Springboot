@@ -6,20 +6,115 @@
     <title>City Library | Account Registration</title>
     <style>
         /* keep your existing styles (omitted here for brevity in the message) */
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafc; color: #333; }
-        header { background-color: #ffffff; padding: 10px 40px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: space-between; }
-        header h1 { font-size: 1.5em; margin: 0; color: #000; }
-        nav { background-color: #ffffff; display: flex; justify-content: flex-start; gap: 30px; padding: 12px 40px; border-bottom: 1px solid #e0e0e0; }
-        nav a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.2s; }
-        nav a:hover { color: #0077b6; }
-        main { padding: 40px 80px; max-width: 1200px; margin: auto; text-align: center; }
-        .section-title { font-size: 1.8em; color: #0077b6; margin-bottom: 30px; border-left: 4px solid #0077b6; padding-left: 10px; text-align: left; }
-        .register-box { background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); padding: 30px; max-width: 500px; margin: 40px auto; text-align: left; }
-        .register-box label { display: block; margin-bottom: 6px; font-weight: 500; }
-        .register-box input[type="text"], .register-box input[type="email"], .register-box input[type="password"], .register-box input[type="tel"] { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; outline: none; }
-        .register-box button { background-color: #0077b6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; width: 100%; font-size: 1em; }
-        .register-box button:hover { background-color: #005f8c; }
-        footer { text-align: center; padding: 15px; font-size: 0.9em; color: #777; background-color: #ffffff; border-top: 1px solid #e0e0e0; margin-top: 60px; }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        main {
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 30px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+            text-align: left;
+        }
+
+        .register-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            max-width: 500px;
+            margin: 40px auto;
+            text-align: left;
+        }
+
+        .register-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .register-box input[type="text"], .register-box input[type="email"], .register-box input[type="password"], .register-box input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .register-box button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            font-size: 1em;
+        }
+
+        .register-box button:hover {
+            background-color: #005f8c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9em;
+            color: #777;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 60px;
+        }
     </style>
 </head>
 <body>
@@ -54,7 +149,8 @@
             <input id="phone" name="phone" placeholder="(xxx) - xxx - xxx" required type="tel">
 
             <label for="libraryCard">Library Card (optional)</label>
-            <input id="libraryCard" name="libraryCard" placeholder="Enter Library Card ID (if you have one)" type="text">
+            <input id="libraryCard" name="libraryCard" placeholder="Enter Library Card ID (if you have one)"
+                   type="text">
 
             <button type="submit">Register</button>
         </form>
@@ -82,7 +178,7 @@
         }
 
         try {
-            const resp = await fetch("http://localhost:8080/api/register", {
+            const resp = await fetch("http://localhost:8080/register", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(userData)
@@ -93,7 +189,10 @@
             console.log("Registration response body:", text);
 
             // try parse JSON if possible
-            try { console.log("Parsed JSON:", JSON.parse(text)); } catch (e) {}
+            try {
+                console.log("Parsed JSON:", JSON.parse(text));
+            } catch (e) {
+            }
 
             if (resp.ok) {
                 alert("Registration successful!");

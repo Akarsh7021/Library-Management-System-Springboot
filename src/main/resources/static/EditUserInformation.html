@@ -26,8 +26,8 @@
         body::before {
             content: "";
             position: fixed;
-            inset: 0;                           /* top/right/bottom/left: 0 */
-            z-index: -1;                        /* put behind page content */
+            inset: 0; /* top/right/bottom/left: 0 */
+            z-index: -1; /* put behind page content */
             background-image: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg');
             background-position: center center;
             background-repeat: no-repeat;
@@ -49,7 +49,12 @@
             align-items: center;
             justify-content: space-between;
         }
-        header h1 { font-size: 1.5em; margin: 0; color: #000; }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
 
         nav {
             background-color: #ffffff;
@@ -59,8 +64,18 @@
             padding: 12px 40px;
             border-bottom: 1px solid #e0e0e0;
         }
-        nav a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.2s; cursor: pointer; }
-        nav a:hover { color: #0077b6; }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
 
         /* main area grows to push footer down */
         main {
@@ -90,7 +105,12 @@
             text-align: left;
         }
 
-        .form-box label { display: block; margin-bottom: 6px; font-weight: 500; }
+        .form-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
         .form-box input[type="text"],
         .form-box input[type="email"],
         .form-box input[type="password"],
@@ -109,6 +129,7 @@
             justify-content: space-between;
             gap: 10px;
         }
+
         .button-group button {
             background-color: #0077b6;
             color: white;
@@ -120,9 +141,18 @@
             width: 48%;
             font-size: 1em;
         }
-        .button-group button.delete { background-color: #d9534f; }
-        .button-group button:hover { background-color: #005f8c; }
-        .button-group button.delete:hover { background-color: #c9302c; }
+
+        .button-group button.delete {
+            background-color: #d9534f;
+        }
+
+        .button-group button:hover {
+            background-color: #005f8c;
+        }
+
+        .button-group button.delete:hover {
+            background-color: #c9302c;
+        }
 
         /* footer — match other pages and remain at bottom */
         footer {
@@ -131,6 +161,7 @@
             padding: 15px;
             flex-shrink: 0;
         }
+
         .footer-content {
             max-width: 1200px;
             margin: auto;
@@ -140,19 +171,58 @@
             align-items: center;
             gap: 8px;
         }
-        .footer-content p { margin: 0; font-size: 0.9em; color: #777; }
-        .footer-links { display: flex; gap: 20px; }
-        .footer-links a { text-decoration: none; color: #333; font-size: 0.9em; transition: color 0.2s; }
-        .footer-links a:hover { color: #0077b6; }
+
+        .footer-content p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: #333;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #0077b6;
+        }
 
         /* responsive */
         @media (max-width: 760px) {
-            main { padding: 24px; }
-            nav { padding: 12px 20px; gap: 12px; }
-            .form-box { margin: 20px auto; width: 100%; max-width: 420px; }
-            .footer-content { padding: 0 20px; }
-            .button-group button { width: 100%; }
-            .button-group { flex-direction: column; gap: 12px; }
+            main {
+                padding: 24px;
+            }
+
+            nav {
+                padding: 12px 20px;
+                gap: 12px;
+            }
+
+            .form-box {
+                margin: 20px auto;
+                width: 100%;
+                max-width: 420px;
+            }
+
+            .footer-content {
+                padding: 0 20px;
+            }
+
+            .button-group button {
+                width: 100%;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 12px;
+            }
         }
     </style>
 </head>
@@ -167,7 +237,7 @@
     <a onclick="goTo('PlaceHold.html')">Hold</a>
     <a onclick="goTo('EditUserInformation.html')">Account</a>
     <a onclick="goTo('AdminPage.html')">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -187,7 +257,7 @@
             <label for="phone">Phone Number</label>
             <input id="phone" name="phone" placeholder="(xxx) - xxx - xxx" required type="tel">
 
-            <input type="hidden" id="libraryCard" name="libraryCard">
+            <input id="libraryCard" name="libraryCard" type="hidden">
 
             <div class="button-group">
                 <button type="submit">Update</button>
@@ -204,7 +274,9 @@
 </footer>
 
 <script>
-    function goTo(page) { window.location.href = page; }
+    function goTo(page) {
+        window.location.href = page;
+    }
 
     async function loadCurrentAccount() {
         try {
@@ -227,7 +299,7 @@
     window.addEventListener("DOMContentLoaded", loadCurrentAccount);
 
     // Update
-    document.getElementById("memberForm").addEventListener("submit", async function(e) {
+    document.getElementById("memberForm").addEventListener("submit", async function (e) {
         e.preventDefault();
         const accountId = parseInt(document.getElementById("libraryCard").value, 10);
         if (!accountId) {
@@ -271,7 +343,7 @@
     });
 
     // Delete
-    document.getElementById("deleteBtn").addEventListener("click", async function() {
+    document.getElementById("deleteBtn").addEventListener("click", async function () {
         const accountId = document.getElementById("libraryCard").value;
         if (!accountId) {
             alert("Could not find account ID.");
@@ -287,7 +359,10 @@
 
             if (response.status === 204 || response.ok) {
                 // call logout to be safe (server-side session should be invalidated too)
-                try { await fetch("/logout", { method: "POST", credentials: "include" }); } catch (e) { /* ignore */ }
+                try {
+                    await fetch("/logout", {method: "POST", credentials: "include"});
+                } catch (e) { /* ignore */
+                }
                 alert("Account deleted. You will be signed out.");
                 window.location.href = "AccountLogin.html";
             } else {
@@ -302,7 +377,11 @@
 
     // Sign out action (nav)
     async function signOut() {
-        try { await fetch("/logout", { method: "POST", credentials: "include" }); } catch (err) { console.warn("Logout request failed:", err); }
+        try {
+            await fetch("/logout", {method: "POST", credentials: "include"});
+        } catch (err) {
+            console.warn("Logout request failed:", err);
+        }
         window.location.href = "AccountLogin.html";
     }
 </script>

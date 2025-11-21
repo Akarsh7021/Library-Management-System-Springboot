@@ -148,6 +148,12 @@
         nav a {
             cursor: pointer;
         }
+
+        /* small nicety: disabled button style */
+        button[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -161,7 +167,7 @@
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
     <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -174,26 +180,26 @@
             <p class="hint">Create a user and link to an existing library card (enter card ID if available).</p>
 
             <label for="fullName">Full name</label>
-            <input id="fullName" type="text" placeholder="Jane Doe" required>
+            <input id="fullName" placeholder="Jane Doe" required type="text">
 
             <label for="email">Email</label>
-            <input id="email" type="email" placeholder="jane@example.com" required>
+            <input id="email" placeholder="jane@example.com" required type="email">
 
             <label for="password">Password</label>
-            <input id="password" type="password" required>
+            <input id="password" required type="password">
 
             <label for="confirmPassword">Confirm password</label>
-            <input id="confirmPassword" type="password" required>
+            <input id="confirmPassword" required type="password">
 
             <label for="phone">Phone</label>
-            <input id="phone" type="tel" placeholder="(xxx) - xxx - xxxx">
+            <input id="phone" placeholder="(xxx) - xxx - xxxx" type="tel">
 
             <label for="libraryCard">Library card (ID)</label>
-            <input id="libraryCard" type="text" placeholder="Optional: existing card #">
+            <input id="libraryCard" placeholder="Optional: existing card #" type="text">
 
             <button id="createBtn">Create user</button>
 
-            <div id="createMsg" class="msg" aria-live="polite"></div>
+            <div aria-live="polite" class="msg" id="createMsg"></div>
         </div>
 
         <!-- Delete user -->
@@ -202,11 +208,11 @@
             <p class="hint">Delete an account by its Account ID.</p>
 
             <label for="deleteAccountId">Account ID</label>
-            <input id="deleteAccountId" type="text" placeholder="e.g. 12">
+            <input id="deleteAccountId" placeholder="e.g. 12" type="text">
 
             <button id="deleteBtn">Delete user</button>
 
-            <div id="deleteMsg" class="msg" aria-live="polite"></div>
+            <div aria-live="polite" class="msg" id="deleteMsg"></div>
         </div>
     </div>
 </main>
@@ -216,21 +222,33 @@
 </footer>
 
 <script>
-    // Update these if your backend uses different paths:
-    const REGISTER_URL = 'http://localhost:8080/register';     // POST { fullName, email, password, confirmPassword, phone, libraryCard }
+    // Primary endpoints (adjust if your backend uses different routes)
+    const PRIMARY_REGISTER = 'http://localhost:8080/register';     // common custom register route
+    const FALLBACK_CREATE_ACCOUNT = 'http://localhost:8080/account'; // fallback endpoint if register isn't available
     const DELETE_ACCOUNT_BASE = 'http://localhost:8080/account'; // DELETE /account/{id}
 
     async function signOut() {
         try {
-            await fetch('/logout', { method: 'POST', credentials: 'include' });
+            await fetch('/logout', {method: 'POST', credentials: 'include'});
         } catch (err) {
             console.warn('Logout request failed:', err);
         }
         window.location.href = 'AccountLogin.html';
     }
 
+    // helper to set message text and color
+    function setMessage(el, text, color) {
+        if (!el) return;
+        el.style.color = color || '#333';
+        el.textContent = text || '';
+    }
+
     // Create user
-    document.getElementById('createBtn').addEventListener('click', async () => {
+    document.getElementById('createBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const btn = e.currentTarget;
+        const msgEl = document.getElementById('createMsg');
+
         const fullName = document.getElementById('fullName').value.trim();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
@@ -238,40 +256,63 @@
         const phone = document.getElementById('phone').value.trim();
         const libraryCard = document.getElementById('libraryCard').value.trim();
 
-        const msgEl = document.getElementById('createMsg');
-        msgEl.style.color = '#333';
-        msgEl.textContent = '';
+        setMessage(msgEl, '', '#333');
 
         if (!fullName || !email || !password || !confirmPassword) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Please fill the required fields.';
+            setMessage(msgEl, 'Please fill the required fields.', 'crimson');
             return;
         }
         if (password !== confirmPassword) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Passwords do not match.';
+            setMessage(msgEl, 'Passwords do not match.', 'crimson');
             return;
         }
 
+        // prepare payload that matches Account entity field names
         const payload = {
-            fullName,
-            email,
-            password,
-            confirmPassword,
-            phone,
-            libraryCard
+            // server-side may expect plain password or hashed; field name used in Account entity is passwordHash
+            // if your backend expects a different field (e.g. "password"), switch accordingly.
+            passwordHash: password,
+            accountType: 'member', // default role — change if needed
+            notificationEmail: email,
+            phoneNumber: phone || null,
+            fullName: fullName,
+            // include libraryCard only if provided — backend can ignore unknown fields
+            libraryCard: libraryCard || null
         };
 
+        // disable button while request in flight
+        btn.disabled = true;
+        btn.textContent = 'Creating...';
+
         try {
-            const res = await fetch(REGISTER_URL, {
+            // try primary register endpoint first
+            let res = await fetch(PRIMARY_REGISTER, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
+                credentials: 'include',
                 body: JSON.stringify(payload)
             });
 
+            // If primary endpoint returns 404 or 405, try fallback
+            if (res.status === 404 || res.status === 405) {
+                res = await fetch(FALLBACK_CREATE_ACCOUNT, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+            }
+
             if (res.ok) {
-                msgEl.style.color = 'green';
-                msgEl.textContent = 'User created successfully.';
+                // Try to parse returned json for extra info
+                let info = '';
+                try {
+                    const json = await res.json();
+                    if (json && json.accountId) info = ` (ID: ${json.accountId})`;
+                } catch (_) { /* ignore parse errors */ }
+
+                setMessage(msgEl, 'User created successfully' + info + '.', 'green');
+
                 // clear inputs
                 document.getElementById('fullName').value = '';
                 document.getElementById('email').value = '';
@@ -280,46 +321,63 @@
                 document.getElementById('phone').value = '';
                 document.getElementById('libraryCard').value = '';
             } else {
-                const text = await res.text();
-                msgEl.style.color = 'crimson';
-                msgEl.textContent = 'Failed: ' + (text || res.statusText || res.status);
+                // try to read text or json error message
+                let text = '';
+                try {
+                    text = await res.text();
+                } catch (err) {
+                    text = res.statusText || String(res.status);
+                }
+                setMessage(msgEl, 'Failed: ' + (text || res.statusText || res.status), 'crimson');
             }
         } catch (err) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Network error: ' + err.message;
+            setMessage(msgEl, 'Network error: ' + err.message, 'crimson');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Create user';
         }
     });
 
     // Delete user
-    document.getElementById('deleteBtn').addEventListener('click', async () => {
-        const id = document.getElementById('deleteAccountId').value.trim();
+    document.getElementById('deleteBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const btn = e.currentTarget;
         const msgEl = document.getElementById('deleteMsg');
-        msgEl.style.color = '#333';
-        msgEl.textContent = '';
+        const id = document.getElementById('deleteAccountId').value.trim();
+
+        setMessage(msgEl, '', '#333');
 
         if (!id) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Please enter an Account ID.';
+            setMessage(msgEl, 'Please enter an Account ID.', 'crimson');
             return;
         }
 
+        if (!confirm(`Delete account ${id}? This cannot be undone without recreating the account.`)) {
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Deleting...';
+
         try {
             const res = await fetch(`${DELETE_ACCOUNT_BASE}/${encodeURIComponent(id)}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'include'
             });
 
             if (res.ok || res.status === 204) {
-                msgEl.style.color = 'green';
-                msgEl.textContent = 'User deleted (or request accepted).';
+                setMessage(msgEl, 'User deleted.', 'green');
                 document.getElementById('deleteAccountId').value = '';
             } else {
-                const text = await res.text();
-                msgEl.style.color = 'crimson';
-                msgEl.textContent = 'Failed: ' + (text || res.statusText || res.status);
+                let text = '';
+                try { text = await res.text(); } catch (_) { /* ignore */ }
+                setMessage(msgEl, 'Failed: ' + (text || res.statusText || res.status), 'crimson');
             }
         } catch (err) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Network error: ' + err.message;
+            setMessage(msgEl, 'Network error: ' + err.message, 'crimson');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Delete user';
         }
     });
 </script>

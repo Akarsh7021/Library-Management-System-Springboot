@@ -9,32 +9,39 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class LibraryCardService {
+public class LibraryCardService
+{
 
     @Autowired
     private LibraryCardRepository libraryCardRepository;
 
-    public List<LibraryCard> findAll() {
+    public List<LibraryCard> findAll()
+    {
         return libraryCardRepository.findAll();
     }
 
-    public List<LibraryCard> findByCardNumber(Integer cardNumber) {
+    public List<LibraryCard> findByCardNumber(Integer cardNumber)
+    {
         return libraryCardRepository.findByCardNumber(cardNumber);
     }
 
-    public Optional<LibraryCard> findFirstByCardNumber(Integer cardNumber) {
+    public Optional<LibraryCard> findFirstByCardNumber(Integer cardNumber)
+    {
         return libraryCardRepository.findFirstByCardNumber(cardNumber);
     }
 
-    public List<LibraryCard> findByAccountIdAccount(Integer accountIdAccount) {
+    public List<LibraryCard> findByAccountIdAccount(Integer accountIdAccount)
+    {
         return libraryCardRepository.findByAccountAccountId(accountIdAccount);
     }
 
-    public LibraryCard save(LibraryCard libraryCard) {
+    public LibraryCard save(LibraryCard libraryCard)
+    {
         return libraryCardRepository.save(libraryCard);
     }
 
-    public void deleteByCardNumber(Integer cardNumber) {
+    public void deleteByCardNumber(Integer cardNumber)
+    {
         libraryCardRepository.deleteById(cardNumber);
     }
 }
