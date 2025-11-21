@@ -169,14 +169,10 @@
     <div class="section-title">📊 Library Reports Dashboard</div>
 
     <div class="form-box">
-        <h2 style="color:#0077b6;">Generate New Report</h2>
+        <h2 style="color:#0077b6;">Generate Library Report</h2>
         <form id="reportForm">
-            <input placeholder="User ID" required type="text"/>
-            <input placeholder="Full Name" required type="text"/>
-            <input placeholder="Book Title" required type="text"/>
-            <input required type="date"/>
-            <input required type="date"/>
-            <input placeholder="Fine ($)" required type="number"/>
+            <label for="startDate"></label><input type="date" id="startDate" placeholder="Start Date" />
+            <label for="endDate"></label><input type="date" id="endDate" placeholder="End Date" />
             <button type="submit">Generate Report</button>
         </form>
     </div>
@@ -253,75 +249,73 @@
 <footer>
     © 2025 City Library
 </footer>
-
 <script>
-    // Generate new report
-    document.getElementById("reportForm").addEventListener("submit", function (e) {
+    document.getElementById("reportForm").addEventListener("submit", async function (e) {
         e.preventDefault();
-        const inputs = e.target.querySelectorAll("input");
-        const row = document.createElement("tr");
-        row.innerHTML = `
-        <td>${inputs[0].value}</td>
-        <td>${inputs[1].value}</td>
-        <td>${inputs[2].value}</td>
-        <td>${inputs[3].value}</td>
-        <td>${inputs[4].value}</td>
-        <td>$${inputs[5].value}</td>
-      `;
-        document.querySelector("#generatedTable tbody").appendChild(row);
-        e.target.reset();
-    });
 
-    // Charts
-    new Chart(document.getElementById('genreChart'), {
-        type: 'bar',
-        data: {
-            labels: ['Fiction', 'Science', 'Programming', 'History', 'AI'],
-            datasets: [{
-                label: 'Borrow Count',
-                data: [12, 9, 15, 6, 10],
-                backgroundColor: '#0077b6'
-            }]
-        },
-        options: {responsive: true, scales: {y: {beginAtZero: true}}}
-    });
+        const startDate = document.getElementById("startDate").value || null;
+        const endDate   = document.getElementById("endDate").value   || null;
 
-    new Chart(document.getElementById('borrowTrendChart'), {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-            datasets: [{
-                label: 'Books Borrowed',
-                data: [5, 10, 8, 15, 12],
-                borderColor: '#ff9800',
-                backgroundColor: 'rgba(255,152,0,0.2)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {responsive: true}
-    });
-
-    new Chart(document.getElementById('authorChart'), {
-        type: 'pie',
-        data: {
-            labels: ['Jane Austen', 'J.K. Rowling', 'Dan Brown', 'Yuval Harari'],
-            datasets: [{
-                data: [10, 15, 8, 12],
-                backgroundColor: ['#0077b6', '#ff9800', '#4caf50', '#9c27b0']
-            }]
-        },
-        options: {responsive: true}
-    });
-    async function signOut() {
         try {
-            // Call logout on server
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            const response = await fetch("http://localhost:8080/api/reports/dashboard", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ startDate, endDate })
+            });
+
+            if (!response.ok) throw new Error("Report fetch failed");
+
+            const result = await response.json();
+
+            // Populate table
+            populateBorrowReturnTable(result.borrowReturn);
+
+            // Populate charts
+            updateGenreChart(result.genreStats);
+            updateAuthorChart(result.authorStats);
+            updateBorrowTrendChart(result.borrowTrend);
+
         } catch (err) {
-            console.warn("Logout request failed:", err);
+            alert("Error retrieving report. Check backend console.");
+            console.error(err);
         }
-        // Redirect to login page
-        window.location.href = "AccountLogin.html";
+    });
+</script>
+<script>
+    function populateBorrowReturnTable(rows) {
+        const tbody = document.querySelector("#generatedTable tbody");
+        tbody.innerHTML = "";
+
+        rows.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+            <td>${row.accountId}</td>
+            <td>${row.fullName}</td>
+            <td>${row.bookTitle}</td>
+            <td>${row.borrowedDate}</td>
+            <td>${row.dueDate}</td>
+            <td>${row.fine}</td>
+        `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateGenreChart(data) {
+        genreChart.data.labels = data.map(d => d.genre);
+        genreChart.data.datasets[0].data = data.map(d => d.count);
+        genreChart.update();
+    }
+
+    function updateAuthorChart(data) {
+        authorChart.data.labels = data.map(d => d.author);
+        authorChart.data.datasets[0].data = data.map(d => d.count);
+        authorChart.update();
+    }
+
+    function updateBorrowTrendChart(data) {
+        borrowTrendChart.data.labels = data.map(d => d.month);
+        borrowTrendChart.data.datasets[0].data = data.map(d => d.count);
+        borrowTrendChart.update();
     }
 </script>
 </body>
