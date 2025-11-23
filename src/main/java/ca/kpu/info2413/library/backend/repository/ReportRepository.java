@@ -26,8 +26,8 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
                     "WHERE (:userId IS NULL OR a.account_id = :userId) " +
                     "  AND (:fullName IS NULL OR a.full_name ILIKE CONCAT('%', :fullName, '%')) " +
                     "  AND (:bookTitle IS NULL OR p.title ILIKE CONCAT('%', :bookTitle, '%')) " +
-                    "  AND (:start IS NULL OR b.borrowed_date >= :start) " +
-                    "  AND (:end IS NULL OR b.borrowed_date <= :end) " +
+                    "  AND (CAST(:start AS DATE) IS NULL OR b.borrowed_date >= CAST(:start AS DATE)) " +  //FIXED
+                    "  AND (CAST(:end   AS DATE) IS NULL OR b.borrowed_date <= CAST(:end   AS DATE))\n " +     //FIXED
                     "ORDER BY b.borrowed_date DESC",
             nativeQuery = true)
     List<Object[]> rawBorrowReturnReport(
@@ -42,7 +42,7 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
     // 2. Fine Summary
     // -----------------------------------------------------
     @Query(value =
-            "SELECT a.account_id, a.full_name, SUM(f.fine_amount) AS total_fines, MAX(f.issue_date) AS last_fine_date " +
+            "SELECT a.account_id, a.full_name, COALESCE(SUM(f.fine_amount),0) AS total_fines, MAX(f.issue_date) AS last_fine_date " +
                     "FROM \"Fine\" f " +
                     "JOIN \"Borrow\" b ON b.borrow_id = f.\"borrow_id_Borrow\" " +
                     "JOIN \"Account\" a ON a.account_id = b.\"account_id_Account\" " +
@@ -73,8 +73,8 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
                     "FROM \"Borrow\" b " +
                     "JOIN \"BookCopy\" bc ON bc.serial_barcode = b.\"serial_barcode_BookCopy\" " +
                     "JOIN \"Publication\" p ON p.isbn_13 = bc.\"isbn_13_Publication\" " +
-                    "WHERE (:start IS NULL OR b.borrowed_date >= :start) " +
-                    "  AND (:end IS NULL OR b.borrowed_date <= :end) " +
+                    "WHERE (CAST(:start AS DATE) IS NULL OR b.borrowed_date >= CAST(:start AS DATE))" +
+                    "AND   (CAST(:end   AS DATE) IS NULL OR b.borrowed_date <= CAST(:end   AS DATE)) " +
                     "GROUP BY p.genre " +
                     "ORDER BY borrow_count DESC",
             nativeQuery = true)
@@ -88,13 +88,13 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
     // 4. Author Trend (no-arg, all-time)
     // -----------------------------------------------------
     @Query(value =
-            "SELECT a.author_name, COUNT(*) AS borrow_count " +
+            "SELECT au.author_name, COUNT(*) AS borrow_count " +
                     "FROM \"Borrow\" b " +
                     "JOIN \"BookCopy\" bc ON bc.serial_barcode = b.\"serial_barcode_BookCopy\" " +
                     "JOIN \"Publication\" p ON p.isbn_13 = bc.\"isbn_13_Publication\" " +
                     "JOIN \"PublicationAuthor\" pa ON pa.\"isbn_13_Publication\" = p.isbn_13 " +
-                    "JOIN \"Author\" a ON a.author_id = pa.\"author_id_Author\" " +
-                    "GROUP BY a.author_name " +
+                    "JOIN \"Author\" au ON au.author_id = pa.\"author_id_Author\" " +
+                    "GROUP BY au.author_name " +
                     "ORDER BY borrow_count DESC",
             nativeQuery = true)
     List<Object[]> rawAuthorTrend(); // all-time
@@ -103,15 +103,15 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
     // 4b. Author Trend (with date range)
     // -----------------------------------------------------
     @Query(value =
-            "SELECT a.author_name, COUNT(*) AS borrow_count " +
+            "SELECT au.author_name, COUNT(*) AS borrow_count " +
                     "FROM \"Borrow\" b " +
                     "JOIN \"BookCopy\" bc ON bc.serial_barcode = b.\"serial_barcode_BookCopy\" " +
                     "JOIN \"Publication\" p ON p.isbn_13 = bc.\"isbn_13_Publication\" " +
                     "JOIN \"PublicationAuthor\" pa ON pa.\"isbn_13_Publication\" = p.isbn_13 " +
-                    "JOIN \"Author\" a ON a.author_id = pa.\"author_id_Author\" " +
-                    "WHERE (:start IS NULL OR b.borrowed_date >= :start) " +
-                    "  AND (:end IS NULL OR b.borrowed_date <= :end) " +
-                    "GROUP BY a.author_name " +
+                    "JOIN \"Author\" au ON au.author_id = pa.\"author_id_Author\" " +
+                    "WHERE (CAST(:start AS DATE) IS NULL OR b.borrowed_date >= CAST(:start AS DATE))" +
+                    "AND   (CAST(:end   AS DATE) IS NULL OR b.borrowed_date <= CAST(:end   AS DATE)) " +
+                    "GROUP BY au.author_name " +
                     "ORDER BY borrow_count DESC",
             nativeQuery = true)
     List<Object[]> rawAuthorTrend(
@@ -127,8 +127,8 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
             "SELECT TO_CHAR(b.borrowed_date, 'YYYY-MM') AS month, COUNT(*) AS borrow_count " +
                     "FROM \"Borrow\" b " +
                     "WHERE b.borrowed_date IS NOT NULL " +
-                    "GROUP BY month " +
-                    "ORDER BY month",
+                    "GROUP BY TO_CHAR(b.borrowed_date, 'YYYY-MM') " +
+                    "ORDER BY TO_CHAR(b.borrowed_date, 'YYYY-MM')",
             nativeQuery = true)
     List<Object[]> rawMonthlyTrend(); // all-time
 
@@ -141,8 +141,8 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
                     "WHERE b.borrowed_date IS NOT NULL " +
                     "  AND (:start IS NULL OR b.borrowed_date >= :start) " +
                     "  AND (:end IS NULL OR b.borrowed_date <= :end) " +
-                    "GROUP BY month " +
-                    "ORDER BY month",
+                    "GROUP BY TO_CHAR(b.borrowed_date, 'YYYY-MM') " +
+                    "ORDER BY TO_CHAR(b.borrowed_date, 'YYYY-MM')",
             nativeQuery = true)
     List<Object[]> rawMonthlyTrend(
             @Param("start") LocalDate start,
@@ -193,11 +193,11 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
     // 9. Outstanding Fines
     // -----------------------------------------------------
     @Query(value =
-            "SELECT a.account_id, a.full_name, SUM(f.fine_amount) AS total_fines " +
+            "SELECT a.account_id, a.full_name, COALESCE(SUM(f.fine_amount),0) AS total_fines " +
                     "FROM \"Fine\" f " +
                     "JOIN \"Borrow\" b ON b.borrow_id = f.\"borrow_id_Borrow\" " +
                     "JOIN \"Account\" a ON a.account_id = b.\"account_id_Account\" " +
-                    "WHERE f.waived_reversed = FALSE OR f.waived_reversed IS NULL " +
+                    "WHERE (f.waived_reversed = FALSE OR f.waived_reversed IS NULL) " +
                     "GROUP BY a.account_id, a.full_name " +
                     "ORDER BY total_fines DESC",
             nativeQuery = true)
@@ -207,7 +207,7 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
     // 10. Payments Summary
     // -----------------------------------------------------
     @Query(value =
-            "SELECT a.account_id, a.full_name, SUM(p.payment_amount) AS total_paid " +
+            "SELECT a.account_id, a.full_name, COALESCE(SUM(p.payment_amount),0) AS total_paid " +
                     "FROM \"Payment\" p " +
                     "JOIN \"Account\" a ON a.account_id = p.\"account_id_Account\" " +
                     "GROUP BY a.account_id, a.full_name " +
