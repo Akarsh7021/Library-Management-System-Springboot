@@ -196,7 +196,7 @@
 
     <div class="table-box">
         <h2 style="color:#0077b6;">💸 Fine Summary</h2>
-        <table>
+        <table id="fineSummaryTable">
             <thead>
             <tr>
                 <th>Account ID</th>
@@ -205,26 +205,7 @@
                 <th>Last Fine Date</th>
             </tr>
             </thead>
-            <tbody>
-            <tr>
-                <td>A001</td>
-                <td>John Smith</td>
-                <td>$20.00</td>
-                <td>2025-10-20</td>
-            </tr>
-            <tr>
-                <td>A002</td>
-                <td>Alice Johnson</td>
-                <td>$15.00</td>
-                <td>2025-10-19</td>
-            </tr>
-            <tr>
-                <td>A003</td>
-                <td>Emma Lee</td>
-                <td>$10.00</td>
-                <td>2025-10-21</td>
-            </tr>
-            </tbody>
+            <tbody id="fineSummaryBody"></tbody>
         </table>
     </div>
 
@@ -250,6 +231,23 @@
     © 2025 City Library
 </footer>
 <script>
+    // -------------------------
+    // DISABLE BUTTON UNTIL DATES ENTERED
+    // -------------------------
+    const genBtn = document.querySelector('#reportForm button');
+    const startInput = document.getElementById('startDate');
+    const endInput = document.getElementById('endDate');
+
+    function toggleGenerate() {
+        // Disable only if BOTH empty
+        genBtn.disabled = !startInput.value && !endInput.value;
+    }
+
+    startInput.addEventListener('input', toggleGenerate);
+    endInput.addEventListener('input', toggleGenerate);
+
+    toggleGenerate(); // set initial state
+
     document.getElementById("reportForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
@@ -267,6 +265,32 @@
 
             const result = await response.json();
 
+                // Initialize Charts
+                const genreChart = new Chart(document.getElementById("genreChart"), {
+                type: "bar",
+                data: {
+                labels: [],
+                datasets: [{ label: "Borrowed", data: [] }]
+            }
+            });
+
+                const authorChart = new Chart(document.getElementById("authorChart"), {
+                type: "bar",
+                data: {
+                labels: [],
+                datasets: [{ label: "Borrowed", data: [] }]
+            }
+            });
+
+                const borrowTrendChart = new Chart(document.getElementById("borrowTrendChart"), {
+                type: "line",
+                data: {
+                labels: [],
+                datasets: [{ label: "Borrow Count", data: [] }]
+            }
+            });
+
+
             // Populate table
             populateBorrowReturnTable(result.borrowReturn);
 
@@ -280,43 +304,182 @@
             console.error(err);
         }
     });
-</script>
-<script>
+    //--------------------------------------------------------
+    // INITIALIZE CHARTS (Important: must exist before updates)
+    //--------------------------------------------------------
+    let genreChart = new Chart(document.getElementById('genreChart'), {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Borrow Count',
+                data: [],
+                backgroundColor: 'rgba(0,119,182,0.6)'
+            }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true }}}
+    });
+
+    let borrowTrendChart = new Chart(document.getElementById('borrowTrendChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Borrowing Trend',
+                data: [],
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    let authorChart = new Chart(document.getElementById('authorChart'), {
+        type: 'pie',
+        data: { labels: [], datasets: [{ data: [] }] },
+        options: { responsive: true }
+    });
+
+    //--------------------------------------------------------
+    // FETCH & LOAD DASHBOARD (Called on load + filtering)
+    //--------------------------------------------------------
+    async function fetchDashboard(startDate, endDate) {
+        try {
+            const response = await fetch("http://localhost:8080/api/reports/dashboard", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ startDate, endDate })
+            });
+
+            if (!response.ok) {
+                console.error(await response.text());
+                throw new Error("Failed fetching dashboard.");
+            }
+
+            const result = await response.json();
+
+            // Populate tables
+            populateBorrowReturnTable(result.borrowReturn);
+            populateFineSummaryTable(result.fineSummary);
+
+            // Populate charts
+            updateGenreChart(result.genreStats);
+            updateAuthorChart(result.authorStats);
+            updateBorrowTrendChart(result.borrowTrend);
+
+        } catch (err) {
+            alert("Error retrieving report — check backend console.");
+            console.error(err);
+        }
+    }
+
+    //--------------------------------------------------------
+    // TABLE POPULATION
+    //--------------------------------------------------------
     function populateBorrowReturnTable(rows) {
         const tbody = document.querySelector("#generatedTable tbody");
         tbody.innerHTML = "";
 
+        if (!rows) return;
+
         rows.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-            <td>${row.accountId}</td>
-            <td>${row.fullName}</td>
-            <td>${row.bookTitle}</td>
-            <td>${row.borrowedDate}</td>
-            <td>${row.dueDate}</td>
-            <td>${row.fine}</td>
-        `;
+                <td>${row.accountId ?? ''}</td>
+                <td>${row.fullName ?? ''}</td>
+                <td>${row.bookTitle ?? ''}</td>
+                <td>${row.borrowedDate ?? ''}</td>
+                <td>${row.dueDate ?? ''}</td>
+                <td>${row.fine ?? 0}</td>
+            `;
             tbody.appendChild(tr);
         });
     }
 
-    function updateGenreChart(data) {
-        genreChart.data.labels = data.map(d => d.genre);
-        genreChart.data.datasets[0].data = data.map(d => d.count);
+    function populateFineSummaryTable(rows) {
+        const tbody = document.getElementById("fineSummaryBody");
+        tbody.innerHTML = "";
+
+        if (!rows) return;
+
+        rows.forEach(r => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${r.accountId ?? ''}</td>
+                <td>${r.fullName ?? ''}</td>
+                <td>${r.totalFine ?? 0}</td>
+                <td>${r.lastFineDate ?? ''}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    //--------------------------------------------------------
+    // CHART UPDATES
+    //--------------------------------------------------------
+    function updateGenreChart(data = []) {
+        if (!data.length) {
+            genreChart.data.labels = ['No data'];
+            genreChart.data.datasets[0].data = [0];
+        } else {
+            genreChart.data.labels = data.map(d => d.genre);
+            genreChart.data.datasets[0].data = data.map(d => d.count);
+        }
         genreChart.update();
     }
 
-    function updateAuthorChart(data) {
-        authorChart.data.labels = data.map(d => d.author);
-        authorChart.data.datasets[0].data = data.map(d => d.count);
+
+    function updateAuthorChart(data = []) {
+        if (!data.length) {
+            authorChart.data.labels = ['No data'];
+            authorChart.data.datasets[0].data = [0];
+        } else {
+            authorChart.data.labels = data.map(d => d.author);
+            authorChart.data.datasets[0].data = data.map(d => d.count);
+        }
         authorChart.update();
     }
 
-    function updateBorrowTrendChart(data) {
-        borrowTrendChart.data.labels = data.map(d => d.month);
-        borrowTrendChart.data.datasets[0].data = data.map(d => d.count);
+
+    function updateBorrowTrendChart(data = []) {
+        if (!data.length) {
+            borrowTrendChart.data.labels = ['No data'];
+            borrowTrendChart.data.datasets[0].data = [0];
+        } else {
+            borrowTrendChart.data.labels = data.map(d => d.month);
+            borrowTrendChart.data.datasets[0].data = data.map(d => d.count);
+        }
         borrowTrendChart.update();
     }
+
+
+    //--------------------------------------------------------
+    // PAGE LOAD — AUTO-FETCH ALL DATA
+    //--------------------------------------------------------
+    window.addEventListener("DOMContentLoaded", () => {
+        fetchDashboard(null, null); // Load ALL data initially
+    });
+
+    //--------------------------------------------------------
+    // FILTER FORM SUBMIT
+    //--------------------------------------------------------
+    document.getElementById("reportForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const start = document.getElementById("startDate").value || null;
+        const end   = document.getElementById("endDate").value || null;
+        fetchDashboard(start, end);
+    });
+
+    //--------------------------------------------------------
+    // LOGOUT
+    //--------------------------------------------------------
+    async function signOut() {
+        try {
+            await fetch("/logout", { method: "POST", credentials: "include" });
+        } catch (e) { console.warn(e); }
+        window.location.href = "AccountLogin.html";
+    }
 </script>
+
 </body>
 </html>
