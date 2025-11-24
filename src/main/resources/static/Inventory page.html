@@ -315,15 +315,25 @@
     document.getElementById("addPublicationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const isbn = document.getElementById("pubIsbn").value.trim();
+        const isbnRaw = document.getElementById("pubIsbn").value.trim();
         const pageCountRaw = document.getElementById("pageCount").value;
         const publicationDate = document.getElementById("pubDate").value;
         const genre = document.getElementById("genre").value.trim();
         const title = document.getElementById("title").value.trim();
         const authorsRaw = document.getElementById("authors").value;
 
-        if (!isbn || !pageCountRaw || !publicationDate || !genre || !title) {
+        if (!isbnRaw || !pageCountRaw || !publicationDate || !genre || !title) {
             return alert("Please fill in all required fields.");
+        }
+
+        // Normalize ISBN: strip non-digit characters (dashes, spaces), then parse as number
+        const isbnDigits = isbnRaw.replace(/\D/g, '');
+        if (!isbnDigits) return alert("Please enter a valid ISBN (digits expected).");
+
+        // Convert to integer
+        const isbn13 = Number(isbnDigits);
+        if (!Number.isInteger(isbn13) || isbn13 <= 0) {
+            return alert("ISBN must contain valid digits and be a positive integer.");
         }
 
         const pageCount = parseInt(pageCountRaw, 10);
@@ -338,13 +348,15 @@
         }
 
         const payload = {
-            isbn,
-            pageCount,
-            publicationDate,
-            genre,
-            title,
-            authors // this will be a real JSON array
+            isbn13: isbn13,                 // send numeric isbn13 to backend (Integer)
+            pageCount: pageCount,
+            publicationDate: publicationDate,
+            genre: genre,
+            title: title,
+            authors: authors               // JSON array of strings
         };
+
+        console.log("Add publication payload ->", payload);
 
         const res = await doFetchJson("http://localhost:8080/publication", {
             method: "POST",
@@ -358,16 +370,24 @@
             e.target.reset();
         } else {
             alert("Error adding publication — check console for details.");
+            console.warn("Failed payload:", JSON.stringify(payload));
+            console.warn("Server response:", res);
         }
     });
 
     /* ---------- Delete Publication ---------- */
     document.getElementById("deletePublicationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const isbn = document.getElementById("deletePubIsbn").value.trim();
-        if (!isbn) return alert("Please enter an ISBN to delete.");
+        const isbnRaw = document.getElementById("deletePubIsbn").value.trim();
+        if (!isbnRaw) return alert("Please enter an ISBN to delete.");
 
-        const res = await doFetchJson(`http://localhost:8080/publication/${encodeURIComponent(isbn)}`, {
+        // Normalize and validate numeric ISBN
+        const isbnDigits = isbnRaw.replace(/\D/g, '');
+        if (!isbnDigits) return alert("Please enter a valid numeric ISBN.");
+        const isbn13 = Number(isbnDigits);
+        if (!Number.isInteger(isbn13)) return alert("ISBN must be a valid integer.");
+
+        const res = await doFetchJson(`http://localhost:8080/publication/${encodeURIComponent(isbn13)}`, {
             method: "DELETE"
         });
 
@@ -396,7 +416,7 @@
             serialBarcodeBookCopy: barcode // duplicate key in case backend expects this name
         };
 
-        const res = await doFetchJson("http://localhost:8080/bookcopy", {
+        const res = await doFetchJson("http://localhost:8080/book_copy", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
