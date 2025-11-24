@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>City Library | Inventory Management</title>
 
     <style>
@@ -113,6 +113,13 @@
             background-color: #005f8c;
         }
 
+        .small-muted {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: -12px;
+            margin-bottom: 12px;
+        }
+
         footer {
             text-align: center;
             padding: 15px;
@@ -129,6 +136,17 @@
             font-weight: 500;
             transition: color 0.2s;
             cursor: pointer;
+        }
+
+        /* results area used by lookup */
+        #lookupResults {
+            max-width: 720px;
+            margin: 16px auto;
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            text-align: left;
         }
     </style>
 </head>
@@ -158,7 +176,7 @@
                 <input id="pubIsbn" required>
 
                 <label>Page Count</label>
-                <input id="pageCount" required type="number">
+                <input id="pageCount" required type="number" min="1">
 
                 <label>Publication Date</label>
                 <input id="pubDate" required type="date">
@@ -170,7 +188,7 @@
                 <input id="title" required>
 
                 <label>Author(s)</label>
-                <input id="authors" required>
+                <input id="authors" placeholder="Author1, Author2" required>
 
                 <button type="submit">Add Publication</button>
             </form>
@@ -238,6 +256,8 @@
         </div>
 
     </div>
+
+    <div id="lookupResults" style="display:none;"></div>
 </main>
 
 <footer>
@@ -245,108 +265,265 @@
 </footer>
 
 <script>
+    /* ---------- Helpers ---------- */
+    function parseAuthors(input) {
+        if (!input) return [];
+        input = input.trim();
 
-    // -------------------------
-    // ADD PUBLICATION
-    // -------------------------
+        // If user pasted a JSON array like ["A","B"]
+        if (input.startsWith('[')) {
+            try {
+                const parsed = JSON.parse(input);
+                if (Array.isArray(parsed)) return parsed.map(a => String(a).trim()).filter(Boolean);
+            } catch (e) {
+                // fall through to token parsing
+            }
+        }
+
+        // Split on commas, semicolons or newlines
+        return input
+            .split(/\s*(?:,|;|\n)+\s*/)
+            .map(s => s.trim())
+            .filter(Boolean);
+    }
+
+    async function doFetchJson(url, opts = {}) {
+        try {
+            const res = await fetch(url, opts);
+            const text = await res.text();
+            // Try to parse JSON, but gracefully handle non-JSON responses
+            let data;
+            try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+            return { ok: res.ok, status: res.status, data, raw: text };
+        } catch (err) {
+            console.error("Network/fetch error:", err);
+            return { ok: false, status: 0, error: err };
+        }
+    }
+
+    /* ---------- Sign out ---------- */
+    async function signOut() {
+        try {
+            await fetch("/logout", { method: "POST", credentials: "include" });
+        } catch (err) {
+            console.warn("Logout request failed:", err);
+        }
+        window.location.href = "AccountLogin.html";
+    }
+
+    /* ---------- Add Publication ---------- */
     document.getElementById("addPublicationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
+        const isbn = document.getElementById("pubIsbn").value.trim();
+        const pageCountRaw = document.getElementById("pageCount").value;
+        const publicationDate = document.getElementById("pubDate").value;
+        const genre = document.getElementById("genre").value.trim();
+        const title = document.getElementById("title").value.trim();
+        const authorsRaw = document.getElementById("authors").value;
+
+        if (!isbn || !pageCountRaw || !publicationDate || !genre || !title) {
+            return alert("Please fill in all required fields.");
+        }
+
+        const pageCount = parseInt(pageCountRaw, 10);
+        if (isNaN(pageCount) || pageCount < 0) {
+            return alert("Page count must be a valid non-negative number.");
+        }
+
+        const authors = parseAuthors(authorsRaw);
+        if (authors.length === 0) {
+            // If backend allows zero authors you can remove this check
+            if (!confirm("No authors parsed — continue with empty authors list?")) return;
+        }
+
         const payload = {
-            isbn: pubIsbn.value,
-            pageCount: pageCount.value,
-            publicationDate: pubDate.value,
-            genre: genre.value,
-            title: title.value,
-            authors: authors.value
+            isbn,
+            pageCount,
+            publicationDate,
+            genre,
+            title,
+            authors // this will be a real JSON array
         };
 
-        const res = await fetch("http://localhost:8080/publication", {
+        const res = await doFetchJson("http://localhost:8080/publication", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
-        alert(res.ok ? "Publication added!" : "Error adding publication");
+        console.log("Add publication response:", res);
+        if (res.ok) {
+            alert("Publication added!");
+            e.target.reset();
+        } else {
+            alert("Error adding publication — check console for details.");
+        }
     });
 
-    // DELETE PUBLICATION
+    /* ---------- Delete Publication ---------- */
     document.getElementById("deletePublicationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const isbn = document.getElementById("deletePubIsbn").value.trim();
+        if (!isbn) return alert("Please enter an ISBN to delete.");
 
-        const isbn = deletePubIsbn.value;
-
-        const res = await fetch(`http://localhost:8080/publication/${isbn}`, {
+        const res = await doFetchJson(`http://localhost:8080/publication/${encodeURIComponent(isbn)}`, {
             method: "DELETE"
         });
 
-        alert(res.ok ? "Publication deleted!" : "Error deleting publication");
+        console.log("Delete publication response:", res);
+        if (res.ok) {
+            alert("Publication deleted!");
+            e.target.reset();
+        } else if (res.status === 404) {
+            alert("Publication not found.");
+        } else {
+            alert("Error deleting publication — check console.");
+        }
     });
 
-    // ADD BOOK COPY
+    /* ---------- Add Book Copy ---------- */
     document.getElementById("addBookCopyForm").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const isbn = document.getElementById("copyIsbn").value.trim();
+        const barcode = document.getElementById("copyBarcode").value.trim();
+
+        if (!isbn || !barcode) return alert("Please enter ISBN and Serial Barcode.");
 
         const payload = {
-            isbn: copyIsbn.value,
-            barcode: copyBarcode.value
+            isbn: isbn,
+            barcode: barcode,
+            serialBarcodeBookCopy: barcode // duplicate key in case backend expects this name
         };
 
-        const res = await fetch("http://localhost:8080/bookcopy", {
+        const res = await doFetchJson("http://localhost:8080/bookcopy", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
-        alert(res.ok ? "Book copy added!" : "Error adding book copy");
+        console.log("Add book copy response:", res);
+        if (res.ok) {
+            alert("Book copy added!");
+            e.target.reset();
+        } else {
+            alert("Error adding book copy — check console.");
+        }
     });
 
-    // DELETE BOOK COPY
+    /* ---------- Delete Book Copy ---------- */
     document.getElementById("deleteBookCopyForm").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const barcode = document.getElementById("deleteCopyBarcode").value.trim();
+        if (!barcode) return alert("Please enter the Serial Barcode to delete.");
 
-        const barcode = deleteCopyBarcode.value;
-
-        const res = await fetch(`http://localhost:8080/bookcopy/${barcode}`, {
+        const res = await doFetchJson(`http://localhost:8080/bookcopy/${encodeURIComponent(barcode)}`, {
             method: "DELETE"
         });
 
-        alert(res.ok ? "Book copy deleted!" : "Error deleting book copy");
+        console.log("Delete book copy response:", res);
+        if (res.ok) {
+            alert("Book copy deleted!");
+            e.target.reset();
+        } else if (res.status === 404) {
+            alert("Book copy not found.");
+        } else {
+            alert("Error deleting book copy — check console.");
+        }
     });
 
-    // ADD CONDITION NOTE
+    /* ---------- Add Condition Note ---------- */
     document.getElementById("addConditionForm").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const barcode = document.getElementById("noteBarcode").value.trim();
+        const note = document.getElementById("conditionNote").value.trim();
 
+        if (!barcode || !note) return alert("Please enter Serial Barcode and a condition note.");
+
+        // send multiple possible field names to be tolerant with backend
         const payload = {
-            barcode: noteBarcode.value,
-            note: conditionNote.value
+            barcode,
+            serialBarcodeBookCopy: barcode,
+            note,
+            conditionNotes: note
         };
 
-        const res = await fetch(`http://localhost:8080/bookcopy/condition`, {
+        const res = await doFetchJson("http://localhost:8080/bookcopy/condition", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
-        alert(res.ok ? "Condition note added!" : "Error adding note");
+        console.log("Add condition note response:", res);
+        if (res.ok) {
+            alert("Condition note added!");
+            e.target.reset();
+        } else {
+            alert("Error adding condition note — check console.");
+        }
     });
 
-    // LOOKUP CONDITION NOTE
+    /* ---------- Lookup Condition Notes ---------- */
     document.getElementById("lookupForm").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const barcode = document.getElementById("lookupBarcode").value.trim();
+        if (!barcode) return alert("Please enter a Serial Barcode to look up.");
 
-        const barcode = lookupBarcode.value;
+        const res = await doFetchJson(`http://localhost:8080/bookcopy/condition/${encodeURIComponent(barcode)}`, {
+            method: "GET"
+        });
 
-        const res = await fetch(`http://localhost:8080/bookcopy/condition/${barcode}`);
+        console.log("Lookup condition notes response:", res);
 
-        if (!res.ok) return alert("No notes found.");
+        if (!res.ok) {
+            if (res.status === 404) {
+                return alert("No notes found for that barcode.");
+            }
+            return alert("Error looking up notes — check console.");
+        }
 
-        const notes = await res.json();
+        const data = res.data;
+        if (!data) return alert("No notes found.");
 
-        alert("Condition Notes:\n\n" + notes.join("\n"));
+        // Accept variety of response shapes:
+        // - array of strings: ["note1","note2"]
+        // - array of objects: [{conditionNotes: "x"}, {condition_notes: "y"}]
+        // - single object with notes array
+        let notesList = [];
+
+        if (Array.isArray(data)) {
+            if (data.every(item => typeof item === "string")) {
+                notesList = data;
+            } else {
+                // try to extract text-like fields from objects
+                notesList = data.map(obj => {
+                    if (!obj) return "";
+                    if (typeof obj === "string") return obj;
+                    return obj.conditionNotes ?? obj.condition_notes ?? obj.note ?? obj.text ?? JSON.stringify(obj);
+                }).filter(Boolean);
+            }
+        } else if (typeof data === "object") {
+            // e.g. { notes: [...] } or a single note object
+            if (Array.isArray(data.notes)) {
+                notesList = data.notes.map(n => typeof n === "string" ? n : (n.conditionNotes ?? n.condition_notes ?? JSON.stringify(n)));
+            } else {
+                // single object -> try to get note fields
+                const single = data.conditionNotes ?? data.condition_notes ?? data.note ?? data.text;
+                if (single) notesList = [single];
+            }
+        } else if (typeof data === "string") {
+            // backend returned plain text
+            notesList = [data];
+        }
+
+        if (notesList.length === 0) {
+            alert("No condition notes found for that barcode.");
+        } else {
+            alert("Condition Notes:\n\n" + notesList.join("\n\n---\n\n"));
+        }
     });
 
+    /* ---------- End of script ---------- */
 </script>
 
 </body>
