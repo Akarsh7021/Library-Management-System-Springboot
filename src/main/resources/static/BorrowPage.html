@@ -164,7 +164,7 @@
 
                 <label for="dueDate">Due Date</label>
                 <input id="dueDate" name="dueDate" required type="date">
-
+                <label id="borrowStat" style="display: none"></label>
                 <button type="submit">Borrow</button>
             </form>
         </div>
@@ -210,6 +210,9 @@
 
         console.log("Payload sent to server:", requestData);
 
+        // prep label to report status
+        var labelBorrowStat = document.getElementById("borrowStat");
+
         // Fetch call to backend API
         fetch("http://localhost:8080/borrow", {
             method: "POST",
@@ -217,12 +220,18 @@
             body: JSON.stringify(requestData)
         })
             .then(async response => {
-                if (response.status === 400) {
-                    alert(await response.text());
-                } else if (response.status === 201) {
+                if (response.status === 400) { // if a check fails for book copy or account
+                    //alert(await response.text());
+                    labelBorrowStat.style.display = "block";
+                    labelBorrowStat.style.color = "red";
+                    labelBorrowStat.innerHTML = await response.text();
+                } else if (response.status === 201) { // if status is ok
                     //console.log("Borrow: ", await response.body);
-                    alert(await response.text());
-                }else if (!response.ok) {
+                    //alert(await response.text());
+                    labelBorrowStat.style.display = "block";
+                    labelBorrowStat.style.color = "green";
+                    labelBorrowStat.innerHTML = await response.text();
+                }else if (!response.ok) { // catch other errors
                     throw new Error('HTTP error! status:' + response.status)
                 }
                 //return response.json();
