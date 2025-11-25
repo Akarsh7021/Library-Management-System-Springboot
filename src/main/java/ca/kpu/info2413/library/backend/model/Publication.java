@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 @Entity
 @Table(name = "Publication")
 @Data
@@ -18,6 +19,7 @@ import java.util.List;
 public class Publication
 {
     @Id
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "isbn_13")
     private Integer isbn13;
 
@@ -31,37 +33,21 @@ public class Publication
 
     private String genre;
 
-    @OneToMany(mappedBy = "publication", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "publication", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<PublicationAuthor> publicationAuthors;
 
-    // Serialize authors to JSON
-    @JsonProperty(value = "authors", access = JsonProperty.Access.READ_ONLY)
-    public List<String> getAuthors() {
+    // Derived property for JSON
+    @JsonProperty("authors")
+    public List<String> getAuthors()
+    {
         if (publicationAuthors == null) return List.of();
         return publicationAuthors.stream()
                 .map(pa -> pa.getAuthor().getAuthorName())
                 .toList();
     }
 
-    // Accept authors on deserialization and convert to PublicationAuthor entries
-    @JsonProperty("authors")
-    public void setAuthors(List<String> authors) {
-        if (authors == null) {
-            this.publicationAuthors = new ArrayList<>();
-            return;
-        }
-        // Defensive: create new list and PublicationAuthor/Author objects (adjust per your model)
-        List<PublicationAuthor> paList = new ArrayList<>();
-        for (String name : authors) {
-            if (name == null || name.isBlank()) continue;
-            Author a = new Author();
-            a.setAuthorName(name.trim());
-            PublicationAuthor pa = new PublicationAuthor();
-            pa.setAuthor(a);
-            pa.setPublication(this);
-            paList.add(pa);
-        }
-        this.publicationAuthors = paList;
+    public Publication(Integer isbn13){
+        this.isbn13 = isbn13;
     }
 }
