@@ -55,4 +55,6 @@ public class BookCopyService
         }
         return findByPublication(publicationOpt.get());
     }
+
+    //public Optional<Publication>
 }

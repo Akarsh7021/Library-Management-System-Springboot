@@ -1,6 +1,11 @@
 package ca.kpu.info2413.library.backend.controller;
 
+import ca.kpu.info2413.library.backend.model.Account;
+import ca.kpu.info2413.library.backend.model.BookCopy;
 import ca.kpu.info2413.library.backend.model.Borrow;
+import ca.kpu.info2413.library.backend.model.Publication;
+import ca.kpu.info2413.library.backend.service.AccountService;
+import ca.kpu.info2413.library.backend.service.BookCopyService;
 import ca.kpu.info2413.library.backend.service.BorrowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/borrow")
@@ -18,6 +24,10 @@ public class BorrowController
 
     @Autowired
     private BorrowService borrowService;
+    @Autowired
+    private BookCopyService bookCopyService;
+    @Autowired
+    private AccountService accountService;
 
     @GetMapping
     public List<Borrow> findAll()
@@ -35,15 +45,41 @@ public class BorrowController
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Borrow borrow)
     {
-        Borrow b = findBySerialBarcodeBookCopy(borrow.getSerialBarcodeBookCopy()).getLast();
+        // check if book copy exists by looking up barcode
+        Optional<BookCopy> bookCopy = bookCopyService.findBySerialBarcode(borrow.getSerialBarcodeBookCopy());
 
-        if((b != null) && Objects.equals(b.getStatus(), "Borrowed")){
-            return ResponseEntity.badRequest().body("Book is not available");
+        if(bookCopy.isEmpty()){
+            return ResponseEntity.badRequest().body(String.format("Book copy %s not Found!", borrow.getSerialBarcodeBookCopy()));
         }
 
+        // get book title from publication
+        String bookName = bookCopy.get().getPublication().getTitle();
+
+        // get the latest borrow entry of the book copy
+        Borrow b = null;
+        
+        try{
+            b = findBySerialBarcodeBookCopy(borrow.getSerialBarcodeBookCopy()).getLast();
+        } catch (Exception _){}
+
+        // check if book is already borrowed
+        if((b != null) && Objects.equals(b.getStatus(), "Borrowed")){
+            return ResponseEntity.badRequest().body(String.format("The book \"%s\" is not available for borrowing.", bookName));
+        }
+
+        // check if account exists
+        Account borrowAccount = null;
+
+        try{
+            borrowAccount = accountService.findByAccountId(borrow.getAccountIdAccount()).getFirst();
+        } catch (Exception _) {
+            return ResponseEntity.badRequest().body(String.format("Account ID %s not found.", borrow.getAccountIdAccount()));
+        }
+
+        // add borrow record
         borrowService.save(borrow);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Book borrowed successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body(String.format("Book \"%s\" successfully borrowed by %s.", bookName, borrowAccount.getFullName()));
     }
 
     @PutMapping

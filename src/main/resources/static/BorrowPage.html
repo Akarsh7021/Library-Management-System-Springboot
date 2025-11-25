@@ -220,10 +220,10 @@
                 if (response.status === 400) {
                     alert(await response.text());
                 } else if (response.status === 201) {
-                    console.log("Borrow: ", await response.body);
-                    alert("Borrow request successfully sent!");
+                    //console.log("Borrow: ", await response.body);
+                    alert(await response.text());
                 }else if (!response.ok) {
-                    throw new Error('HTTP error! status: ${response.status}')
+                    throw new Error('HTTP error! status:' + response.status)
                 }
                 //return response.json();
             })
