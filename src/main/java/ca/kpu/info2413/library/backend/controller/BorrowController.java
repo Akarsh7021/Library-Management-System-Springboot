@@ -4,9 +4,11 @@ import ca.kpu.info2413.library.backend.model.Borrow;
 import ca.kpu.info2413.library.backend.service.BorrowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/borrow")
@@ -31,9 +33,17 @@ public class BorrowController
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public Borrow create(@RequestBody Borrow borrow)
+    public ResponseEntity<?> create(@RequestBody Borrow borrow)
     {
-        return borrowService.save(borrow);
+        Borrow b = findBySerialBarcodeBookCopy(borrow.getSerialBarcodeBookCopy()).getLast();
+
+        if((b != null) && Objects.equals(b.getStatus(), "Borrowed")){
+            return ResponseEntity.badRequest().body("Book is not available");
+        }
+
+        borrowService.save(borrow);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Book borrowed successfully.");
     }
 
     @PutMapping
