@@ -67,7 +67,7 @@ public class BorrowController
         }
 
         // check if account exists
-        Account borrowAccount = null;
+        Account borrowAccount;
 
         try{
             borrowAccount = accountService.findByAccountId(borrow.getAccountIdAccount()).getFirst();
