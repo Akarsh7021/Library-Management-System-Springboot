@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,7 +19,7 @@ import java.util.List;
 public class Publication
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "isbn_13")
     private Integer isbn13;
 
@@ -44,5 +45,9 @@ public class Publication
         return publicationAuthors.stream()
                 .map(pa -> pa.getAuthor().getAuthorName())
                 .toList();
+    }
+
+    public Publication(Integer isbn13){
+        this.isbn13 = isbn13;
     }
 }

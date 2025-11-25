@@ -130,6 +130,10 @@
             transition: color 0.2s;
             cursor: pointer;
         }
+
+        table,th,td{
+            border: 1px solid black;
+        }
     </style>
 </head>
 <body>
@@ -192,10 +196,13 @@
             <h2>Add Book Copy</h2>
             <form id="addBookCopyForm">
                 <label>ISBN</label>
-                <input id="copyIsbn" required>
+                <input type="number" id="copyIsbn" required>
 
                 <label>Serial Barcode</label>
-                <input id="copyBarcode" required>
+                <input type="number" id="copyBarcode" required>
+
+                <label>Acquired Date</label>
+                <input id="copyDate" required type="date">
 
                 <button type="submit">Add Book Copy</button>
             </form>
@@ -217,7 +224,7 @@
             <h2>Add Condition Note</h2>
             <form id="addConditionForm">
                 <label>Serial Barcode</label>
-                <input id="noteBarcode" required>
+                <input type="number" id="noteBarcode" required>
 
                 <label>Condition Note</label>
                 <textarea id="conditionNote" required rows="4"></textarea>
@@ -236,6 +243,11 @@
                 <button type="submit">Lookup Notes</button>
             </form>
         </div>
+        <div class="form-box" id="result-container" style="display: none">
+        <table style="width: 100%">
+            <tbody id="tbody"></tbody>
+        </table>
+        </div>
 
     </div>
 </main>
@@ -252,13 +264,21 @@
     document.getElementById("addPublicationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
+        var author = {}
+        author['authorId'] = 1
+        author['authorName'] = "Chloe Chang"
+
+        var authorList = []
+        authorList.push(author)
+
         const payload = {
-            isbn: pubIsbn.value,
+            isbn13: pubIsbn.value,
             pageCount: pageCount.value,
             publicationDate: pubDate.value,
             genre: genre.value,
             title: title.value,
-            authors: authors.value
+            //authors: authors.value.split(',')
+            publicationAuthors: authorList
         };
 
         const res = await fetch("http://localhost:8080/publication", {
@@ -288,15 +308,17 @@
         e.preventDefault();
 
         const payload = {
-            isbn: copyIsbn.value,
-            barcode: copyBarcode.value
+            publication: copyIsbn.value,
+            serialBarcode: copyBarcode.value,
+            dateAcquired: copyDate.value
         };
 
-        const res = await fetch("http://localhost:8080/bookcopy", {
+        const res = await fetch("http://localhost:8080/book_copy", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload)
         });
+
 
         alert(res.ok ? "Book copy added!" : "Error adding book copy");
     });
@@ -307,7 +329,7 @@
 
         const barcode = deleteCopyBarcode.value;
 
-        const res = await fetch(`http://localhost:8080/bookcopy/${barcode}`, {
+        const res = await fetch(`http://localhost:8080/book_copy/${barcode}`, {
             method: "DELETE"
         });
 
@@ -319,11 +341,12 @@
         e.preventDefault();
 
         const payload = {
-            barcode: noteBarcode.value,
-            note: conditionNote.value
+            serialBarcodeBookCopy: noteBarcode.value,
+            conditionNotes: conditionNote.value,
+            createdAt: new Date()
         };
 
-        const res = await fetch(`http://localhost:8080/bookcopy/condition`, {
+        const res = await fetch(`http://localhost:8080/book_copy_condition_notes`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload)
@@ -338,13 +361,37 @@
 
         const barcode = lookupBarcode.value;
 
-        const res = await fetch(`http://localhost:8080/bookcopy/condition/${barcode}`);
+        const res = await fetch(`http://localhost:8080/book_copy_condition_notes/${barcode}`);
 
-        if (!res.ok) return alert("No notes found.");
+        if (!res.ok) return alert("No notes found.")
 
-        const notes = await res.json();
+        else{
+            const notes = await res.json();
+            //console.log(notes);
 
-        alert("Condition Notes:\n\n" + notes.join("\n"));
+            var tbody = document.getElementById("tbody");
+            document.getElementById("result-container").style.display = "inline-block";
+
+            tbody.innerHTML = "<tr>\n" +
+                "                <th>Note ID</th>\n" +
+                "                <th>Condition Note</th>\n" +
+                "                <th>Created At</th>\n" +
+                "            </tr>"
+
+            for(var i = 0; i < notes.length; i++) {
+                var tr = "<tr>"
+
+                tr += `<td>${notes[i].noteId}</td>`
+                tr += `<td>${notes[i].conditionNotes}</td>`
+                tr += `<td>${notes[i].createdAt}</td>`
+                tr += `</tr>`
+
+                tbody.innerHTML += tr
+            }
+        }
+
+
+        //alert("Condition Notes:\n\n" + notes.join("\n"));
     });
 
 </script>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/54a45050-d56d-4395-ad0c-27a892c3ddb5/console_1.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/java/ca/kpu/info2413/library/backend/repository/ReportRepository.java" dialect="GenericSQL" />
   </component>
 </project>

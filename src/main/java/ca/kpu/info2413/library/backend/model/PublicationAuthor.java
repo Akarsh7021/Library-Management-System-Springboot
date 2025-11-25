@@ -1,7 +1,10 @@
 package ca.kpu.info2413.library.backend.model;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "PublicationAuthor")
