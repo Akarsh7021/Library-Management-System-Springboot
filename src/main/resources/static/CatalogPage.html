@@ -346,6 +346,7 @@
     let currentType = "book";
     let slideIndex = 0;
     var slideData;
+    let slideTimeout;
 
     function escapeHtml(unsafe) {
         return unsafe
@@ -425,6 +426,7 @@
         getRecBooks();
     });
 
+    // recommend books based on borrow records. If not available, recommend random books
     async function getRecBooks() {
         // get signed-in user's account ID and fetch recommendations based on borrowing records
         let accountId = parseInt(await loadCurrentAccountId());
@@ -445,10 +447,12 @@
             bookRecSectionTitle.innerHTML = `Similar to <b>"${recType}"</b>`;
         }
 
+        // data for slide
         slideData = books;
         autoSlideshow();
     }
 
+    // get account id for book rec
     async function loadCurrentAccountId() {
         try {
             const response = await fetch("http://localhost:8080/account/current", {});
@@ -462,6 +466,7 @@
     }
 
 
+    // populate data for the book recommendation slide
     function showSlides() {
         const slideTitle = document.getElementById("slide-title");
         const slideText = document.getElementById("slide-text");
@@ -492,13 +497,15 @@
         showSlides();
     }
 
+    // auto advancing slide
     function autoSlideshow() {
         slideIndex++;
+        clearTimeout(slideTimeout);
         if (slideIndex > slideData.length - 1) {
             slideIndex = 0;
         }
         showSlides();
-        setTimeout(autoSlideshow, 10000); // Change slide every 10 seconds
+        slideTimeout = setTimeout(autoSlideshow, 10000); // Change slide every 10 seconds
     }
 </script>
 </body>

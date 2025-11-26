@@ -1,6 +1,5 @@
 package ca.kpu.info2413.library.backend.controller;
 
-import ca.kpu.info2413.library.backend.DTO.GenreTrendDTO;
 import ca.kpu.info2413.library.backend.DTO.PublicationDTO;
 import ca.kpu.info2413.library.backend.model.*;
 import ca.kpu.info2413.library.backend.security.AccountUserDetails;
@@ -14,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/account")
@@ -51,7 +49,7 @@ public class AccountController
         List<Account> accounts = accountService.findByAccountId(account_id);
         if (accounts == null || accounts.isEmpty())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
-        return ResponseEntity.ok(accounts.get(0));
+        return ResponseEntity.ok(accounts.getFirst());
     }
 
     // Create (internal)
@@ -75,7 +73,7 @@ public class AccountController
         if (existingList == null || existingList.isEmpty())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
 
-        Account existing = existingList.get(0);
+        Account existing = existingList.getFirst();
 
         if (incoming.getFullName() != null) existing.setFullName(incoming.getFullName());
         if (incoming.getNotificationEmail() != null) existing.setNotificationEmail(incoming.getNotificationEmail());
@@ -180,7 +178,7 @@ public class AccountController
         {
             // fallback: search by username/email
             List<Account> matches = accountService.findByNotificationEmailIgnoreCase(authentication.getName());
-            if (matches != null && !matches.isEmpty()) account = matches.get(0);
+            if (matches != null && !matches.isEmpty()) account = matches.getFirst();
         }
 
         if (account == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
@@ -206,12 +204,12 @@ public class AccountController
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and password must be provided.");
 
         List<Account> accounts = accountService.findByNotificationEmailIgnoreCase(email.trim());
-        if (accounts.isEmpty() || !accounts.get(0).getPasswordHash().equals(password.trim()))
+        if (accounts.isEmpty() || !accounts.getFirst().getPasswordHash().equals(password.trim()))
         {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
         }
 
-        Account account = accounts.get(0);
+        Account account = accounts.getFirst();
         Map<String, Object> response = new HashMap<>();
         response.put("accountId", account.getAccountId());
         response.put("fullName", account.getFullName());
@@ -267,7 +265,7 @@ public class AccountController
                 return ResponseEntity.badRequest().body("Library card not found.");
             }
 
-            LibraryCard card = cards.get(0);
+            LibraryCard card = cards.getFirst();
             if (card.getAccount() != null)
             {
                 return ResponseEntity.badRequest().body("Library card is already linked to an account.");
@@ -301,8 +299,8 @@ public class AccountController
     public ResponseEntity<?> findBookRecById(@PathVariable Integer account_id) {
         try {
             List<Borrow> borrows = borrowService.findByAccountIdAccount(account_id);
-            List<PublicationDTO> recBooks = new ArrayList<>();
-            String resHeader = "";
+            List<PublicationDTO> recBooks;
+            String resHeader; // for determining if there is a book used for recommendation or random suggestions
 
             if (!borrows.isEmpty()) { //has borrow records
                 List<Publication> borrowedBooks = new ArrayList<>(List.of());
@@ -316,13 +314,16 @@ public class AccountController
                 Publication book = borrowedBooks.get(new Random().nextInt(borrowedBooks.size()));
 
                 // get recommendations from same genre of the chosen book borrowed (limit 5)
-                recBooks = publicationService.recBookByGenre(book.getGenre(), book.getIsbn13()).stream().limit(5).toList();
-                //recBooks = recBooks.stream().limit(5).collect(Collectors.toList());
-                //recBooks.add(publicationService.toDTO(book));
-                resHeader = book.getTitle();
+                List<PublicationDTO> b = publicationService.recBookByGenre(book.getGenre(), book.getIsbn13());
+                Collections.shuffle(b); //shuffle all results to get random ones
+                recBooks = b.stream().limit(5).toList(); //limit 5
+                resHeader = book.getTitle(); // pass book title as header to use for displaying
             } else { // no borrow records
+                // get a list of all genres and randomly suggest a book from a random genre
                 List<String> genres = publicationService.getGenres();
-                recBooks = publicationService.findByGenre(genres.get(new Random().nextInt(genres.size()))).stream().limit(5).toList();
+                List<PublicationDTO> b = publicationService.findByGenre(genres.get(new Random().nextInt(genres.size())));
+                Collections.shuffle(b);
+                recBooks = b.stream().limit(5).toList();
                 resHeader = "random";
             }
 

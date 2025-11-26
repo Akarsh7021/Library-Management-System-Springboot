@@ -53,7 +53,7 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
             """)
     List<String> getGenres();
 
-    // Reusing from Genre search (contains, case-insensitive)
+    // get all books from a genre except a specified book
     @Query("""
             SELECT DISTINCT p FROM Publication p
             LEFT JOIN FETCH p.publicationAuthors pa
