@@ -1,10 +1,10 @@
 package ca.kpu.info2413.library.backend.controller;
 
-import ca.kpu.info2413.library.backend.model.Account;
-import ca.kpu.info2413.library.backend.model.LibraryCard;
+import ca.kpu.info2413.library.backend.DTO.GenreTrendDTO;
+import ca.kpu.info2413.library.backend.DTO.PublicationDTO;
+import ca.kpu.info2413.library.backend.model.*;
 import ca.kpu.info2413.library.backend.security.AccountUserDetails;
-import ca.kpu.info2413.library.backend.service.AccountService;
-import ca.kpu.info2413.library.backend.service.LibraryCardService;
+import ca.kpu.info2413.library.backend.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,10 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/account")
@@ -29,6 +27,15 @@ public class AccountController
 
     @Autowired
     private LibraryCardService libraryCardService;
+
+    @Autowired
+    private BorrowService borrowService;
+
+    @Autowired
+    BookCopyService bookCopyService;
+
+    @Autowired
+    PublicationService publicationService;
 
     // Get all accounts
     @GetMapping
@@ -286,6 +293,44 @@ public class AccountController
         {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during registration.");
+        }
+    }
+
+    // get recommendations for books
+    @GetMapping({"/book_rec/{account_id}"})
+    public ResponseEntity<?> findBookRecById(@PathVariable Integer account_id) {
+        try {
+            List<Borrow> borrows = borrowService.findByAccountIdAccount(account_id);
+            List<PublicationDTO> recBooks = new ArrayList<>();
+            String resHeader = "";
+
+            if (!borrows.isEmpty()) { //has borrow records
+                List<Publication> borrowedBooks = new ArrayList<>(List.of());
+
+                for (Borrow borrow : borrows) {
+                    Optional<BookCopy> bc = bookCopyService.findBySerialBarcode(borrow.getSerialBarcodeBookCopy());
+                    bc.ifPresent(bookCopy -> borrowedBooks.add(bookCopy.getPublication()));
+                }
+
+                // select a random book from borrowed books
+                Publication book = borrowedBooks.get(new Random().nextInt(borrowedBooks.size()));
+
+                // get recommendations from same genre of the chosen book borrowed (limit 5)
+                recBooks = publicationService.recBookByGenre(book.getGenre(), book.getIsbn13()).stream().limit(5).toList();
+                //recBooks = recBooks.stream().limit(5).collect(Collectors.toList());
+                //recBooks.add(publicationService.toDTO(book));
+                resHeader = book.getTitle();
+            } else { // no borrow records
+                List<String> genres = publicationService.getGenres();
+                recBooks = publicationService.findByGenre(genres.get(new Random().nextInt(genres.size()))).stream().limit(5).toList();
+                resHeader = "random";
+            }
+
+            return ResponseEntity.ok()
+                    .header("Rec-Type",resHeader)
+                    .body(recBooks);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("An error occurred.\n" + e.getMessage());
         }
     }
 }

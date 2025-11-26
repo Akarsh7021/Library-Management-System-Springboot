@@ -46,4 +46,20 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
             LEFT JOIN FETCH pa.author a
             """)
     List<Publication> findAllFetchAuthors();
+
+    // get all available genres from Publication
+    @Query("""
+            SELECT DISTINCT p.genre FROM Publication p
+            """)
+    List<String> getGenres();
+
+    // Reusing from Genre search (contains, case-insensitive)
+    @Query("""
+            SELECT DISTINCT p FROM Publication p
+            LEFT JOIN FETCH p.publicationAuthors pa
+            LEFT JOIN FETCH pa.author a
+            WHERE LOWER(p.genre) LIKE LOWER(CONCAT('%', :genre, '%'))
+                        AND p.isbn13 <> :isbn_13
+            """)
+    List<Publication> recBook(@Param("genre") String genre,  @Param("isbn_13") Integer isbn_13);
 }

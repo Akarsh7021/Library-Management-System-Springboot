@@ -101,7 +101,7 @@
             margin-bottom: 20px;
         }
 
-        .tab-container button {
+        .tab-container button, .slideshow-container button {
             background-color: #fff;
             border: 1px solid #ccc;
             padding: 10px 20px;
@@ -111,7 +111,7 @@
             transition: all 0.2s ease;
         }
 
-        .tab-container button.active, .tab-container button:hover {
+        .tab-container button.active, .tab-container button:hover, .slideshow-container button:hover {
             background-color: #0077b6;
             color: #fff;
             border-color: #0077b6;
@@ -273,6 +273,26 @@
                 gap: 12px;
             }
         }
+
+        .slideshow-container {
+            background: rgba(255, 255, 255, 0.85);
+            max-width: 600px;
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+            min-height: 150px; /* Helps prevent layout shifts */
+        }
+
+        .fade {
+            animation-name: fade;
+            animation-duration: 1.5s;
+        }
+
+        @keyframes fade {
+            from {opacity: .4}
+            to {opacity: 1}
+        }
     </style>
 </head>
 <body>
@@ -290,6 +310,17 @@
 </nav>
 
 <main>
+    <div class="section-title" id="bookRecSectionTitle"></div>
+    <div class="slideshow-container">
+        <h2 id="slide-title"></h2>
+        <p id="slide-text"></p>
+        <!-- Optional navigation buttons -->
+        <button onclick="plusSlides(-1)">Back &#10094</button>
+        <button onclick="plusSlides(1)">Next &#10095</button>
+        <button onclick="getRecBooks()">More suggestions</button>
+    </div>
+
+
     <div class="section-title">Catalog</div>
 
     <div class="tab-container">
@@ -313,6 +344,8 @@
 
 <script>
     let currentType = "book";
+    let slideIndex = 0;
+    var slideData;
 
     function escapeHtml(unsafe) {
         return unsafe
@@ -385,6 +418,87 @@
         }
         // Redirect to login page
         window.location.href = "AccountLogin.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", (event) => {
+        // Your code here to run on page load
+        getRecBooks();
+    });
+
+    async function getRecBooks() {
+        // get signed-in user's account ID and fetch recommendations based on borrowing records
+        let accountId = parseInt(await loadCurrentAccountId());
+        if (!accountId) { accountId = 0; }
+        const res = await fetch(`http://localhost:8080/account/book_rec/${accountId}`, {});
+        let recType = res.headers.get("Rec-Type")
+        let books = await res.json();
+        let bookRecSectionTitle = document.getElementById("bookRecSectionTitle");
+
+        console.log("Account ID: "+accountId);
+        console.log("Rec-Type: ", recType);
+        console.log(books)
+
+        // set the section title based on recommendations type
+        if(recType === "random" || recType === "") { // if recommending a random book
+            bookRecSectionTitle.innerHTML = "Books you may like";
+        } else{ // recommend a book from borrow records
+            bookRecSectionTitle.innerHTML = `Similar to <b>"${recType}"</b>`;
+        }
+
+        slideData = books;
+        autoSlideshow();
+    }
+
+    async function loadCurrentAccountId() {
+        try {
+            const response = await fetch("http://localhost:8080/account/current", {});
+            if (!response.ok) throw new Error("Could not fetch member information.");
+            const data = await response.json();
+            return data.accountId || "";
+        } catch (error) {
+            console.error(error);
+            alert("Could not fetch member information.");
+        }
+    }
+
+
+    function showSlides() {
+        const slideTitle = document.getElementById("slide-title");
+        const slideText = document.getElementById("slide-text");
+        // Clear existing content and add fade class for transition
+        slideTitle.textContent = '';
+        slideText.textContent = '';
+        slideTitle.classList.add('fade');
+        slideText.classList.add('fade');
+
+        setTimeout(() => {
+            slideTitle.classList.remove('fade');
+            slideText.classList.remove('fade');
+        }, 1500); // Must match CSS animation duration
+
+        const currentSlide = slideData[slideIndex];
+        slideTitle.innerHTML = currentSlide.title;
+        slideText.innerHTML = `<b>Genre:</b> ${(currentSlide.genre)}<br><b>Page Count:</b> ${currentSlide.pageCount}<br><b>Authors:</b> ${currentSlide.authors.join(', ')}`;
+    }
+
+    // Function for manual navigation (used by buttons in HTML)
+    function plusSlides(n) {
+        slideIndex += n;
+        if (slideIndex > slideData.length - 1) {
+            slideIndex = 0;
+        } else if (slideIndex < 0) {
+            slideIndex = slideData.length - 1;
+        }
+        showSlides();
+    }
+
+    function autoSlideshow() {
+        slideIndex++;
+        if (slideIndex > slideData.length - 1) {
+            slideIndex = 0;
+        }
+        showSlides();
+        setTimeout(autoSlideshow, 10000); // Change slide every 10 seconds
     }
 </script>
 </body>

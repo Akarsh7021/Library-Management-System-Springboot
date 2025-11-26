@@ -95,7 +95,7 @@ public class PublicationService
                 .collect(Collectors.toList());
     }
 
-    private PublicationDTO toDTO(Publication p)
+    public PublicationDTO toDTO(Publication p)
     {
         List<String> authors = List.of();
         if (p.getPublicationAuthors() != null)
@@ -116,6 +116,15 @@ public class PublicationService
                 p.getGenre(),
                 p.getPageCount()
         );
+    }
+
+    public List<String> getGenres() { return publicationRepository.getGenres(); }
+
+    public List<PublicationDTO> recBookByGenre(String genre, Integer isbn_13) {
+        return publicationRepository.recBook(genre,isbn_13)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     public Publication save(Publication publication)
