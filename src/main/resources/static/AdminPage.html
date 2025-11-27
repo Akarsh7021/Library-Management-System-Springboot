@@ -5,8 +5,15 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>City Library | Admin Account</title>
     <style>
-        body {
+        html, body {
+            height: 100%;
             margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('gabriel-sollmann-Y7d265_7i08-unsplash.jpg') no-repeat center center/cover;
             backdrop-filter: contrast(20%) brightness(1.7);
@@ -51,6 +58,7 @@
         }
 
         main {
+            flex: 1;
             padding: 40px 80px;
             max-width: 1200px;
             margin: auto;
