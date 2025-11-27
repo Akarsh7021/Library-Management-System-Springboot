@@ -248,62 +248,6 @@
 
     toggleGenerate(); // set initial state
 
-    document.getElementById("reportForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const startDate = document.getElementById("startDate").value || null;
-        const endDate   = document.getElementById("endDate").value   || null;
-
-        try {
-            const response = await fetch("http://localhost:8080/api/reports/dashboard", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({ startDate, endDate })
-            });
-
-            if (!response.ok) throw new Error("Report fetch failed");
-
-            const result = await response.json();
-
-                // Initialize Charts
-                const genreChart = new Chart(document.getElementById("genreChart"), {
-                type: "bar",
-                data: {
-                labels: [],
-                datasets: [{ label: "Borrowed", data: [] }]
-            }
-            });
-
-                const authorChart = new Chart(document.getElementById("authorChart"), {
-                type: "bar",
-                data: {
-                labels: [],
-                datasets: [{ label: "Borrowed", data: [] }]
-            }
-            });
-
-                const borrowTrendChart = new Chart(document.getElementById("borrowTrendChart"), {
-                type: "line",
-                data: {
-                labels: [],
-                datasets: [{ label: "Borrow Count", data: [] }]
-            }
-            });
-
-
-            // Populate table
-            populateBorrowReturnTable(result.borrowReturn);
-
-            // Populate charts
-            updateGenreChart(result.genreStats);
-            updateAuthorChart(result.authorStats);
-            updateBorrowTrendChart(result.borrowTrend);
-
-        } catch (err) {
-            alert("Error retrieving report. Check backend console.");
-            console.error(err);
-        }
-    });
     //--------------------------------------------------------
     // INITIALIZE CHARTS (Important: must exist before updates)
     //--------------------------------------------------------
