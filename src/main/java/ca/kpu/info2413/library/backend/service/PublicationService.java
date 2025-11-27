@@ -1,8 +1,10 @@
 package ca.kpu.info2413.library.backend.service;
 
 import ca.kpu.info2413.library.backend.DTO.PublicationDTO;
+import ca.kpu.info2413.library.backend.model.Author;
 import ca.kpu.info2413.library.backend.model.Publication;
 import ca.kpu.info2413.library.backend.model.PublicationAuthor;
+import ca.kpu.info2413.library.backend.repository.AuthorRepository;
 import ca.kpu.info2413.library.backend.repository.PublicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,9 @@ public class PublicationService
 
     @Autowired
     private PublicationRepository publicationRepository;
+
+    @Autowired
+    private AuthorRepository authorRepository;
 
     public List<PublicationDTO> findAll()
     {
@@ -97,6 +102,7 @@ public class PublicationService
 
     public PublicationDTO toDTO(Publication p)
     {
+        System.out.println("toDTO for " + p.getTitle() + " authors size: " + (p.getPublicationAuthors() != null ? p.getPublicationAuthors().size() : 0));
         List<String> authors = List.of();
         if (p.getPublicationAuthors() != null)
         {
@@ -129,6 +135,39 @@ public class PublicationService
 
     public Publication save(Publication publication)
     {
+        System.out.println("Saving publication: " + publication.getTitle() + " with ISBN: " + publication.getIsbn13());
+        System.out.println("Authors list: " + (publication.getInputAuthors() != null ? publication.getInputAuthors() : "null"));
+
+        if (publication.getInputAuthors() != null && !publication.getInputAuthors().isEmpty())
+        {
+            publication.setPublicationAuthors(new ArrayList<>());
+            for (String authorName : publication.getInputAuthors())
+            {
+                System.out.println("Processing author: " + authorName);
+                Author a;
+                // Check if author exists by name
+                List<Author> existing = authorRepository.findByAuthorName(authorName);
+                if (!existing.isEmpty())
+                {
+                    System.out.println("Author exists, using existing: " + existing.get(0).getAuthorId());
+                    a = existing.get(0);
+                }
+                else
+                {
+                    System.out.println("Author new, saving: " + authorName);
+                    a = new Author();
+                    a.setAuthorName(authorName);
+                    a = authorRepository.save(a);
+                }
+                PublicationAuthor pa = new PublicationAuthor(a, publication);
+                publication.getPublicationAuthors().add(pa);
+                System.out.println("Created PublicationAuthor with id: " + pa.getId());
+            }
+        }
+
+        // Clear the transient authors field to avoid JPA issues
+        publication.setAuthors(null);
+
         return publicationRepository.save(publication);
     }
 

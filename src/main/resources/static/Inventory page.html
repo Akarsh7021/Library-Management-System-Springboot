@@ -264,22 +264,18 @@
     document.getElementById("addPublicationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        var author = {}
-        author['authorId'] = 1
-        author['authorName'] = "Chloe Chang"
-
-        var authorList = []
-        authorList.push(author)
+        const authorsInput = authors.value.split(',').map(name => name.trim()).filter(name => name);
 
         const payload = {
-            isbn13: pubIsbn.value,
-            pageCount: pageCount.value,
+            isbn13: parseInt(pubIsbn.value),
+            pageCount: parseInt(pageCount.value),
             publicationDate: pubDate.value,
             genre: genre.value,
             title: title.value,
-            //authors: authors.value.split(',')
-            publicationAuthors: authorList
+            authors: authorsInput
         };
+
+        console.log('Sending payload:', payload);
 
         const res = await fetch("http://localhost:8080/publication", {
             method: "POST",

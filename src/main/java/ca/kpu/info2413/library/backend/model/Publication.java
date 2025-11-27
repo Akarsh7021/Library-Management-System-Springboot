@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,9 +32,18 @@ public class Publication
 
     private String genre;
 
-    @OneToMany(mappedBy = "publication", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "publication", cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<PublicationAuthor> publicationAuthors;
+
+    @Transient
+    @JsonProperty("authors")
+    private List<String> authors;
+
+    public List<String> getInputAuthors()
+    {
+        return authors;
+    }
 
     // Derived property for JSON
     @JsonProperty("authors")
