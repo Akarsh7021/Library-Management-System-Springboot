@@ -5,6 +5,7 @@ import ca.kpu.info2413.library.backend.model.*;
 import ca.kpu.info2413.library.backend.security.AccountUserDetails;
 import ca.kpu.info2413.library.backend.service.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,44 +89,65 @@ public class AccountController
         return ResponseEntity.ok(saved);
     }
 
-    // Delete account and unlink any library cards belonging to it
-    @DeleteMapping("/{account_id}")
-    public ResponseEntity<?> deleteByAccountId(@PathVariable Integer account_id, HttpServletRequest request)
-    {
-        List<Account> existing = accountService.findByAccountId(account_id);
-        if (existing == null || existing.isEmpty())
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+    /**
+     * Delete account by id.
+     * IMPORTANT: only invalidate the current session if the deleted account equals the currently authenticated account.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAccount(@PathVariable Integer id, HttpServletRequest request) {
+        // find account first
+        List<Account> opt = accountService.findByAccountId(id);
+        if (opt.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+        Account toDelete = opt.getFirst();
 
-        // unlink library cards that reference this account
-        List<LibraryCard> cards = libraryCardService.findByAccountIdAccount(account_id);
-        if (cards != null)
-        {
-            for (LibraryCard c : cards)
-            {
-                c.setAccount(null);
-                libraryCardService.save(c);
+        // get name of currently authenticated principal (usually username/email)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = (auth != null) ? auth.getName() : null;
+
+        // perform the deletion (service method should handle cascade / business rules)
+        accountService.deleteByAccountId(id);
+
+        /*
+         * If the deleted account matches the currently authenticated account,
+         * clear the security context and invalidate the session (user intentionally deleted themselves).
+         * Otherwise, do not touch session/auth — prevent accidental sign-outs for admins deleting other accounts.
+         */
+        try {
+            String deletedAccountIdentifier = null;
+
+            // Try to compare on a common identifier field. Adjust field if your Account uses a different name.
+            // Example uses notificationEmail (your frontend used "notificationEmail" earlier).
+            if (toDelete.getNotificationEmail() != null) {
+                deletedAccountIdentifier = toDelete.getNotificationEmail();
+            } else if (toDelete.getFullName() != null) {
+                deletedAccountIdentifier = toDelete.getFullName();
+            } else if (toDelete.getAccountId() != null) {
+                deletedAccountIdentifier = String.valueOf(toDelete.getAccountId());
             }
+
+            if (currentPrincipalName != null && deletedAccountIdentifier != null &&
+                    currentPrincipalName.equalsIgnoreCase(deletedAccountIdentifier)) {
+
+                // Self-delete: invalidate
+                SecurityContextHolder.clearContext();
+                HttpSession session = request.getSession(false);
+                if (session != null) session.invalidate();
+
+                // optional: call request.logout() if container-managed auth is used
+                try { request.logout(); } catch (Exception ignored) {}
+
+                // return no content — client should be redirected to login if necessary
+                return ResponseEntity.noContent().build();
+            }
+        } catch (Exception ex) {
+            // if something goes wrong while checking identity, do not invalidate other sessions.
+            // log if you have a logger; swallow the exception so deletion isn't rolled back here.
+            ex.printStackTrace();
         }
 
-        accountService.deleteByAccountId(account_id);
-
-        // Invalidate session & security context to log out
-        try
-        {
-            if (request != null && request.getSession(false) != null) request.getSession(false).invalidate();
-        }
-        catch (Exception ignored)
-        {
-        }
-        try
-        {
-            SecurityContextHolder.clearContext();
-        }
-        catch (Exception ignored)
-        {
-        }
+        // Normal deletion of other account — keep current session active
         return ResponseEntity.noContent().build();
     }
 
