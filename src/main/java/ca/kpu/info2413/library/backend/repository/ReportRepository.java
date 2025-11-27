@@ -139,8 +139,8 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
             "SELECT TO_CHAR(b.borrowed_date, 'YYYY-MM') AS month, COUNT(*) AS borrow_count " +
                     "FROM \"Borrow\" b " +
                     "WHERE b.borrowed_date IS NOT NULL " +
-                    "  AND (:start IS NULL OR b.borrowed_date >= :start) " +
-                    "  AND (:end IS NULL OR b.borrowed_date <= :end) " +
+                    "  AND (CAST(:start AS DATE) IS NULL OR b.borrowed_date >= CAST(:start AS DATE)) " +
+                    "  AND (CAST(:end AS DATE) IS NULL OR b.borrowed_date <= CAST(:end AS DATE)) " +
                     "GROUP BY TO_CHAR(b.borrowed_date, 'YYYY-MM') " +
                     "ORDER BY TO_CHAR(b.borrowed_date, 'YYYY-MM')",
             nativeQuery = true)
