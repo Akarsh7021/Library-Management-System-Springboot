@@ -44,7 +44,8 @@ public class SecurityConfig
                                 "/register",
                                 // Allow registration endpoints (backend mappings vary in your project)
                                 "/register",
-                                "/account/register"
+                                "/account/register",
+                                "/api/register"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

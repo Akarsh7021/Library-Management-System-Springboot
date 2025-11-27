@@ -5,7 +5,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>City Library | Account Registration</title>
     <style>
-        /* keep your existing styles (omitted here for brevity in the message) */
+        /* Restored original styles with minor additions for the debug panel */
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -80,7 +80,10 @@
             font-weight: 500;
         }
 
-        .register-box input[type="text"], .register-box input[type="email"], .register-box input[type="password"], .register-box input[type="tel"] {
+        .register-box input[type="text"],
+        .register-box input[type="email"],
+        .register-box input[type="password"],
+        .register-box input[type="tel"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
@@ -88,6 +91,7 @@
             border-radius: 6px;
             font-size: 1em;
             outline: none;
+            box-sizing: border-box;
         }
 
         .register-box button {
@@ -106,6 +110,11 @@
             background-color: #005f8c;
         }
 
+        .msg {
+            margin-top: 12px;
+            font-weight: 600;
+        }
+
         footer {
             text-align: center;
             padding: 15px;
@@ -114,6 +123,34 @@
             background-color: #ffffff;
             border-top: 1px solid #e0e0e0;
             margin-top: 60px;
+        }
+
+        /* Debug panel (collapsed by default) */
+        #debugToggle {
+            margin-top: 12px;
+            background: transparent;
+            border: none;
+            color: #0077b6;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        #debugPanel {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #f7f9fb;
+            border: 1px solid #e1e6ea;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+            max-height: 220px;
+            overflow: auto;
+            display: none; /* start collapsed */
+        }
+
+        /* small responsive tweak */
+        @media (max-width: 700px) {
+            main { padding: 20px; }
+            .register-box { padding: 20px; }
         }
     </style>
 </head>
@@ -152,58 +189,134 @@
             <input id="libraryCard" name="libraryCard" placeholder="Enter Library Card ID (if you have one)"
                    type="text">
 
-            <button type="submit">Register</button>
+            <button type="submit" id="registerBtn">Register</button>
         </form>
+
+        <div id="msg" class="msg" aria-live="polite"></div>
+
     </div>
 </main>
 
 <footer>© 2025 City Library</footer>
 
 <script>
-    document.getElementById("registerForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
+    // endpoints to try (relative preferred; fallback to localhost absolute)
+    const TRY_URLS = ['/api/register', 'http://localhost:8080/api/register'];
 
-        const userData = {
-            fullName: document.getElementById("fullname").value.trim(),
-            email: document.getElementById("email").value.trim(),
-            password: document.getElementById("password").value.trim(),
-            confirmPassword: document.getElementById("confirmPassword").value.trim(),
-            phone: document.getElementById("phone").value.trim(),
-            libraryCard: document.getElementById("libraryCard").value.trim()
-        };
+    // helper log to both console and the debug panel
+    function debugLog(...args) {
+        const s = args.map(a => {
+            if (typeof a === 'object') {
+                try { return JSON.stringify(a, null, 2); } catch (e) { return String(a); }
+            }
+            return String(a);
+        }).join(' ');
+        console.log('[REG]', ...args);
+        const panel = document.getElementById('debugPanel');
+        if (panel) {
+            panel.textContent = panel.textContent + s + '\n';
+            panel.scrollTop = panel.scrollHeight;
+        }
+    }
 
-        if (userData.password !== userData.confirmPassword) {
-            alert("Passwords do not match!");
-            return;
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('registerForm');
+        const msgEl = document.getElementById('msg');
+        const btn = document.getElementById('registerBtn');
+
+
+
+        function setMessage(text, color) {
+            msgEl.textContent = text || '';
+            msgEl.style.color = color || '#333';
         }
 
-        try {
-            const resp = await fetch("http://localhost:8080/register", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(userData)
-            });
-
-            const text = await resp.text(); // read as text so we capture any message
-            console.log("Registration response status:", resp.status, "ok:", resp.ok);
-            console.log("Registration response body:", text);
-
-            // try parse JSON if possible
-            try {
-                console.log("Parsed JSON:", JSON.parse(text));
-            } catch (e) {
-            }
-
-            if (resp.ok) {
-                alert("Registration successful!");
-                document.getElementById("registerForm").reset();
-            } else {
-                alert("Registration failed: " + text);
-            }
-        } catch (error) {
-            console.error("Network error:", error);
-            alert("Could not connect to the server. See console for details.");
+        function getVal(id) {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() : '';
         }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setMessage('');
+            debugLog('Form submit clicked. Collecting values...');
+
+            const payload = {
+                fullName: getVal('fullname'),
+                email: getVal('email'),
+                password: getVal('password'),
+                confirmPassword: getVal('confirmPassword'),
+                phone: getVal('phone'),
+                libraryCard: getVal('libraryCard') || null
+            };
+
+            debugLog('Prepared payload:', payload);
+
+            // simple client validation
+            if (!payload.fullName || !payload.email || !payload.password || !payload.confirmPassword) {
+                setMessage('Please complete required fields.', 'crimson');
+                debugLog('Validation failed: missing fields');
+                return;
+            }
+            if (payload.password !== payload.confirmPassword) {
+                setMessage('Passwords do not match.', 'crimson');
+                debugLog('Validation failed: password mismatch');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Registering...';
+
+            let lastError = null;
+            for (const url of TRY_URLS) {
+                debugLog('Attempting POST ->', url);
+                try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                        credentials: 'include',
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeout);
+
+                    debugLog('Response status:', res.status, 'ok:', res.ok);
+                    let bodyText = '';
+                    try { bodyText = await res.text(); } catch (err) { bodyText = '<no body>'; }
+                    debugLog('Response body:', bodyText || '<empty>');
+
+                    if (res.ok) {
+                        setMessage('Registration successful!', 'green');
+                        debugLog('Registration succeeded for', url);
+                        form.reset();
+                        btn.disabled = false;
+                        btn.textContent = 'Register';
+                        return;
+                    } else {
+                        // server returned an error; show it and stop trying further endpoints
+                        let message = bodyText || `Server returned ${res.status}`;
+                        setMessage('Registration failed: ' + message, 'crimson');
+                        debugLog('Server error; stopping attempts. Message:', message);
+                        btn.disabled = false;
+                        btn.textContent = 'Register';
+                        return;
+                    }
+                } catch (err) {
+                    lastError = err;
+                    debugLog('Fetch error for', url, '-', err && err.name ? (err.name + ': ' + err.message) : String(err));
+                    // try next URL (maybe CORS or host mismatch)
+                }
+            } // end for
+
+            // if we reach here, all attempts failed (network/CORS)
+            debugLog('All endpoints unreachable. Last error:', lastError);
+            setMessage('Network error: could not contact server. Open debug output for details.', 'crimson');
+            btn.disabled = false;
+            btn.textContent = 'Register';
+        });
     });
 </script>
 </body>
