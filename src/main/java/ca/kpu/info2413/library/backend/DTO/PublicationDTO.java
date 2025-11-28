@@ -16,4 +16,5 @@ public class PublicationDTO
     private List<String> authors;
     private String genre;
     private Integer pageCount;
+    private String ebookUrl;
 }

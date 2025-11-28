@@ -120,7 +120,8 @@ public class PublicationService
                 p.getTitle(),
                 authors,
                 p.getGenre(),
-                p.getPageCount()
+                p.getPageCount(),
+                p.getEbookUrl()
         );
     }
 
@@ -177,6 +178,10 @@ public class PublicationService
         return publicationRepository.save(publication);
     }
 
+    public boolean isEbook(Publication publication)
+    {
+        return !publication.getEbookUrl().isEmpty();
+    }
     public void deleteByIsbn13(Long isbn13)
     {
         publicationRepository.deleteById(isbn13);

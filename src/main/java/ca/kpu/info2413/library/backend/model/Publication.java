@@ -32,6 +32,9 @@ public class Publication
 
     private String genre;
 
+    @Column(name = "ebook_url")
+    private String ebookUrl;
+
     @OneToMany(mappedBy = "publication", cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<PublicationAuthor> publicationAuthors;

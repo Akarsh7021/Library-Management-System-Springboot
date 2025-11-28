@@ -41,6 +41,8 @@ public class PublicationController
         publication.setPageCount(dto.getPageCount());
         publication.setGenre(dto.getGenre());
         publication.setAuthors(dto.getAuthors());
+        if (!dto.getEbookUrl().isEmpty())
+            publication.setEbookUrl(dto.getEbookUrl());
 
         System.out.println("Creating publication: " + publication.getTitle());
         System.out.println("Authors in request: " + (publication.getInputAuthors() != null ? publication.getInputAuthors().size() : 0));

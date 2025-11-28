@@ -176,6 +176,9 @@
                 <label>Author(s)</label>
                 <input id="authors" required>
 
+                <label>Ebook URL (Optional)</label>
+                <input id="ebookUrl" required>
+
                 <button type="submit">Add Publication</button>
             </form>
         </div>
@@ -272,7 +275,8 @@
             publicationDate: pubDate.value,
             genre: genre.value,
             title: title.value,
-            authors: authorsInput
+            authors: authorsInput,
+            ebookUrl: ebookUrl.value
         };
 
         console.log('Sending payload:', payload);

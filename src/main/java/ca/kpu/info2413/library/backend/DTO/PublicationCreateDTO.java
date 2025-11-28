@@ -2,10 +2,14 @@ package ca.kpu.info2413.library.backend.DTO;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Setter
+@Getter
 public class PublicationCreateDTO
 {
     @JsonProperty("isbn13")
@@ -20,6 +24,8 @@ public class PublicationCreateDTO
     private String genre;
     @JsonProperty("authors")
     private List<String> authors;
+    @JsonProperty("ebookUrl")
+    private String ebookUrl;
 
     @JsonCreator
     public PublicationCreateDTO(@JsonProperty("isbn13") Long isbn13, @JsonProperty("title") String title, @JsonProperty("publicationDate") LocalDate publicationDate, @JsonProperty("pageCount") Integer pageCount, @JsonProperty("genre") String genre, @JsonProperty("authors") List<String> authors)
@@ -32,63 +38,16 @@ public class PublicationCreateDTO
         this.authors = authors;
     }
 
-    public Long getIsbn13()
-    {
-        return isbn13;
-    }
-
-    public void setIsbn13(Long isbn13)
+    @JsonCreator
+    public PublicationCreateDTO(@JsonProperty("isbn13") Long isbn13, @JsonProperty("title") String title, @JsonProperty("publicationDate") LocalDate publicationDate, @JsonProperty("pageCount") Integer pageCount, @JsonProperty("genre") String genre, @JsonProperty("authors") List<String> authors, @JsonProperty("ebookUrl") String ebookUrl)
     {
         this.isbn13 = isbn13;
-    }
-
-    public String getTitle()
-    {
-        return title;
-    }
-
-    public void setTitle(String title)
-    {
         this.title = title;
-    }
-
-    public LocalDate getPublicationDate()
-    {
-        return publicationDate;
-    }
-
-    public void setPublicationDate(LocalDate publicationDate)
-    {
         this.publicationDate = publicationDate;
-    }
-
-    public Integer getPageCount()
-    {
-        return pageCount;
-    }
-
-    public void setPageCount(Integer pageCount)
-    {
         this.pageCount = pageCount;
-    }
-
-    public String getGenre()
-    {
-        return genre;
-    }
-
-    public void setGenre(String genre)
-    {
         this.genre = genre;
-    }
-
-    public List<String> getAuthors()
-    {
-        return authors;
-    }
-
-    public void setAuthors(List<String> authors)
-    {
         this.authors = authors;
+        this.ebookUrl = ebookUrl;
     }
+
 }
