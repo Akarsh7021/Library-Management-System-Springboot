@@ -47,7 +47,10 @@ public class SecurityConfig
                                 "/account/register",
                                 "/api/register"
                         ).permitAll()
-                        .requestMatchers("/account/current").authenticated()
+                        .requestMatchers(
+                                "/account/current",
+                                "/publication/searchHomepage"
+                        ).authenticated()
                         .requestMatchers(
                                 "/AdminPage.html",
                                 "/AddDeleteUser.html",
