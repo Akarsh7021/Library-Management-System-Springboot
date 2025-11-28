@@ -42,14 +42,22 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
     // 2. Fine Summary
     // -----------------------------------------------------
     @Query(value =
-            "SELECT a.account_id, a.full_name, COALESCE(SUM(f.fine_amount),0) AS total_fines, MAX(f.issue_date) AS last_fine_date " +
+            "SELECT a.account_id, a.full_name, " +
+                    "       COALESCE(SUM(f.fine_amount),0) AS total_fines, " +
+                    "       MAX(f.issue_date) AS last_fine_date " +
                     "FROM \"Fine\" f " +
                     "JOIN \"Borrow\" b ON b.borrow_id = f.\"borrow_id_Borrow\" " +
                     "JOIN \"Account\" a ON a.account_id = b.\"account_id_Account\" " +
+                    "WHERE (CAST(:start AS DATE) IS NULL OR b.borrowed_date >= CAST(:start AS DATE)) " +
+                    "  AND (CAST(:end AS DATE) IS NULL OR b.borrowed_date <= CAST(:end AS DATE)) " +
                     "GROUP BY a.account_id, a.full_name " +
                     "ORDER BY total_fines DESC",
             nativeQuery = true)
-    List<Object[]> rawFineSummary();
+    List<Object[]> rawFineSummary(
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end
+    );
+
 
 
     // -----------------------------------------------------

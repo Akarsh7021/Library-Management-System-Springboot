@@ -47,8 +47,8 @@ public class ReportService {
     }
 
     // Fine summary
-    public List<FineSummaryDTO> getFineSummary() {
-        List<Object[]> rows = repo.rawFineSummary();
+    public List<FineSummaryDTO> getFineSummary(LocalDate start, LocalDate end) {
+        List<Object[]> rows = repo.rawFineSummary(start, end);
         List<FineSummaryDTO> out = new ArrayList<>();
         for (Object[] r : rows) {
             Integer accountId = r[0] == null ? null : ((Number) r[0]).intValue();
@@ -231,7 +231,7 @@ public class ReportService {
 // DASHBOARD AGGREGATED REPORT
 // -------------------------
     public Map<String, Object> getDashboard(LocalDate start, LocalDate end) {
-        Map<String, Object> out = new java.util.HashMap<>();
+        Map<String, Object> out = new HashMap<>();
 
         // 1. Borrow & Return Table (filters by date automatically)
         List<BorrowReturnDTO> borrowRows = getBorrowReturnReport(
@@ -244,7 +244,7 @@ public class ReportService {
         out.put("borrowReturn", borrowRows);
 
         // 2. Fine Summary (currently all-time - can filter later if you want)
-        List<FineSummaryDTO> fine = getFineSummary();
+        List<FineSummaryDTO> fine = getFineSummary(start, end);
         out.put("fineSummary", fine);
 
         // 3. Genre Trends
