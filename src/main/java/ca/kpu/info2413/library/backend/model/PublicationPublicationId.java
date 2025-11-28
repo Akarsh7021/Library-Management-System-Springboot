@@ -19,12 +19,12 @@ public final class PublicationPublicationId implements Serializable
     private static final long serialVersionUID = 1L;
 
     @Column(name = "isbn_13_publication")
-    private Integer isbn13Publication;
+    private Long isbn13Publication;
 
     @Column(name = "isbn_13_publication1")
-    private Integer isbn13Publication1;
+    private Long isbn13Publication1;
 
-    public PublicationPublicationId(Integer integer, Integer integer1)
+    public PublicationPublicationId(Long integer, Long integer1)
     {
     }
 }

@@ -22,5 +22,5 @@ public final class AccountPublicationId implements Serializable
     private Integer accountIdAccount;
 
     @Column(name = "isbn_13_Publication", nullable = false)
-    private Integer isbn13Publication;
+    private Long isbn13Publication;
 }

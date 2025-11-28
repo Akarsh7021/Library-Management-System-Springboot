@@ -31,7 +31,7 @@ public class PublicationService
                 .collect(Collectors.toList());
     }
 
-    public List<PublicationDTO> findByIsbn13(Integer isbn13)
+    public List<PublicationDTO> findByIsbn13(Long isbn13)
     {
         return publicationRepository.findById(isbn13)
                 .map(this::toDTO)
@@ -126,7 +126,8 @@ public class PublicationService
 
     public List<String> getGenres() { return publicationRepository.getGenres(); }
 
-    public List<PublicationDTO> recBookByGenre(String genre, Integer isbn_13) {
+    public List<PublicationDTO> recBookByGenre(String genre, Long isbn_13)
+    {
         return publicationRepository.recBook(genre,isbn_13)
                 .stream()
                 .map(this::toDTO)
@@ -135,6 +136,11 @@ public class PublicationService
 
     public Publication save(Publication publication)
     {
+        if (publication.getIsbn13() == null)
+        {
+            throw new IllegalArgumentException("ISBN-13 must be provided and cannot be null");
+        }
+
         System.out.println("Saving publication: " + publication.getTitle() + " with ISBN: " + publication.getIsbn13());
         System.out.println("Authors list: " + (publication.getInputAuthors() != null ? publication.getInputAuthors() : "null"));
 
@@ -171,7 +177,7 @@ public class PublicationService
         return publicationRepository.save(publication);
     }
 
-    public void deleteByIsbn13(Integer isbn13)
+    public void deleteByIsbn13(Long isbn13)
     {
         publicationRepository.deleteById(isbn13);
     }

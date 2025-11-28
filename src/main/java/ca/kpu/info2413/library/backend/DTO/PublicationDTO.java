@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PublicationDTO
 {
-    private Integer isbn13;
+    private Long isbn13;
     private String title;
     private List<String> authors;
     private String genre;

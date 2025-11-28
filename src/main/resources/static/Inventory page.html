@@ -267,7 +267,7 @@
         const authorsInput = authors.value.split(',').map(name => name.trim()).filter(name => name);
 
         const payload = {
-            isbn13: parseInt(pubIsbn.value),
+            isbn13: Number(pubIsbn.value),
             pageCount: parseInt(pageCount.value),
             publicationDate: pubDate.value,
             genre: genre.value,

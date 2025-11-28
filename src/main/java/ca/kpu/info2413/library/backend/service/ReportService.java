@@ -40,7 +40,7 @@ public class ReportService {
             LocalDate borrowed = r[3] == null ? null : ((Date) r[3]).toLocalDate();
             LocalDate due = r[4] == null ? null : ((Date) r[4]).toLocalDate();
             LocalDate returned = r[5] == null ? null : ((Date) r[5]).toLocalDate();
-            BigDecimal fine = r[6] == null ? BigDecimal.ZERO : new BigDecimal(((Number) r[6]).toString());
+            BigDecimal fine = r[6] == null ? BigDecimal.ZERO : new BigDecimal(r[6].toString());
             out.add(new BorrowReturnDTO(accountId, name, title, borrowed, due, returned, fine));
         }
         return out;
@@ -53,7 +53,7 @@ public class ReportService {
         for (Object[] r : rows) {
             Integer accountId = r[0] == null ? null : ((Number) r[0]).intValue();
             String name = (String) r[1];
-            BigDecimal total = r[2] == null ? BigDecimal.ZERO : new BigDecimal(((Number) r[2]).toString());
+            BigDecimal total = r[2] == null ? BigDecimal.ZERO : new BigDecimal(r[2].toString());
             LocalDate last = r[3] == null ? null : ((Date) r[3]).toLocalDate();
             out.add(new FineSummaryDTO(accountId, name, total, last));
         }
@@ -151,7 +151,7 @@ public class ReportService {
         List<Object[]> rows = repo.rawTopPublications(limit);
         List<PublicationReportDTO> out = new ArrayList<>();
         for (Object[] r : rows) {
-            Integer isbn = r[0] == null ? null : ((Number) r[0]).intValue();
+            Long isbn = r[0] == null ? null : ((Number) r[0]).longValue();
             String title = (String) r[1];
             Long cnt = r[2] == null ? 0L : ((Number) r[2]).longValue();
             out.add(new PublicationReportDTO(isbn, title, null, cnt));
@@ -163,7 +163,7 @@ public class ReportService {
         List<Object[]> rows = repo.rawInventory();
         List<PublicationReportDTO> out = new ArrayList<>();
         for (Object[] r : rows) {
-            Integer isbn = r[0] == null ? null : ((Number) r[0]).intValue();
+            Long isbn = r[0] == null ? null : ((Number) r[0]).longValue();
             String title = (String) r[1];
             Long cnt = r[2] == null ? 0L : ((Number) r[2]).longValue();
             out.add(new PublicationReportDTO(isbn, title, null, cnt));
@@ -176,7 +176,7 @@ public class ReportService {
         List<PublicationReportDTO> out = new ArrayList<>();
         // Map as PublicationReportDTO temporarily: isbn -> accountId stored in isbn13 field; title -> name; borrowCount -> count
         for (Object[] r : rows) {
-            Integer accountId = r[0] == null ? null : ((Number) r[0]).intValue();
+            Long accountId = r[0] == null ? null : ((Number) r[0]).longValue();
             String name = (String) r[1];
             Long cnt = r[2] == null ? 0L : ((Number) r[2]).longValue();
             out.add(new PublicationReportDTO(accountId, name, null, cnt));
@@ -188,7 +188,7 @@ public class ReportService {
         List<Object[]> rows = repo.rawOutstandingFines();
         List<PublicationReportDTO> out = new ArrayList<>();
         for (Object[] r : rows) {
-            Integer accountId = r[0] == null ? null : ((Number) r[0]).intValue();
+            Long accountId = r[0] == null ? null : ((Number) r[0]).longValue();
             String name = (String) r[1];
             Long total = r[2] == null ? 0L : ((Number) r[2]).longValue();
             out.add(new PublicationReportDTO(accountId, name, null, total));
@@ -200,7 +200,7 @@ public class ReportService {
         List<Object[]> rows = repo.rawPaymentsSummary();
         List<PublicationReportDTO> out = new ArrayList<>();
         for (Object[] r : rows) {
-            Integer accountId = r[0] == null ? null : ((Number) r[0]).intValue();
+            Long accountId = r[0] == null ? null : ((Number) r[0]).longValue();
             String name = (String) r[1];
             Long total = r[2] == null ? 0L : ((Number) r[2]).longValue();
             out.add(new PublicationReportDTO(accountId, name, null, total));
@@ -212,7 +212,7 @@ public class ReportService {
         List<Object[]> rows = repo.rawActiveHolds();
         List<PublicationReportDTO> out = new ArrayList<>();
         for (Object[] r : rows) {
-            Integer isbn = r[0] == null ? null : ((Number) r[0]).intValue();
+            Long isbn = r[0] == null ? null : ((Number) r[0]).longValue();
             String title = (String) r[1];
             Long cnt = r[2] == null ? 0L : ((Number) r[2]).longValue();
             out.add(new PublicationReportDTO(isbn, title, null, cnt));
