@@ -28,7 +28,7 @@ public class SecurityConfig
     public SecurityFilterChain securityFilterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception
     {
         http
-                // enable CORS (configured by corsConfigurationSource bean)
+
 
 
                 // authorisation rules
@@ -47,6 +47,18 @@ public class SecurityConfig
                                 "/account/register",
                                 "/api/register"
                         ).permitAll()
+                        .requestMatchers(
+                                "/AdminPage.html",
+                                "/AddDeleteUser.html",
+                                "/Inventory Page.html",
+                                "/LibraryReportsDashboard.html",
+                                "/admin/**",
+                                "/api/admin/**",
+                                // protect write operations - example REST endpoints:
+                                "/publication", "/publication/**",
+                                "/book_copy", "/book_copy/**",
+                                "/bookcopy/**", "/account/**" // if account management endpoints should be admin-only
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 // auth provider
