@@ -49,6 +49,7 @@ public class SecurityConfig
                                 "/api/register"
                         ).permitAll()
                         .requestMatchers(
+                                "/account",
                                 "/account/current",
                                 "/account/book_rec/{account_id}",
                                 "/publication/searchHomepage"
