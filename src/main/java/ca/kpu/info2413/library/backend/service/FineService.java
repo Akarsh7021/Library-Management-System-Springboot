@@ -67,7 +67,7 @@ public class FineService
     // check all borrow records
     //      insert new records into Fine if overdue
     //      if there is already a fine then recalculate
-    @Scheduled(fixedRate = 60000) //60000 millisecond = 1min as of now
+    @Scheduled(cron = "0 0 * * * *")
     public void updateAllFines(){
 
         LocalDate today = LocalDate.now();

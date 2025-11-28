@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -49,6 +50,7 @@ public class SecurityConfig
                         ).permitAll()
                         .requestMatchers(
                                 "/account/current",
+                                "/account/book_rec/{account_id}",
                                 "/publication/searchHomepage"
                         ).authenticated()
                         .requestMatchers(
@@ -140,5 +142,11 @@ public class SecurityConfig
         // apply to all endpoints
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public PasswordEncoder passwordHashEncoder()
+    {
+        return new BCryptPasswordEncoder();
     }
 }
