@@ -55,7 +55,7 @@ public class AccountService
         // find the library card and return linked Account if present
         List<LibraryCard> cards = libraryCardRepository.findByCardNumber(libraryCardNumber);
         if (cards == null || cards.isEmpty()) return Optional.empty();
-        LibraryCard card = cards.get(0);
+        LibraryCard card = cards.getFirst();
         return Optional.ofNullable(card.getAccount());
     }
 

@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -136,8 +135,7 @@ public class AccountController
                 deletedAccountIdentifier = String.valueOf(toDelete.getAccountId());
             }
 
-            if (currentPrincipalName != null && deletedAccountIdentifier != null &&
-                    currentPrincipalName.equalsIgnoreCase(deletedAccountIdentifier)) {
+            if (currentPrincipalName != null && currentPrincipalName.equalsIgnoreCase(deletedAccountIdentifier)) {
 
                 // Self-delete: invalidate
                 SecurityContextHolder.clearContext();
