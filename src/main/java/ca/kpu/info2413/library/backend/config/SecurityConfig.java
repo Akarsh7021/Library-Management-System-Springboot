@@ -41,7 +41,7 @@ public class SecurityConfig
                                 "/js/**",
                                 "/images/**",
                                 "/PasswordRecoveryPage.html",
-                                "/RegisterationPage.html",
+                                "/RegistrationPage.html",
                                 "/register",
                                 // Allow registration endpoints (backend mappings vary in your project)
                                 "/register",
@@ -109,20 +109,7 @@ public class SecurityConfig
     @Bean
     public PasswordEncoder passwordEncoder()
     {
-        return new PasswordEncoder()
-        {
-            @Override
-            public String encode(CharSequence rawPassword)
-            {
-                return rawPassword == null ? null : rawPassword.toString();
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword)
-            {
-                return rawPassword != null && rawPassword.toString().equals(encodedPassword);
-            }
-        };
+        return new BCryptPasswordEncoder();
     }
 
     /**
@@ -143,11 +130,5 @@ public class SecurityConfig
         // apply to all endpoints
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    @Bean
-    public PasswordEncoder passwordHashEncoder()
-    {
-        return new BCryptPasswordEncoder();
     }
 }
