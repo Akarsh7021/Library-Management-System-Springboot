@@ -84,6 +84,7 @@ public class AccountController
         if (incoming.getAccountType() != null) existing.setAccountType(incoming.getAccountType());
 
         if (incoming.getPasswordHash() != null && !incoming.getPasswordHash().trim().isEmpty()) {
+            System.err.println("HASHING");
             // validate password before calling Service to hash
             if(incoming.getPasswordHash().matches(passwordPolicy))
                 existing.setPasswordHash(incoming.getPasswordHash());

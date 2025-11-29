@@ -94,6 +94,7 @@
             color: #333;
         }
 
+        .user-box input[type='number'],
         .user-box input[type="text"],
         .user-box input[type="email"],
         .user-box input[type="password"],
@@ -107,6 +108,24 @@
             font-size: 1em;
             outline: none;
             box-sizing: border-box;
+        }
+
+        .button-group button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 48%;
+            font-size: 1em;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
         }
 
         .user-box button {
@@ -124,6 +143,14 @@
 
         .user-box button:hover {
             background-color: #005f8c;
+        }
+
+        .button-group button.delete {
+            background-color: #d9534f;
+        }
+
+        .button-group button.delete:hover {
+            background-color: #c9302c;
         }
 
         .hint {
@@ -211,17 +238,42 @@
             <div aria-live="polite" class="msg" id="createMsg"></div>
         </div>
 
-        <!-- Delete user -->
+        <!-- Modify user -->
         <div class="user-box">
-            <h2>Delete user</h2>
-            <p class="hint">Delete an account by its Account ID.</p>
+            <h2>Modify user</h2>
+            <p class="hint">Modify/Delete an account by its Account ID.</p>
 
-            <label for="deleteAccountId">Account ID</label>
-            <input id="deleteAccountId" placeholder="e.g. 12" type="text">
+            <label for="modifyAccountId">Account ID</label>
+            <input id="modifyAccountId" placeholder="e.g. 12" type="number">
 
-            <button id="deleteBtn">Delete user</button>
+            <button id="searchBtn">Search</button>
+            <!-- <button id="deleteBtn">Delete user</button> -->
+            <div id="modifyAccountDiv" style="padding: 10px">
+                <label for="modifyFullName">Full Name</label>
+                <input id="modifyFullName" type="text" required>
 
-            <div aria-live="polite" class="msg" id="deleteMsg"></div>
+                <label for="modifyEmail">Email</label>
+                <input id="modifyEmail" type="text" required>
+
+                <label for="modifyPassword">Password (leave blank to keep current)</label>
+                <input id="modifyPassword" type="password">
+
+                <label for="modifyPhone">Phone Number</label>
+                <input id="modifyPhone" type="text" required>
+
+                <label for="modifyAccountType">Account type</label>
+                <select aria-label="Account type" id="modifyAccountType">
+                    <option selected value="member">Member</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+                <div class="button-group">
+                    <button id="updateBtn" type="submit">Update</button>
+                    <button class="delete" id="deleteBtn" type="button">Delete</button>
+                </div>
+            </div>
+
+            <div aria-live="polite" class="msg" id="modifyMsg"></div>
         </div>
     </div>
 </main>
@@ -357,12 +409,166 @@
         }
     });
 
+    // to check if currently modified user is member or admin
+    let modifyingUserCurrentRole = "member";
+
+    // Search btn event
+    document.getElementById('searchBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await searchUser()
+    })
+
+    // Search user
+    async function searchUser(){
+        let modifyAccountIdfield = document.getElementById('modifyAccountId');
+        let modifyMsgField = document.getElementById('modifyMsg');
+        let btn = document.getElementById('searchBtn');
+
+        setMessage(modifyMsgField, '', '');
+
+        // Search account
+        if(btn.textContent === "Search") {
+            btn.textContent = 'Searching...';
+            btn.disabled = true;
+
+            // actual search
+            const res = await fetch("account/" + modifyAccountIdfield.value);
+            if(!res.ok){ // search fails
+                const error = await res.text();
+                setMessage(modifyMsgField, error, "red");
+                btn.textContent = 'Search';
+                btn.disabled = false;
+            } else{ // search ok
+                const result = await res.json();
+                console.log(result.fullName);
+                let modifyFullName = document.getElementById('modifyFullName');
+                let modifyEmail = document.getElementById('modifyEmail');
+                let modifyPhone = document.getElementById('modifyPhone');
+                let modifyAccountType = document.getElementById('modifyAccountType');
+
+                btn.textContent = "Reset Search";
+                btn.disabled = false;
+                modifyAccountIdfield.disabled = true;
+                setUserInfoFormState("Enabled");
+
+                modifyFullName.value = result.fullName;
+                modifyEmail.value = result.notificationEmail;
+                modifyPhone.value = result.phoneNumber;
+                modifyAccountType.value = result.accountType;
+                modifyingUserCurrentRole = result.accountType;
+            }
+        } else{ // Reset search
+            btn.textContent = 'Search';
+            btn.disabled = false;
+            modifyAccountIdfield.value = '';
+            modifyAccountIdfield.disabled = false;
+            modifyMsgField.disabled = false;
+            setMessage(modifyMsgField, '');
+            setUserInfoFormState("Disabled");
+        }
+    }
+
+    // update button event
+    document.getElementById('updateBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        await updateUser();
+    })
+
+    async function updateUser(){
+        let modifyAccountIdfield = document.getElementById('modifyAccountId');
+        let modifyFullName = document.getElementById('modifyFullName');
+        let modifyEmail = document.getElementById('modifyEmail');
+        let modifyPassword = document.getElementById('modifyPassword');
+        let modifyPhone = document.getElementById('modifyPhone');
+        let modifyAccountType = document.getElementById('modifyAccountType');
+        let modifyMsg = document.getElementById('modifyMsg');
+
+        if(modifyFullName.value === '' || modifyEmail.value === '' || modifyPhone.value === ''){
+            setMessage(modifyMsg, "Please fill in all required fields.", "crimson");
+            return;
+        }
+
+        // if promoting user to admin
+        if(modifyAccountType.value === 'admin' && modifyAccountType.value !== modifyingUserCurrentRole){
+            const ok = confirm('You are promoting this user to Admin. Do you want to proceed?');
+            if (!ok) return;
+        }
+
+        // if demoting user to member
+        if(modifyAccountType.value === 'member' && modifyAccountType.value !== modifyingUserCurrentRole){
+            const ok = confirm('You are demoting this user to Member. Do you want to proceed?');
+            if (!ok) return;
+        }
+
+        const userInfo = {
+            accountId: modifyAccountIdfield.value,
+            fullName: modifyFullName.value,
+            notificationEmail: modifyEmail.value,
+            phoneNumber: modifyPhone.value,
+            // send passwordHash only if user entered a value (server will ignore empty)
+            passwordHash: modifyPassword.value || null,
+            accountType: modifyAccountType.value
+        };
+
+        // update
+        const response = await fetch("/account", {
+            method: "PUT",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(userInfo)
+        });
+
+        if(!response.ok){
+            const error = await response.text();
+            setMessage(modifyMsg, error, "crimson");
+            return;
+        }
+
+        setMessage(modifyMsg, "Account successfully updated", "green");
+        setUserInfoFormState("Disabled");
+    }
+
+    function setUserInfoFormState(state){
+        let modifyFullName = document.getElementById('modifyFullName');
+        let modifyEmail = document.getElementById('modifyEmail');
+        let modifyPassword = document.getElementById('modifyPassword');
+        let modifyPhone = document.getElementById('modifyPhone');
+        let modifyAccountType = document.getElementById('modifyAccountType');
+        let updateBtn = document.getElementById('updateBtn');
+        let deleteBtn = document.getElementById('deleteBtn');
+
+        if(state === "Enabled"){
+            modifyFullName.disabled = false;
+            modifyEmail.disabled = false;
+            modifyPassword.disabled = false;
+            modifyPhone.disabled = false;
+            modifyAccountType.disabled = false;
+            updateBtn.disabled = false;
+            deleteBtn.disabled = false;
+        } else {
+            modifyFullName.disabled = true;
+            modifyFullName.value = "";
+            modifyEmail.disabled = true;
+            modifyEmail.value = "";
+            modifyPassword.disabled = true;
+            modifyPassword.value = "";
+            modifyPhone.disabled = true;
+            modifyPhone.value = "";
+            modifyAccountType.disabled = true;
+            updateBtn.disabled = true;
+            deleteBtn.disabled = true;
+            modifyingUserCurrentRole = "member";
+        }
+
+    }
+
     // Delete user
     document.getElementById('deleteBtn').addEventListener('click', async (e) => {
         e.preventDefault();
         const btn = e.currentTarget;
-        const msgEl = document.getElementById('deleteMsg');
-        const id = document.getElementById('deleteAccountId').value.trim();
+        const msgEl = document.getElementById('modifyMsg');
+        const id = document.getElementById('modifyAccountId').value.trim();
 
         setMessage(msgEl, '', '#333');
 
@@ -386,7 +592,7 @@
 
             if (res.ok || res.status === 204) {
                 setMessage(msgEl, 'User deleted.', 'green');
-                document.getElementById('deleteAccountId').value = '';
+                document.getElementById('modifyAccountId').value = '';
             } else {
                 let text = '';
                 try {
@@ -427,6 +633,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', applyRoleToNav);
+    document.addEventListener('DOMContentLoaded', setUserInfoFormState("Disabled"));
 </script>
 </body>
 </html>
