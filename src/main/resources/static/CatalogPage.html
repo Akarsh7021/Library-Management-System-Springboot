@@ -409,12 +409,14 @@
             });
     }
 
-    function placeHold(isbn13) {
+    function placeHold(isbn13)
+    {
         console.log("Placing hold on ISBN:", isbn13);
         alert("Hold request prepared for book ISBN: " + isbn13);
     }
 
-    async function signOut() {
+    async function signOut()
+    {
         try {
             // Call logout on server
             await fetch("/logout", {method: "POST", credentials: "include"});
@@ -437,7 +439,8 @@
     });
 
     // recommend books based on borrow records. If not available, recommend random books
-    async function getRecBooks() {
+    async function getRecBooks()
+    {
         // get signed-in user's account ID and fetch recommendations based on borrowing records
         let accountId = parseInt(await loadCurrentAccountId());
         if (!accountId) {
@@ -465,10 +468,11 @@
     }
 
     // get account id for book rec
-    async function loadCurrentAccountId() {
+    async function loadCurrentAccountId()
+    {
         try {
             const response = await fetch("http://localhost:8080/account/current", {});
-            if (!response.ok) throw new Error("Could not fetch member information.");
+            if (!response.ok) alert("Could not fetch member information.");
             const data = await response.json();
             return data.accountId || "";
         } catch (error) {
@@ -479,7 +483,8 @@
 
 
     // populate data for the book recommendation slide
-    function showSlides() {
+    function showSlides()
+    {
         const slideTitle = document.getElementById("slide-title");
         const slideText = document.getElementById("slide-text");
         // Clear existing content and add fade class for transition
@@ -499,7 +504,8 @@
     }
 
     // Function for manual navigation (used by buttons in HTML)
-    function plusSlides(n) {
+    function plusSlides(n)
+    {
         slideIndex += n;
         if (slideIndex > slideData.length - 1) {
             slideIndex = 0;
@@ -510,7 +516,8 @@
     }
 
     // auto advancing slide
-    function autoSlideshow() {
+    function autoSlideshow()
+    {
         slideIndex++;
         clearTimeout(slideTimeout);
         if (slideIndex > slideData.length - 1) {
@@ -520,7 +527,8 @@
         slideTimeout = setTimeout(autoSlideshow, 10000); // Change slide every 10 seconds
     }
 
-    async function applyRoleToNav() {
+    async function applyRoleToNav()
+    {
         try {
             const res = await fetch('/account/current', {credentials: 'include'});
             if (!res.ok) {
