@@ -381,7 +381,6 @@ public class AccountController
             return ResponseEntity.badRequest().body("No borrow records found."); // if no borrows return empty
 
         // get book copy from borrow records
-        List<Publication> borrowedBooks = new ArrayList<>();
         List<Map<String, String>> result = new ArrayList<>();
 
         for (Borrow borrow : borrows) {
