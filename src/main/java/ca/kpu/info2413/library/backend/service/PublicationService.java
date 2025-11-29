@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +38,10 @@ public class PublicationService
                 .map(this::toDTO)
                 .map(List::of)
                 .orElse(List.of());
+    }
+
+    public Optional<Publication> findEntityByIsbn13(Long isbn13) {
+        return publicationRepository.findById(isbn13);
     }
 
     public List<PublicationDTO> findByTitle(String title)
