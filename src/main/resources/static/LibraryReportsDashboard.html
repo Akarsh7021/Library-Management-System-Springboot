@@ -122,25 +122,28 @@
             color: white;
         }
 
+        .table-scroll {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
         .charts {
             display: grid;
             gap: 30px;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
         }
 
-        .chart-box canvas {
-            width: 100%;
-            height: 300px;
+        canvas {
+            max-height: 300px;
         }
 
         footer {
             text-align: center;
             padding: 15px;
+            margin-top: 60px;
             font-size: 0.9em;
             color: #777;
-            background-color: #ffffff;
             border-top: 1px solid #e0e0e0;
-            margin-top: 60px;
         }
         nav a {
             text-decoration: none;
@@ -149,6 +152,8 @@
             transition: color 0.2s;
             cursor: pointer;
         }
+
+
     </style>
 </head>
 <body>
@@ -168,47 +173,47 @@
 <main>
     <div class="section-title">📊 Library Reports Dashboard</div>
 
+    <!-- FILTER -->
     <div class="form-box">
-        <h2 style="color:#0077b6;">Generate Library Report</h2>
         <form id="reportForm">
-            <label for="startDate"></label><input type="date" id="startDate" placeholder="Start Date" />
-            <label for="endDate"></label><input type="date" id="endDate" placeholder="End Date" />
+            <input type="date" id="startDate">
+            <input type="date" id="endDate">
             <button type="submit">Generate Report</button>
         </form>
     </div>
 
+    <!-- Borrow table -->
     <div class="table-box">
-        <h2 style="color:#0077b6;">📘 Borrow & Return Table</h2>
-        <table id="generatedTable">
-            <thead>
-            <tr>
-                <th>User ID</th>
-                <th>Full Name</th>
-                <th>Book Title</th>
-                <th>Borrowed Date</th>
-                <th>Due Date</th>
-                <th>Fine ($)</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <h3>📘 Borrow & Return</h3>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>User ID</th><th>Name</th><th>Book</th>
+                    <th>Borrowed</th><th>Due</th><th>Fine</th>
+                </tr>
+                </thead>
+                <tbody id="borrowBody"></tbody>
+            </table>
+        </div>
     </div>
 
+    <!--Fine summary -->
     <div class="table-box">
-        <h2 style="color:#0077b6;">💸 Fine Summary</h2>
-        <table id="fineSummaryTable">
-            <thead>
-            <tr>
-                <th>Account ID</th>
-                <th>Full Name</th>
-                <th>Fines</th>
-                <th>Last Fine Date</th>
-            </tr>
-            </thead>
-            <tbody id="fineSummaryBody"></tbody>
-        </table>
+        <h3>💸 Fine Summary</h3>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>Account</th><th>Name</th><th>Total</th><th>Last Fine</th>
+                </tr>
+                </thead>
+                <tbody id="fineBody"></tbody>
+            </table>
+        </div>
     </div>
 
+    <!-- Charts -->
     <div class="charts">
         <div class="chart-box">
             <h3>Genre Popularity</h3>
@@ -217,7 +222,7 @@
 
         <div class="chart-box">
             <h3>Borrowing Trends</h3>
-            <canvas id="borrowTrendChart"></canvas>
+            <canvas id="borrowChart"></canvas>
         </div>
 
         <div class="chart-box">
@@ -227,245 +232,152 @@
     </div>
 </main>
 
-<footer>
-    © 2025 City Library
-</footer>
+<footer>© 2025 City Library</footer>
+
 <script>
-    // -------------------------
-    // DISABLE BUTTON UNTIL DATES ENTERED
-    // -------------------------
-    const genBtn = document.querySelector('#reportForm button');
-    const startInput = document.getElementById('startDate');
-    const endInput = document.getElementById('endDate');
+    /* ================== COLORS ================== */
+    const barColors = ['#ef476f','#ffd166','#06d6a0','#118ab2','#073b4c','#adb5bd'];
+    const pieColors = ['#6050DC','#D52DB7','#FF2E7E','#FF6B45','#FFAB05','#b2bec3'];
 
-    function toggleGenerate() {
-        // Disable only if BOTH empty
-        genBtn.disabled = !startInput.value && !endInput.value;
-    }
-
-    startInput.addEventListener('input', toggleGenerate);
-    endInput.addEventListener('input', toggleGenerate);
-
-    toggleGenerate(); // set initial state
-
-    //--------------------------------------------------------
-    // INITIALIZE CHARTS (Important: must exist before updates)
-    //--------------------------------------------------------
+    /* ================== CHARTS ================== */
     let genreChart = new Chart(document.getElementById('genreChart'), {
         type: 'bar',
         data: {
             labels: [],
             datasets: [{
-                label: 'Borrow Count',
                 data: [],
-                backgroundColor: 'rgba(0,119,182,0.6)'
+                backgroundColor: []
             }]
         },
-        options: { responsive: true, scales: { y: { beginAtZero: true }}}
-    });
-
-    let borrowTrendChart = new Chart(document.getElementById('borrowTrendChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Borrowing Trend',
-                data: [],
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: { responsive: true }
-    });
-
-    let authorChart = new Chart(document.getElementById('authorChart'), {
-        type: 'pie',
-        data: { labels: [], datasets: [{ data: [] }] },
-        options: { responsive: true }
-    });
-
-    //--------------------------------------------------------
-    // FETCH & LOAD DASHBOARD (Called on load + filtering)
-    //--------------------------------------------------------
-    async function fetchDashboard(startDate, endDate) {
-        try {
-            const response = await fetch("http://localhost:8080/api/reports/dashboard", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ startDate, endDate })
-            });
-
-            if (!response.ok) {
-                console.error(await response.text());
-                throw new Error("Failed fetching dashboard.");
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
             }
-
-            const result = await response.json();
-
-            // Populate tables
-            populateBorrowReturnTable(result.borrowReturn);
-            populateFineSummaryTable(result.fineSummary);
-
-            // Populate charts
-            updateGenreChart(result.genreStats);
-            updateAuthorChart(result.authorStats);
-            updateBorrowTrendChart(result.borrowTrend);
-
-        } catch (err) {
-            alert("Error retrieving report — check backend console.");
-            console.error(err);
         }
-    }
+    });
 
-    //--------------------------------------------------------
-    // TABLE POPULATION
-    //--------------------------------------------------------
-    function populateBorrowReturnTable(rows) {
-        const tbody = document.querySelector("#generatedTable tbody");
-        tbody.innerHTML = "";
 
-        if (!rows) return;
-
-        rows.forEach(row => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${row.accountId ?? ''}</td>
-                <td>${row.fullName ?? ''}</td>
-                <td>${row.bookTitle ?? ''}</td>
-                <td>${row.borrowedDate ?? ''}</td>
-                <td>${row.dueDate ?? ''}</td>
-                <td>${row.fine ?? 0}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function populateFineSummaryTable(rows) {
-        const tbody = document.getElementById("fineSummaryBody");
-        tbody.innerHTML = "";
-
-        if (!rows) return;
-
-        rows.forEach(r => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${r.accountId ?? ''}</td>
-                <td>${r.fullName ?? ''}</td>
-                <td>$${r.totalFine ?? 0}</td>
-                <td>${r.lastFineDate ?? ''}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    //--------------------------------------------------------
-    // CHART UPDATES
-    //--------------------------------------------------------
-    function updateGenreChart(data = []) {
-        if (!data.length) {
-            genreChart.data.labels = ['No data'];
-            genreChart.data.datasets[0].data = [0];
-        } else {
-            genreChart.data.labels = data.map(d => d.genre);
-            genreChart.data.datasets[0].data = data.map(d => d.count);
+    const borrowChart = new Chart(document.getElementById('borrowChart'), {
+        type: 'line',
+        data: { labels: [], datasets: [{ data: [], tension: 0.4,backgroundColor: 'rgba(0,180,216,0.3)', borderColor: '#bf3cea', fill: true }] },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {display: false}
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: {
+                    precision: 0 }
+                }
+            }
         }
+    });
+
+    const authorChart = new Chart(document.getElementById('authorChart'), {
+        type: 'pie',
+        data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] }
+    });
+
+    /* ================== HELPERS ================== */
+    function top5WithOther(data, valueKey, labelKey, capRatio) {
+        const sorted = [...data].sort((a,b)=>b[valueKey]-a[valueKey]);
+        const top = sorted.slice(0,5);
+        const rest = sorted.slice(5);
+
+        let labels = top.map(x=>x[labelKey]);
+        let values = top.map(x=>x[valueKey]);
+
+        if (rest.length) {
+            const sum = rest.reduce((s,x)=>s+x[valueKey],0);
+            const cap = Math.min(sum, Math.floor(Math.min(...values)*capRatio));
+            labels.push("Other");
+            values.push(cap);
+        }
+        return {labels, values};
+    }
+
+    /* ================== UPDATERS ================== */
+    function updateGenre(data){
+        if (!data.length) return;
+        const r = top5WithOther(data,'count','genre',0.5);
+        genreChart.data.labels = r.labels;
+        genreChart.data.datasets[0].data = r.values;
+        genreChart.data.datasets[0].backgroundColor = barColors.slice(0,r.labels.length);
         genreChart.update();
     }
 
-
-    function updateAuthorChart(data = []) {
-        if (!data.length) {
-            authorChart.data.labels = ['No data'];
-            authorChart.data.datasets[0].data = [0];
-        } else {
-            const colors = generateColors(data.length);
-
-            authorChart.data.labels = data.map(d => d.author);
-            authorChart.data.datasets[0].data = data.map(d => d.count);
-            authorChart.data.datasets[0].backgroundColor = colors;
-        }
+    function updateAuthors(data){
+        if (!data.length) return;
+        const r = top5WithOther(data,'count','author',0.3);
+        authorChart.data.labels = r.labels;
+        authorChart.data.datasets[0].data = r.values;
+        authorChart.data.datasets[0].backgroundColor = pieColors.slice(0,r.labels.length);
         authorChart.update();
     }
 
-    function randomColor(){
-        const r = Math.floor(Math.random() * 255);
-        const g = Math.floor(Math.random() * 255);
-        const b = Math.floor(Math.random() * 255);
-        return `rgba(${r}, ${g}, ${b}, 0.6)`;
+    function updateBorrow(data){
+        borrowChart.data.labels = data.map(x=>x.month);
+        borrowChart.data.datasets[0].data = data.map(x=>x.count);
+        borrowChart.update();
     }
 
-    function generateColors(count) {
-        const colors = [];
-        for (let i = 0; i < count; i++) {
-            colors.push(randomColor());
-        }
-        return colors;
+    /* ================== TABLES ================== */
+    function fillTable(id, rows, mapper){
+        const body = document.getElementById(id);
+        body.innerHTML='';
+        rows.forEach(r=>{
+            const tr = document.createElement('tr');
+            tr.innerHTML = mapper(r);
+            body.appendChild(tr);
+        });
     }
 
+    /* ================== FETCH ================== */
+    async function fetchDashboard(start,end){
+        const res = await fetch("http://localhost:8080/api/reports/dashboard",{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({startDate:start,endDate:end})
+        });
+        const d = await res.json();
 
-    function updateBorrowTrendChart(data = []) {
-        if (!data.length) {
-            borrowTrendChart.data.labels = ['No data'];
-            borrowTrendChart.data.datasets[0].data = [0];
-        } else {
-            borrowTrendChart.data.labels = data.map(d => d.month);
-            borrowTrendChart.data.datasets[0].data = data.map(d => d.count);
-        }
-        borrowTrendChart.update();
+        fillTable('borrowBody',d.borrowReturn,r=>`
+        <td>${r.accountId}</td>
+        <td>${r.fullName}</td>
+        <td>${r.bookTitle}</td>
+        <td>${r.borrowedDate}</td>
+        <td>${r.dueDate}</td>
+        <td>$${r.fine}</td>`);
+
+        fillTable('fineBody',d.fineSummary,r=>`
+        <td>${r.accountId}</td>
+        <td>${r.fullName}</td>
+        <td>$${r.totalFine}</td>
+        <td>${r.lastFineDate}</td>`);
+
+        updateGenre(d.genreStats);
+        updateAuthors(d.authorStats);
+        updateBorrow(d.borrowTrend);
     }
 
-
-    //--------------------------------------------------------
-    // PAGE LOAD — AUTO-FETCH ALL DATA
-    //--------------------------------------------------------
-    window.addEventListener("DOMContentLoaded", () => {
-        fetchDashboard(null, null); // Load ALL data initially
-    });
-
-    //--------------------------------------------------------
-    // FILTER FORM SUBMIT
-    //--------------------------------------------------------
-    document.getElementById("reportForm").addEventListener("submit", function (e) {
+    document.getElementById('reportForm').onsubmit=e=>{
         e.preventDefault();
-        const start = document.getElementById("startDate").value || null;
-        const end   = document.getElementById("endDate").value || null;
-        fetchDashboard(start, end);
-    });
+        fetchDashboard(startDate.value||null,endDate.value||null);
+    };
 
-    //--------------------------------------------------------
-    // LOGOUT
-    //--------------------------------------------------------
-    async function signOut() {
-        try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
-        } catch (e) { console.warn(e); }
-        window.location.href = "AccountLogin.html";
+    window.onload=()=>fetchDashboard(null,null);
+
+    async function signOut(){
+        await fetch('/logout',{method:'POST'});
+        location.href='AccountLogin.html';
     }
-
-    async function applyRoleToNav() {
-        try {
-            const res = await fetch('/account/current', { credentials: 'include' });
-            if (!res.ok) {
-                // not authenticated or error -> hide admin links
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-                return;
-            }
-            const me = await res.json();
-            const accountType = (me.accountType || '').toString().trim();
-            // case-insensitive check for admin
-            const isAdmin = accountType.toLowerCase() === 'admin';
-            if (!isAdmin) {
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-            } else {
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
-            }
-        } catch (err) {
-            console.warn('applyRoleToNav error:', err);
-            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', applyRoleToNav);
 </script>
 
 </body>
