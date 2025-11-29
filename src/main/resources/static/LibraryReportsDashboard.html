@@ -351,7 +351,7 @@
             tr.innerHTML = `
                 <td>${r.accountId ?? ''}</td>
                 <td>${r.fullName ?? ''}</td>
-                <td>${r.totalFine ?? 0}</td>
+                <td>$${r.totalFine ?? 0}</td>
                 <td>${r.lastFineDate ?? ''}</td>
             `;
             tbody.appendChild(tr);
@@ -378,10 +378,28 @@
             authorChart.data.labels = ['No data'];
             authorChart.data.datasets[0].data = [0];
         } else {
+            const colors = generateColors(data.length);
+
             authorChart.data.labels = data.map(d => d.author);
             authorChart.data.datasets[0].data = data.map(d => d.count);
+            authorChart.data.datasets[0].backgroundColor = colors;
         }
         authorChart.update();
+    }
+
+    function randomColor(){
+        const r = Math.floor(Math.random() * 255);
+        const g = Math.floor(Math.random() * 255);
+        const b = Math.floor(Math.random() * 255);
+        return `rgba(${r}, ${g}, ${b}, 0.6)`;
+    }
+
+    function generateColors(count) {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            colors.push(randomColor());
+        }
+        return colors;
     }
 
 
