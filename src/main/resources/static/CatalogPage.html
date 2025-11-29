@@ -290,8 +290,12 @@
         }
 
         @keyframes fade {
-            from {opacity: .4}
-            to {opacity: 1}
+            from {
+                opacity: .4
+            }
+            to {
+                opacity: 1
+            }
         }
     </style>
 </head>
@@ -430,20 +434,22 @@
     async function getRecBooks() {
         // get signed-in user's account ID and fetch recommendations based on borrowing records
         let accountId = parseInt(await loadCurrentAccountId());
-        if (!accountId) { accountId = 0; }
+        if (!accountId) {
+            accountId = 0;
+        }
         const res = await fetch(`http://localhost:8080/account/book_rec/${accountId}`, {});
         let recType = res.headers.get("Rec-Type")
         let books = await res.json();
         let bookRecSectionTitle = document.getElementById("bookRecSectionTitle");
 
-        console.log("Account ID: "+accountId);
+        console.log("Account ID: " + accountId);
         console.log("Rec-Type: ", recType);
         console.log(books)
 
         // set the section title based on recommendations type
-        if(recType === "random" || recType === "") { // if recommending a random book
+        if (recType === "random" || recType === "") { // if recommending a random book
             bookRecSectionTitle.innerHTML = "Books you may like";
-        } else{ // recommend a book from borrow records
+        } else { // recommend a book from borrow records
             bookRecSectionTitle.innerHTML = `Similar to <b>"${recType}"</b>`;
         }
 
@@ -510,7 +516,7 @@
 
     async function applyRoleToNav() {
         try {
-            const res = await fetch('/account/current', { credentials: 'include' });
+            const res = await fetch('/account/current', {credentials: 'include'});
             if (!res.ok) {
                 // not authenticated or error -> hide admin links
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');

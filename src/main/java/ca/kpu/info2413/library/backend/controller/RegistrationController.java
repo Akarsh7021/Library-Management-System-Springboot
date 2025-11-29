@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -114,7 +113,8 @@ public class RegistrationController
         }
     }
 
-    private String trim(String s) {
+    private String trim(String s)
+    {
         return s == null ? null : s.trim();
     }
 }

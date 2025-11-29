@@ -125,11 +125,14 @@ public class PublicationService
         );
     }
 
-    public List<String> getGenres() { return publicationRepository.getGenres(); }
+    public List<String> getGenres()
+    {
+        return publicationRepository.getGenres();
+    }
 
     public List<PublicationDTO> recBookByGenre(String genre, Long isbn_13)
     {
-        return publicationRepository.recBook(genre,isbn_13)
+        return publicationRepository.recBook(genre, isbn_13)
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
@@ -182,6 +185,7 @@ public class PublicationService
     {
         return !publication.getEbookUrl().isEmpty();
     }
+
     public void deleteByIsbn13(Long isbn13)
     {
         publicationRepository.deleteById(isbn13);

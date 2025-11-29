@@ -234,8 +234,8 @@
             <form id="returnBookForm">
                 <label for="bookId">Book Serial Barcode</label>
                 <input id="bookId" name="bookId" placeholder="Enter Book Serial Barcode" required type="text">
-                <button type="submit" id="returnBtn">Return Book</button>
-                <div id="returnMsg" class="form-msg" aria-live="polite"></div>
+                <button id="returnBtn" type="submit">Return Book</button>
+                <div aria-live="polite" class="form-msg" id="returnMsg"></div>
             </form>
         </div>
 
@@ -253,8 +253,8 @@
                           placeholder="Describe the condition (scratches, torn pages, water damage, etc.)"
                           required></textarea>
 
-                <button type="submit" id="saveNoteBtn">Save Condition Notes</button>
-                <div id="saveNoteMsg" class="form-msg" aria-live="polite"></div>
+                <button id="saveNoteBtn" type="submit">Save Condition Notes</button>
+                <div aria-live="polite" class="form-msg" id="saveNoteMsg"></div>
             </form>
         </div>
     </div>
@@ -267,8 +267,8 @@
             <form id="viewNotesForm">
                 <label for="viewSerial">Serial Barcode</label>
                 <input id="viewSerial" name="viewSerial" placeholder="Enter Book Serial Barcode" required type="text">
-                <button type="submit" id="getNotesBtn">Get Notes</button>
-                <div id="getNotesMsg" class="form-msg" aria-live="polite"></div>
+                <button id="getNotesBtn" type="submit">Get Notes</button>
+                <div aria-live="polite" class="form-msg" id="getNotesMsg"></div>
             </form>
         </div>
     </div>
@@ -320,7 +320,11 @@
         if (serial === null || serial === undefined) return null;
         const url = `${BORROW_BASE}/find/serial_barcode_bookcopy/${encodeURIComponent(serial)}`;
         try {
-            const resp = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' }, credentials: 'include' });
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: {'Accept': 'application/json'},
+                credentials: 'include'
+            });
             if (!resp.ok) {
                 console.debug('findBorrowsBySerial: non-ok', resp.status, url);
                 return null;
@@ -362,7 +366,7 @@
         const url = `${BORROW_BASE}`; // PUT /borrow expects full object
         const resp = await fetch(url, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
             credentials: 'include',
             body: JSON.stringify(borrowObj)
         });
@@ -438,10 +442,10 @@
             if (successCount > 0) {
                 setInlineMessage(msgId, `Updated ${successCount} Borrow record(s) to Returned.`, 'green');
                 form.reset();
-                return;
+
             } else {
                 setInlineMessage(msgId, 'Could not update any Borrow records. Check server logs.', 'crimson');
-                return;
+
             }
         } catch (err) {
             console.error('Return flow error:', err);
@@ -491,7 +495,7 @@
         try {
             const resp = await fetch(NOTES_BASE, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                 credentials: 'include',
                 body: JSON.stringify(payload)
             });
@@ -519,27 +523,33 @@
 
     /* View Notes (keeps previous behaviour) */
     async function fetchConditionNotes(serial) {
-        const headers = { 'Accept': 'application/json' };
+        const headers = {'Accept': 'application/json'};
         // 1) path param
         try {
             const url1 = `${NOTES_BASE}/${encodeURIComponent(serial)}`;
-            const r1 = await fetch(url1, { method: 'GET', headers, credentials: 'include' });
+            const r1 = await fetch(url1, {method: 'GET', headers, credentials: 'include'});
             if (r1.ok) return await r1.json();
-        } catch (e) { console.debug('notes path attempt failed', e); }
+        } catch (e) {
+            console.debug('notes path attempt failed', e);
+        }
 
         // 2) query param serialBarcodeBookCopy
         try {
             const url2 = `${NOTES_BASE}?serialBarcodeBookCopy=${encodeURIComponent(serial)}`;
-            const r2 = await fetch(url2, { method: 'GET', headers, credentials: 'include' });
+            const r2 = await fetch(url2, {method: 'GET', headers, credentials: 'include'});
             if (r2.ok) return await r2.json();
-        } catch (e) { console.debug('notes query attempt failed', e); }
+        } catch (e) {
+            console.debug('notes query attempt failed', e);
+        }
 
         // 3) generic ?serial
         try {
             const url3 = `${NOTES_BASE}?serial=${encodeURIComponent(serial)}`;
-            const r3 = await fetch(url3, { method: 'GET', headers, credentials: 'include' });
+            const r3 = await fetch(url3, {method: 'GET', headers, credentials: 'include'});
             if (r3.ok) return await r3.json();
-        } catch (e) { console.debug('notes fallback attempt failed', e); }
+        } catch (e) {
+            console.debug('notes fallback attempt failed', e);
+        }
 
         throw new Error('Could not retrieve notes from server (all attempts failed).');
     }
@@ -549,7 +559,8 @@
         try {
             const d = new Date(value);
             if (!isNaN(d)) return d.toLocaleString();
-        } catch (e) {}
+        } catch (e) {
+        }
         return String(value);
     }
 
@@ -602,7 +613,7 @@
         }
 
         results.style.display = 'block';
-        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        results.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
 
     document.getElementById('viewNotesForm').addEventListener('submit', async function (e) {
@@ -651,7 +662,7 @@
     /* --- signOut helper --- */
     async function signOut() {
         try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }
@@ -660,7 +671,7 @@
 
     async function applyRoleToNav() {
         try {
-            const res = await fetch('/account/current', { credentials: 'include' });
+            const res = await fetch('/account/current', {credentials: 'include'});
             if (!res.ok) {
                 // not authenticated or error -> hide admin links
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');

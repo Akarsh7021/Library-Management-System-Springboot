@@ -201,8 +201,8 @@
 
             <!-- NEW: account type selector -->
             <label for="accountType">Account type</label>
-            <select id="accountType" aria-label="Account type">
-                <option value="member" selected>Member</option>
+            <select aria-label="Account type" id="accountType">
+                <option selected value="member">Member</option>
                 <option value="admin">Admin</option>
             </select>
 
@@ -326,7 +326,8 @@
                     if (json && (json.accountId || json.id || json.account_id)) {
                         info = ` (ID: ${json.accountId || json.id || json.account_id})`;
                     }
-                } catch (_) { /* ignore parse errors */ }
+                } catch (_) { /* ignore parse errors */
+                }
 
                 setMessage(msgEl, 'User created successfully' + info + '.', 'green');
 
@@ -388,7 +389,10 @@
                 document.getElementById('deleteAccountId').value = '';
             } else {
                 let text = '';
-                try { text = await res.text(); } catch (_) { /* ignore */ }
+                try {
+                    text = await res.text();
+                } catch (_) { /* ignore */
+                }
                 setMessage(msgEl, 'Failed: ' + (text || res.statusText || res.status), 'crimson');
             }
         } catch (err) {
@@ -401,7 +405,7 @@
 
     async function applyRoleToNav() {
         try {
-            const res = await fetch('/account/current', { credentials: 'include' });
+            const res = await fetch('/account/current', {credentials: 'include'});
             if (!res.ok) {
                 // not authenticated or error -> hide admin links
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');

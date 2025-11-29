@@ -43,6 +43,11 @@ public class Publication
     @JsonProperty("authors")
     private List<String> authors;
 
+    public Publication(Long isbn13)
+    {
+        this.isbn13 = isbn13;
+    }
+
     public List<String> getInputAuthors()
     {
         return authors;
@@ -56,10 +61,5 @@ public class Publication
         return publicationAuthors.stream()
                 .map(pa -> pa.getAuthor().getAuthorName())
                 .toList();
-    }
-
-    public Publication(Long isbn13)
-    {
-        this.isbn13 = isbn13;
     }
 }

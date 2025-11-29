@@ -16,13 +16,11 @@ import java.util.Optional;
 public class AccountService
 {
 
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Autowired
     private AccountRepository accountRepository;
-
     @Autowired
     private LibraryCardRepository libraryCardRepository;
-
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public List<Account> findAll()
     {
@@ -34,10 +32,12 @@ public class AccountService
         return accountRepository.findByAccountId(accountId);
     }
 
-    public Account save(Account account) {
+    public Account save(Account account)
+    {
         // encode and stuff
         String hash;
-        if(account.getPasswordHash() != null && !account.getPasswordHash().isEmpty()) {
+        if (account.getPasswordHash() != null && !account.getPasswordHash().isEmpty())
+        {
             hash = passwordEncoder.encode(account.getPasswordHash());
             account.setPasswordHash(hash);
         }

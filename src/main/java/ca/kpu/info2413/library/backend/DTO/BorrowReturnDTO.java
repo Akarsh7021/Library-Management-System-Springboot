@@ -8,7 +8,8 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
-public class BorrowReturnDTO {
+public class BorrowReturnDTO
+{
     // getters / setters
     private Integer accountId;
     private String fullName;
@@ -18,10 +19,13 @@ public class BorrowReturnDTO {
     private LocalDate returnedDate;
     private BigDecimal fine;
 
-    public BorrowReturnDTO() {}
+    public BorrowReturnDTO()
+    {
+    }
 
     public BorrowReturnDTO(Integer accountId, String fullName, String bookTitle,
-                           LocalDate borrowedDate, LocalDate dueDate, LocalDate returnedDate, BigDecimal fine) {
+                           LocalDate borrowedDate, LocalDate dueDate, LocalDate returnedDate, BigDecimal fine)
+    {
         this.accountId = accountId;
         this.fullName = fullName;
         this.bookTitle = bookTitle;

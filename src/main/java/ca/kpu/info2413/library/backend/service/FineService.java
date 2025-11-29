@@ -68,20 +68,23 @@ public class FineService
     //      insert new records into Fine if overdue
     //      if there is already a fine then recalculate
     @Scheduled(cron = "0 0 * * * *")
-    public void updateAllFines(){
+    public void updateAllFines()
+    {
 
         LocalDate today = LocalDate.now();
         // get all overdue borrows where status is still "Borrowed"
         List<Borrow> overdueBorrows = borrowRepository.findByDueDateBeforeAndStatus(today, "Borrowed");
 
-        for (Borrow borrow : overdueBorrows) {
+        for (Borrow borrow : overdueBorrows)
+        {
             long fineDays = DAYS.between(borrow.getDueDate(), today);
             Integer fineAmount = (int) fineDays;
 
             // check if Fine already exists for this borrowId
             List<Fine> existingFine = fineRepository.findByBorrowIdBorrow(borrow.getBorrowId());
 
-            if (existingFine.isEmpty()) {
+            if (existingFine.isEmpty())
+            {
                 // create new record in Fine
                 Fine newFine = new Fine();
                 newFine.setBorrowIdBorrow(borrow.getBorrowId());
@@ -91,7 +94,9 @@ public class FineService
 
                 fineRepository.save(newFine);
 
-            } else { // if already exists
+            }
+            else
+            { // if already exists
                 // update Fine records in Fine table
                 Fine fine = existingFine.getFirst();
                 fine.setFineAmount(fineAmount);

@@ -15,15 +15,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service // make sure this is the bean Spring wires into DaoAuthenticationProvider
-public class AccountUserDetailsService implements UserDetailsService {
+public class AccountUserDetailsService implements UserDetailsService
+{
 
     @Autowired
     private AccountService accountService;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+    {
         var matches = accountService.findByNotificationEmailIgnoreCase(username.trim());
-        if (matches == null || matches.isEmpty()) {
+        if (matches == null || matches.isEmpty())
+        {
             throw new UsernameNotFoundException("User not found: " + username);
         }
         Account account = matches.getFirst();
@@ -31,9 +34,12 @@ public class AccountUserDetailsService implements UserDetailsService {
         // build list of authorities from accountType (case-insensitive)
         List<GrantedAuthority> authorities = new ArrayList<>();
         String type = account.getAccountType();
-        if (type != null && type.equalsIgnoreCase("admin")) {
+        if (type != null && type.equalsIgnoreCase("admin"))
+        {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        } else {
+        }
+        else
+        {
             // default to member role
             authorities.add(new SimpleGrantedAuthority("ROLE_MEMBER"));
         }

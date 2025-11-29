@@ -31,7 +31,6 @@ public class SecurityConfig
         http
 
 
-
                 // authorisation rules
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(

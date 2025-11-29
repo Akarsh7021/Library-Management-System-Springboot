@@ -5,11 +5,19 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class MonthlyTrendDTO {
+public class MonthlyTrendDTO
+{
     private String period; // "2025-04"
     private Long borrowCount;
 
-    public MonthlyTrendDTO() {}
-    public MonthlyTrendDTO(String period, Long borrowCount) { this.period = period; this.borrowCount = borrowCount; }
+    public MonthlyTrendDTO()
+    {
+    }
+
+    public MonthlyTrendDTO(String period, Long borrowCount)
+    {
+        this.period = period;
+        this.borrowCount = borrowCount;
+    }
 
 }

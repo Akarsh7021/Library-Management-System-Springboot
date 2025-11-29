@@ -5,11 +5,19 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class AuthorTrendDTO {
+public class AuthorTrendDTO
+{
     private String authorName;
     private Long borrowCount;
 
-    public AuthorTrendDTO() {}
-    public AuthorTrendDTO(String authorName, Long borrowCount) { this.authorName = authorName; this.borrowCount = borrowCount; }
+    public AuthorTrendDTO()
+    {
+    }
+
+    public AuthorTrendDTO(String authorName, Long borrowCount)
+    {
+        this.authorName = authorName;
+        this.borrowCount = borrowCount;
+    }
 
 }

@@ -5,17 +5,23 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class PublicationReportDTO {
+public class PublicationReportDTO
+{
     private Long isbn13;
     private String title;
     private String genre;
     private Long borrowCount;
 
-    public PublicationReportDTO() {}
+    public PublicationReportDTO()
+    {
+    }
 
     public PublicationReportDTO(Long isbn13, String title, String genre, Long borrowCount)
     {
-        this.isbn13 = isbn13; this.title = title; this.genre = genre; this.borrowCount = borrowCount;
+        this.isbn13 = isbn13;
+        this.title = title;
+        this.genre = genre;
+        this.borrowCount = borrowCount;
     }
 
 }

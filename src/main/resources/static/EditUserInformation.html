@@ -366,7 +366,8 @@
                 // call logout to be safe (server-side session should be invalidated too)
                 try {
                     await fetch("/logout", {method: "POST", credentials: "include"});
-                } catch (e) { /* ignore */ }
+                } catch (e) { /* ignore */
+                }
                 alert("Account deleted. You will be signed out.");
                 window.location.href = "AccountLogin.html";
             } else {
@@ -391,7 +392,7 @@
 
     async function applyRoleToNav() {
         try {
-            const res = await fetch('/account/current', { credentials: 'include' });
+            const res = await fetch('/account/current', {credentials: 'include'});
             if (!res.ok) {
                 // not authenticated or error -> hide admin links
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');

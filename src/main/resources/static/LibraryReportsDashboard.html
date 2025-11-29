@@ -63,6 +63,7 @@
             border-left: 4px solid #0077b6;
             padding-left: 10px;
         }
+
         .form-box, .table-box, .chart-box {
             background-color: #ffffff;
             border-radius: 10px;
@@ -196,6 +197,7 @@
             border-top: 1px solid #e0e0e0;
             background-color: #ffffff;
         }
+
         nav a {
             text-decoration: none;
             color: #333;
@@ -218,7 +220,7 @@
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
     <a class="admin-only" href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -246,8 +248,12 @@
             <table>
                 <thead>
                 <tr>
-                    <th>User ID</th><th>Name</th><th>Book</th>
-                    <th>Borrowed</th><th>Due</th><th>Fine</th>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Book</th>
+                    <th>Borrowed</th>
+                    <th>Due</th>
+                    <th>Fine</th>
                 </tr>
                 </thead>
                 <tbody id="borrowBody"></tbody>
@@ -262,7 +268,10 @@
             <table>
                 <thead>
                 <tr>
-                    <th>Account</th><th>Name</th><th>Total</th><th>Last Fine</th>
+                    <th>Account</th>
+                    <th>Name</th>
+                    <th>Total</th>
+                    <th>Last Fine</th>
                 </tr>
                 </thead>
                 <tbody id="fineBody"></tbody>
@@ -293,8 +302,8 @@
 
 <script>
     /* ================== COLORS ================== */
-    const barColors = ['#ef476f','#ffd166','#06d6a0','#118ab2','#073b4c','#adb5bd'];
-    const pieColors = ['#6050DC','#D52DB7','#FF2E7E','#FF6B45','#FFAB05','#b2bec3'];
+    const barColors = ['#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#073b4c', '#adb5bd'];
+    const pieColors = ['#6050DC', '#D52DB7', '#FF2E7E', '#FF6B45', '#FFAB05', '#b2bec3'];
 
     /* ================== CHARTS ================== */
     let genreChart = new Chart(document.getElementById('genreChart'), {
@@ -309,12 +318,12 @@
         options: {
             responsive: true,
             plugins: {
-                legend: { display: false }
+                legend: {display: false}
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: { precision: 0 }
+                    ticks: {precision: 0}
                 }
             }
         }
@@ -323,15 +332,26 @@
 
     const borrowChart = new Chart(document.getElementById('borrowChart'), {
         type: 'line',
-        data: { labels: [], datasets: [{ data: [], tension: 0.5,backgroundColor: 'rgba(0,180,216,0.3)', borderColor: '#bf3cea', fill: true }] },
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                tension: 0.5,
+                backgroundColor: 'rgba(0,180,216,0.3)',
+                borderColor: '#bf3cea',
+                fill: true
+            }]
+        },
         options: {
             responsive: true,
             plugins: {
                 legend: {display: false}
             },
             scales: {
-                y: { beginAtZero: true, ticks: {
-                    precision: 0 }
+                y: {
+                    beginAtZero: true, ticks: {
+                        precision: 0
+                    }
                 }
             }
         }
@@ -339,21 +359,21 @@
 
     const authorChart = new Chart(document.getElementById('authorChart'), {
         type: 'pie',
-        data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] }
+        data: {labels: [], datasets: [{data: [], backgroundColor: []}]}
     });
 
     /* ================== HELPERS ================== */
     function top5WithOther(data, valueKey, labelKey, capRatio) {
-        const sorted = [...data].sort((a,b)=>b[valueKey]-a[valueKey]);
-        const top = sorted.slice(0,5);
+        const sorted = [...data].sort((a, b) => b[valueKey] - a[valueKey]);
+        const top = sorted.slice(0, 5);
         const rest = sorted.slice(5);
 
-        let labels = top.map(x=>x[labelKey]);
-        let values = top.map(x=>x[valueKey]);
+        let labels = top.map(x => x[labelKey]);
+        let values = top.map(x => x[valueKey]);
 
         if (rest.length) {
-            const sum = rest.reduce((s,x)=>s+x[valueKey],0);
-            const cap = Math.min(sum, Math.floor(Math.min(...values)*capRatio));
+            const sum = rest.reduce((s, x) => s + x[valueKey], 0);
+            const cap = Math.min(sum, Math.floor(Math.min(...values) * capRatio));
             labels.push("Other");
             values.push(cap);
         }
@@ -361,35 +381,35 @@
     }
 
     /* ================== UPDATERS ================== */
-    function updateGenre(data){
+    function updateGenre(data) {
         if (!data.length) return;
-        const r = top5WithOther(data,'count','genre',0.5);
+        const r = top5WithOther(data, 'count', 'genre', 0.5);
         genreChart.data.labels = r.labels;
         genreChart.data.datasets[0].data = r.values;
-        genreChart.data.datasets[0].backgroundColor = barColors.slice(0,r.labels.length);
+        genreChart.data.datasets[0].backgroundColor = barColors.slice(0, r.labels.length);
         genreChart.update();
     }
 
-    function updateAuthors(data){
+    function updateAuthors(data) {
         if (!data.length) return;
-        const r = top5WithOther(data,'count','author',0.3);
+        const r = top5WithOther(data, 'count', 'author', 0.3);
         authorChart.data.labels = r.labels;
         authorChart.data.datasets[0].data = r.values;
-        authorChart.data.datasets[0].backgroundColor = pieColors.slice(0,r.labels.length);
+        authorChart.data.datasets[0].backgroundColor = pieColors.slice(0, r.labels.length);
         authorChart.update();
     }
 
-    function updateBorrow(data){
-        borrowChart.data.labels = data.map(x=>x.month);
-        borrowChart.data.datasets[0].data = data.map(x=>x.count);
+    function updateBorrow(data) {
+        borrowChart.data.labels = data.map(x => x.month);
+        borrowChart.data.datasets[0].data = data.map(x => x.count);
         borrowChart.update();
     }
 
     /* ================== TABLES ================== */
-    function fillTable(id, rows, mapper){
+    function fillTable(id, rows, mapper) {
         const body = document.getElementById(id);
-        body.innerHTML='';
-        rows.forEach(r=>{
+        body.innerHTML = '';
+        rows.forEach(r => {
             const tr = document.createElement('tr');
             tr.innerHTML = mapper(r);
             body.appendChild(tr);
@@ -397,15 +417,15 @@
     }
 
     /* ================== FETCH ================== */
-    async function fetchDashboard(start,end){
-        const res = await fetch("http://localhost:8080/api/reports/dashboard",{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({startDate:start,endDate:end})
+    async function fetchDashboard(start, end) {
+        const res = await fetch("http://localhost:8080/api/reports/dashboard", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({startDate: start, endDate: end})
         });
         const d = await res.json();
 
-        fillTable('borrowBody',d.borrowReturn,r=>`
+        fillTable('borrowBody', d.borrowReturn, r => `
         <td>${r.accountId}</td>
         <td>${r.fullName}</td>
         <td>${r.bookTitle}</td>
@@ -413,7 +433,7 @@
         <td>${r.dueDate}</td>
         <td>$${r.fine}</td>`);
 
-        fillTable('fineBody',d.fineSummary,r=>`
+        fillTable('fineBody', d.fineSummary, r => `
         <td>${r.accountId}</td>
         <td>${r.fullName}</td>
         <td>$${r.totalFine}</td>
@@ -424,16 +444,16 @@
         updateBorrow(d.borrowTrend);
     }
 
-    document.getElementById('reportForm').onsubmit=e=>{
+    document.getElementById('reportForm').onsubmit = e => {
         e.preventDefault();
-        fetchDashboard(startDate.value||null,endDate.value||null);
+        fetchDashboard(startDate.value || null, endDate.value || null);
     };
 
-    window.onload=()=>fetchDashboard(null,null);
+    window.onload = () => fetchDashboard(null, null);
 
-    async function signOut(){
-        await fetch('/logout',{method:'POST'});
-        location.href='AccountLogin.html';
+    async function signOut() {
+        await fetch('/logout', {method: 'POST'});
+        location.href = 'AccountLogin.html';
     }
 </script>
 

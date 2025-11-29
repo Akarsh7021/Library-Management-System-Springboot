@@ -24,21 +24,16 @@ public class AccountController
     // to validate pw
     String passwordPolicy = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
     PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AccountService accountService;
-
-    @Autowired
-    private LibraryCardService libraryCardService;
-
-    @Autowired
-    private BorrowService borrowService;
-
     @Autowired
     BookCopyService bookCopyService;
-
     @Autowired
     PublicationService publicationService;
+    @Autowired
+    private AccountService accountService;
+    @Autowired
+    private LibraryCardService libraryCardService;
+    @Autowired
+    private BorrowService borrowService;
 
     // Get all accounts
     @GetMapping
@@ -86,11 +81,13 @@ public class AccountController
 
         if (incoming.getAccountType() != null) existing.setAccountType(incoming.getAccountType());
 
-        if (incoming.getPasswordHash() != null && !incoming.getPasswordHash().trim().isEmpty()) {
+        if (incoming.getPasswordHash() != null && !incoming.getPasswordHash().trim().isEmpty())
+        {
             // validate password before calling Service to hash
-            if(incoming.getPasswordHash().matches(passwordPolicy))
+            if (incoming.getPasswordHash().matches(passwordPolicy))
                 existing.setPasswordHash(incoming.getPasswordHash());
-            else return ResponseEntity.badRequest().body("Password must contain at least 8 characters with at least 1 letter and 1 number");
+            else
+                return ResponseEntity.badRequest().body("Password must contain at least 8 characters with at least 1 letter and 1 number");
         }
 
         Account saved = accountService.save(existing);
@@ -102,10 +99,12 @@ public class AccountController
      * IMPORTANT: only invalidate the current session if the deleted account equals the currently authenticated account.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteAccount(@PathVariable Integer id, HttpServletRequest request) {
+    public ResponseEntity<?> deleteAccount(@PathVariable Integer id, HttpServletRequest request)
+    {
         // find account first
         List<Account> opt = accountService.findByAccountId(id);
-        if (opt.isEmpty()) {
+        if (opt.isEmpty())
+        {
             return ResponseEntity.notFound().build();
         }
         Account toDelete = opt.getFirst();
@@ -122,20 +121,27 @@ public class AccountController
          * clear the security context and invalidate the session (user intentionally deleted themselves).
          * Otherwise, do not touch session/auth — prevent accidental sign-outs for admins deleting other accounts.
          */
-        try {
+        try
+        {
             String deletedAccountIdentifier = null;
 
             // Try to compare on a common identifier field. Adjust field if your Account uses a different name.
             // Example uses notificationEmail (your frontend used "notificationEmail" earlier).
-            if (toDelete.getNotificationEmail() != null) {
+            if (toDelete.getNotificationEmail() != null)
+            {
                 deletedAccountIdentifier = toDelete.getNotificationEmail();
-            } else if (toDelete.getFullName() != null) {
+            }
+            else if (toDelete.getFullName() != null)
+            {
                 deletedAccountIdentifier = toDelete.getFullName();
-            } else if (toDelete.getAccountId() != null) {
+            }
+            else if (toDelete.getAccountId() != null)
+            {
                 deletedAccountIdentifier = String.valueOf(toDelete.getAccountId());
             }
 
-            if (currentPrincipalName != null && currentPrincipalName.equalsIgnoreCase(deletedAccountIdentifier)) {
+            if (currentPrincipalName != null && currentPrincipalName.equalsIgnoreCase(deletedAccountIdentifier))
+            {
 
                 // Self-delete: invalidate
                 SecurityContextHolder.clearContext();
@@ -143,12 +149,20 @@ public class AccountController
                 if (session != null) session.invalidate();
 
                 // optional: call request.logout() if container-managed auth is used
-                try { request.logout(); } catch (Exception ignored) {}
+                try
+                {
+                    request.logout();
+                }
+                catch (Exception ignored)
+                {
+                }
 
                 // return no content — client should be redirected to login if necessary
                 return ResponseEntity.noContent().build();
             }
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             // if something goes wrong while checking identity, do not invalidate other sessions.
             // log if you have a logger; swallow the exception so deletion isn't rolled back here.
             ex.printStackTrace();
@@ -275,7 +289,8 @@ public class AccountController
 
              */
 
-            if(!password.matches(passwordPolicy)) return ResponseEntity.badRequest().body("Password must contain at least 8 characters with at least 1 letter and 1 number");
+            if (!password.matches(passwordPolicy))
+                return ResponseEntity.badRequest().body("Password must contain at least 8 characters with at least 1 letter and 1 number");
 
             Integer libraryCardId;
             try
@@ -331,16 +346,20 @@ public class AccountController
 
     // get recommendations for books
     @GetMapping({"/book_rec/{account_id}"})
-    public ResponseEntity<?> findBookRecById(@PathVariable Integer account_id) {
-        try {
+    public ResponseEntity<?> findBookRecById(@PathVariable Integer account_id)
+    {
+        try
+        {
             List<Borrow> borrows = borrowService.findByAccountIdAccount(account_id);
             List<PublicationDTO> recBooks;
             String resHeader; // for determining if there is a book used for recommendation or random suggestions
 
-            if (!borrows.isEmpty()) { //has borrow records
+            if (!borrows.isEmpty())
+            { //has borrow records
                 List<Publication> borrowedBooks = new ArrayList<>(List.of());
 
-                for (Borrow borrow : borrows) {
+                for (Borrow borrow : borrows)
+                {
                     Optional<BookCopy> bc = bookCopyService.findBySerialBarcode(borrow.getSerialBarcodeBookCopy());
                     bc.ifPresent(bookCopy -> borrowedBooks.add(bookCopy.getPublication()));
                 }
@@ -353,7 +372,9 @@ public class AccountController
                 Collections.shuffle(b); //shuffle all results to get random ones
                 recBooks = b.stream().limit(5).toList(); //limit 5
                 resHeader = book.getTitle(); // pass book title as header to use for displaying
-            } else { // no borrow records
+            }
+            else
+            { // no borrow records
                 // get a list of all genres and randomly suggest a book from a random genre
                 List<String> genres = publicationService.getGenres();
                 List<PublicationDTO> b = publicationService.findByGenre(genres.get(new Random().nextInt(genres.size())));
@@ -363,9 +384,11 @@ public class AccountController
             }
 
             return ResponseEntity.ok()
-                    .header("Rec-Type",resHeader)
+                    .header("Rec-Type", resHeader)
                     .body(recBooks);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             return ResponseEntity.badRequest().body("An error occurred.\n" + e.getMessage());
         }
     }

@@ -47,7 +47,8 @@ public class BorrowController
         // check if book copy exists by looking up barcode
         Optional<BookCopy> bookCopy = bookCopyService.findBySerialBarcode(borrow.getSerialBarcodeBookCopy());
 
-        if(bookCopy.isEmpty()){
+        if (bookCopy.isEmpty())
+        {
             return ResponseEntity.badRequest().body(String.format("Book copy %s not Found!", borrow.getSerialBarcodeBookCopy()));
         }
 
@@ -56,22 +57,30 @@ public class BorrowController
 
         // get the latest borrow entry of the book copy
         Borrow b = null;
-        
-        try{
+
+        try
+        {
             b = findBySerialBarcodeBookCopy(borrow.getSerialBarcodeBookCopy()).getLast();
-        } catch (Exception _){}
+        }
+        catch (Exception _)
+        {
+        }
 
         // check if book is already borrowed
-        if((b != null) && Objects.equals(b.getStatus(), "Borrowed")){
+        if ((b != null) && Objects.equals(b.getStatus(), "Borrowed"))
+        {
             return ResponseEntity.badRequest().body(String.format("The book \"%s\" is not available for borrowing.", bookName));
         }
 
         // check if account exists
         Account borrowAccount;
 
-        try{
+        try
+        {
             borrowAccount = accountService.findByAccountId(borrow.getAccountIdAccount()).getFirst();
-        } catch (Exception _) {
+        }
+        catch (Exception _)
+        {
             return ResponseEntity.badRequest().body(String.format("Account ID %s not found.", borrow.getAccountIdAccount()));
         }
 

@@ -10,7 +10,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface ReportRepository extends JpaRepository<Borrow, Integer> {
+public interface ReportRepository extends JpaRepository<Borrow, Integer>
+{
 
     // -----------------------------------------------------
     // 1. Borrow / Return Report (Filtered)
@@ -57,7 +58,6 @@ public interface ReportRepository extends JpaRepository<Borrow, Integer> {
             @Param("start") LocalDate start,
             @Param("end") LocalDate end
     );
-
 
 
     // -----------------------------------------------------

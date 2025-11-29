@@ -16,10 +16,10 @@ function loadTableDataIfExists(tableId, dataArray) {
 }
 
 // sample data (keep if you need them elsewhere)
-const returnData = [ /* ... */ ];
-const finesData = [ /* ... */ ];
-const genreData = [ /* ... */ ];
-const authorData = [ /* ... */ ];
+const returnData = [ /* ... */];
+const finesData = [ /* ... */];
+const genreData = [ /* ... */];
+const authorData = [ /* ... */];
 
 window.addEventListener("DOMContentLoaded", () => {
     loadTableDataIfExists("returnsTable", returnData);

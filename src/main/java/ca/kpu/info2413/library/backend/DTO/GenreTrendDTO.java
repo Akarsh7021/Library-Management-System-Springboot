@@ -5,11 +5,19 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class GenreTrendDTO {
+public class GenreTrendDTO
+{
     private String genre;
     private Long borrowCount;
 
-    public GenreTrendDTO() {}
-    public GenreTrendDTO(String genre, Long borrowCount) { this.genre = genre; this.borrowCount = borrowCount; }
+    public GenreTrendDTO()
+    {
+    }
+
+    public GenreTrendDTO(String genre, Long borrowCount)
+    {
+        this.genre = genre;
+        this.borrowCount = borrowCount;
+    }
 
 }

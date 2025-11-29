@@ -131,7 +131,7 @@
             cursor: pointer;
         }
 
-        table,th,td{
+        table, th, td {
             border: 1px solid black;
         }
     </style>
@@ -199,10 +199,10 @@
             <h2>Add Book Copy</h2>
             <form id="addBookCopyForm">
                 <label>ISBN</label>
-                <input type="number" id="copyIsbn" required>
+                <input id="copyIsbn" required type="number">
 
                 <label>Serial Barcode</label>
-                <input type="number" id="copyBarcode" required>
+                <input id="copyBarcode" required type="number">
 
                 <label>Acquired Date</label>
                 <input id="copyDate" required type="date">
@@ -227,7 +227,7 @@
             <h2>Add Condition Note</h2>
             <form id="addConditionForm">
                 <label>Serial Barcode</label>
-                <input type="number" id="noteBarcode" required>
+                <input id="noteBarcode" required type="number">
 
                 <label>Condition Note</label>
                 <textarea id="conditionNote" required rows="4"></textarea>
@@ -247,9 +247,9 @@
             </form>
         </div>
         <div class="form-box" id="result-container" style="display: none">
-        <table style="width: 100%">
-            <tbody id="tbody"></tbody>
-        </table>
+            <table style="width: 100%">
+                <tbody id="tbody"></tbody>
+            </table>
         </div>
 
     </div>
@@ -365,7 +365,7 @@
 
         if (!res.ok) return alert("No notes found.")
 
-        else{
+        else {
             const notes = await res.json();
             //console.log(notes);
 
@@ -378,7 +378,7 @@
                 "                <th>Created At</th>\n" +
                 "            </tr>"
 
-            for(var i = 0; i < notes.length; i++) {
+            for (var i = 0; i < notes.length; i++) {
                 var tr = "<tr>"
 
                 tr += `<td>${notes[i].noteId}</td>`
@@ -396,7 +396,7 @@
 
     async function applyRoleToNav() {
         try {
-            const res = await fetch('/account/current', { credentials: 'include' });
+            const res = await fetch('/account/current', {credentials: 'include'});
             if (!res.ok) {
                 // not authenticated or error -> hide admin links
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
