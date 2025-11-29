@@ -1,8 +1,10 @@
 package ca.kpu.info2413.library.backend.service;
 
 import ca.kpu.info2413.library.backend.model.Borrow;
+import ca.kpu.info2413.library.backend.model.Configuration;
 import ca.kpu.info2413.library.backend.model.Fine;
 import ca.kpu.info2413.library.backend.repository.BorrowRepository;
+import ca.kpu.info2413.library.backend.repository.ConfigurationRepository;
 import ca.kpu.info2413.library.backend.repository.FineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -18,9 +21,12 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class FineService
 {
     @Autowired
-    FineRepository fineRepository;
+    private BorrowRepository borrowRepository;
     @Autowired
-    BorrowRepository borrowRepository;
+    private ConfigurationRepository configurationRepository;
+    @Autowired
+    private FineRepository fineRepository;
+
 
     public List<Fine> findAll()
     {
@@ -64,21 +70,32 @@ public class FineService
         return fineList;
     }
 
+
+    // just the scheduled job
+    @Scheduled(cron = "0 0 * * * *")
+    //@Scheduled(fixedRate = 60000)
+    public void updateFineOnSchedule()
+    {
+        updateAllFines();
+    }
+
     // check all borrow records
     //      insert new records into Fine if overdue
     //      if there is already a fine then recalculate
-    @Scheduled(cron = "0 0 * * * *")
     public void updateAllFines()
     {
-
         LocalDate today = LocalDate.now();
         // get all overdue borrows where status is still "Borrowed"
         List<Borrow> overdueBorrows = borrowRepository.findByDueDateBeforeAndStatus(today, "Borrowed");
+        Optional<Configuration> config = configurationRepository.findById("fineMultiplier");
+        int multiplier;
 
+        multiplier = config.map(configuration -> Integer.parseInt(configuration.getConfigValue())).orElse(1);
+        //System.err.println("MULTIPLIER: " + multiplier);
         for (Borrow borrow : overdueBorrows)
         {
             long fineDays = DAYS.between(borrow.getDueDate(), today);
-            Integer fineAmount = (int) fineDays;
+            int fineAmount = (int) fineDays * multiplier;
 
             // check if Fine already exists for this borrowId
             List<Fine> existingFine = fineRepository.findByBorrowIdBorrow(borrow.getBorrowId());

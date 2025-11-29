@@ -275,16 +275,31 @@
                 data.forEach(pub => {
                     const card = document.createElement("div");
                     card.className = "book-card";
-                    card.innerHTML = `
-                    <div class="book-image"></div>
-                    <div class="book-info">
-                        <h3>${pub.title}</h3>
-                        <p>Authors: ${pub.authors.join(", ")}<br>
-                           Genre: ${pub.genre || 'N/A'}<br>
-                           ISBN: ${pub.isbn13}</p>
-                        <button onclick="placeHold(${pub.isbn13})">Place Hold</button>
-                    </div>
-                `;
+                    // if not an ebook
+                    if(pub.ebookUrl === null || pub.ebookUrl === undefined) {
+                            card.innerHTML = `
+                            <div class="book-image"></div>
+                            <div class="book-info">
+                                <h3>${pub.title}</h3>
+                                <p>Authors: ${pub.authors.join(", ")}<br>
+                                   Genre: ${pub.genre || 'N/A'}<br>
+                                   ISBN: ${pub.isbn13}</p>
+                                <button onclick="placeHold(${pub.isbn13})">Place Hold</button>
+                            </div>
+                        `;
+                    } else { //if is ebook
+                        card.innerHTML = `
+                            <div class="book-image"></div>
+                            <div class="book-info">
+                                <h3>${pub.title}</h3>
+                                <p>Authors: ${pub.authors.join(", ")}<br>
+                                   Genre: ${pub.genre || 'N/A'}<br>
+                                   ISBN: ${pub.isbn13}</p>
+                                <button onclick="document.location='${pub.ebookUrl}'">Open Ebook</button>
+                            </div>
+                        `;
+                    }
+
                     resultsDiv.appendChild(card);
                 });
             })

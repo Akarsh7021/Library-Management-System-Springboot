@@ -65,7 +65,8 @@ public class SecurityConfig
                                 // protect write operations - example REST endpoints:
                                 "/publication", "/publication/**",
                                 "/book_copy", "/book_copy/**",
-                                "/bookcopy/**", "/account/**" // if account management endpoints should be admin-only
+                                "/bookcopy/**", "/account/**", // if account management endpoints should be admin-only
+                                "/config/**"
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

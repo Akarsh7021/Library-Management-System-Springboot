@@ -390,16 +390,32 @@
                     const authorsText = (pub.authors && pub.authors.length) ? pub.authors.join(', ') : 'Unknown';
                     const card = document.createElement("div");
                     card.className = "book-card";
-                    card.innerHTML = `
-                        <div class="book-image"></div>
-                        <div class="book-info">
-                            <h3>${escapeHtml(pub.title || 'Untitled')}</h3>
-                            <p><strong>Author:</strong> ${escapeHtml(authorsText)}<br>
-                               <strong>Genre:</strong> ${escapeHtml(pub.genre || 'N/A')}<br>
-                               <strong>Pages:</strong> ${escapeHtml(pub.pageCount?.toString() || 'N/A')}</p>
-                            <button onclick="placeHold(${pub.isbn13})">Place Hold</button>
-                        </div>
-                    `;
+
+                    // if not ebook
+                    if(pub.ebookUrl === null || pub.ebookUrl === undefined) {
+                            card.innerHTML = `
+                            <div class="book-image"></div>
+                            <div class="book-info">
+                                <h3>${escapeHtml(pub.title || 'Untitled')}</h3>
+                                <p><strong>Author:</strong> ${escapeHtml(authorsText)}<br>
+                                   <strong>Genre:</strong> ${escapeHtml(pub.genre || 'N/A')}<br>
+                                   <strong>Pages:</strong> ${escapeHtml(pub.pageCount?.toString() || 'N/A')}</p>
+                                <button onclick="placeHold(${pub.isbn13})">Place Hold</button>
+                            </div>
+                        `;
+                    } else { // if is ebook
+                        card.innerHTML = `
+                            <div class="book-image"></div>
+                            <div class="book-info">
+                                <h3>${escapeHtml(pub.title || 'Untitled')}</h3>
+                                <p><strong>Author:</strong> ${escapeHtml(authorsText)}<br>
+                                   <strong>Genre:</strong> ${escapeHtml(pub.genre || 'N/A')}<br>
+                                   <strong>Pages:</strong> ${escapeHtml(pub.pageCount?.toString() || 'N/A')}</p>
+                                <button onclick="document.location='${pub.ebookUrl}'">Open Ebook</button>
+                            </div>
+                        `;
+                    }
+
                     resultsDiv.appendChild(card);
                 });
             })
