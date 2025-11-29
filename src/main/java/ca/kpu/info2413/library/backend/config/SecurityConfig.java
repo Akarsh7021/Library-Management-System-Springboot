@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,7 +29,7 @@ public class SecurityConfig
     public SecurityFilterChain securityFilterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception
     {
         http
-                // enable CORS (configured by corsConfigurationSource bean)
+
 
 
                 // authorisation rules
@@ -40,13 +41,31 @@ public class SecurityConfig
                                 "/js/**",
                                 "/images/**",
                                 "/PasswordRecoveryPage.html",
-                                "/RegisterationPage.html",
+                                "/RegistrationPage.html",
                                 "/register",
                                 // Allow registration endpoints (backend mappings vary in your project)
                                 "/register",
                                 "/account/register",
                                 "/api/register"
                         ).permitAll()
+                        .requestMatchers(
+                                "/account",
+                                "/account/current",
+                                "/account/book_rec/{account_id}",
+                                "/publication/searchHomepage"
+                        ).authenticated()
+                        .requestMatchers(
+                                "/AdminPage.html",
+                                "/AddDeleteUser.html",
+                                "/Inventory Page.html",
+                                "/LibraryReportsDashboard.html",
+                                "/admin/**",
+                                "/api/admin/**",
+                                // protect write operations - example REST endpoints:
+                                "/publication", "/publication/**",
+                                "/book_copy", "/book_copy/**",
+                                "/bookcopy/**", "/account/**" // if account management endpoints should be admin-only
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 // auth provider
@@ -90,20 +109,7 @@ public class SecurityConfig
     @Bean
     public PasswordEncoder passwordEncoder()
     {
-        return new PasswordEncoder()
-        {
-            @Override
-            public String encode(CharSequence rawPassword)
-            {
-                return rawPassword == null ? null : rawPassword.toString();
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword)
-            {
-                return rawPassword != null && rawPassword.toString().equals(encodedPassword);
-            }
-        };
+        return new BCryptPasswordEncoder();
     }
 
     /**

@@ -161,7 +161,7 @@
     <a href="CatalogPage.html">Catalog</a>
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="AdminPage.html">Admin</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
     <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
 </nav>
 
@@ -351,7 +351,7 @@
             tr.innerHTML = `
                 <td>${r.accountId ?? ''}</td>
                 <td>${r.fullName ?? ''}</td>
-                <td>${r.totalFine ?? 0}</td>
+                <td>$${r.totalFine ?? 0}</td>
                 <td>${r.lastFineDate ?? ''}</td>
             `;
             tbody.appendChild(tr);
@@ -378,10 +378,28 @@
             authorChart.data.labels = ['No data'];
             authorChart.data.datasets[0].data = [0];
         } else {
+            const colors = generateColors(data.length);
+
             authorChart.data.labels = data.map(d => d.author);
             authorChart.data.datasets[0].data = data.map(d => d.count);
+            authorChart.data.datasets[0].backgroundColor = colors;
         }
         authorChart.update();
+    }
+
+    function randomColor(){
+        const r = Math.floor(Math.random() * 255);
+        const g = Math.floor(Math.random() * 255);
+        const b = Math.floor(Math.random() * 255);
+        return `rgba(${r}, ${g}, ${b}, 0.6)`;
+    }
+
+    function generateColors(count) {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            colors.push(randomColor());
+        }
+        return colors;
     }
 
 
@@ -423,6 +441,31 @@
         } catch (e) { console.warn(e); }
         window.location.href = "AccountLogin.html";
     }
+
+    async function applyRoleToNav() {
+        try {
+            const res = await fetch('/account/current', { credentials: 'include' });
+            if (!res.ok) {
+                // not authenticated or error -> hide admin links
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                return;
+            }
+            const me = await res.json();
+            const accountType = (me.accountType || '').toString().trim();
+            // case-insensitive check for admin
+            const isAdmin = accountType.toLowerCase() === 'admin';
+            if (!isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+            }
+        } catch (err) {
+            console.warn('applyRoleToNav error:', err);
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyRoleToNav);
 </script>
 
 </body>

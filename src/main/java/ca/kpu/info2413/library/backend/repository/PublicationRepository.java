@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface PublicationRepository extends JpaRepository<Publication, Integer>
+public interface PublicationRepository extends JpaRepository<Publication, Long>
 {
 
     // Title search — loads publicationAuthors + authors to avoid lazy proxy at serialization time
@@ -61,5 +61,5 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
             WHERE LOWER(p.genre) LIKE LOWER(CONCAT('%', :genre, '%'))
                         AND p.isbn13 <> :isbn_13
             """)
-    List<Publication> recBook(@Param("genre") String genre,  @Param("isbn_13") Integer isbn_13);
+    List<Publication> recBook(@Param("genre") String genre, @Param("isbn_13") Long isbn_13);
 }

@@ -53,7 +53,7 @@ public class BookCopyController
 
 
     @GetMapping("/find/isbn/{isbn}")
-    public List<BookCopy> findByIsbn13(@PathVariable Integer isbn)
+    public List<BookCopy> findByIsbn13(@PathVariable Long isbn)
     {
         return bookCopyService.findByIsbn13(isbn);
     }

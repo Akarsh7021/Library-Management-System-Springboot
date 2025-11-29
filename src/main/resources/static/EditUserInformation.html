@@ -34,10 +34,6 @@
             background-size: cover;
             /* apply filter consistently across the whole image */
             filter: contrast(35%) brightness(1.5);
-            /* optional subtle overlay so white panels remain easy to read */
-            /* add an rgba overlay with linear-gradient if you want a tint:
-               background-image: linear-gradient(rgba(255,255,255,0.18), rgba(255,255,255,0.18)), url(...);
-            */
             will-change: transform; /* performance hint */
         }
 
@@ -236,7 +232,7 @@
     <a onclick="goTo('CatalogPage.html')">Catalog</a>
     <a onclick="goTo('PlaceHold.html')">Hold</a>
     <a onclick="goTo('EditUserInformation.html')">Account</a>
-    <a onclick="goTo('AdminPage.html')">Admin</a>
+    <a class="admin-only" onclick="goTo('AdminPage.html')">Admin</a>
     <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
@@ -280,17 +276,26 @@
 
     async function loadCurrentAccount() {
         try {
-            const response = await fetch("http://localhost:8080/account/current", {
+            const response = await fetch("/account/current", {
                 credentials: "include"
             });
-            if (!response.ok) throw new Error("Could not fetch member information.");
+
+            if (!response.ok) {
+                // log status & body to help debugging
+                const bodyText = await response.text().catch(() => "");
+                console.error("Failed to fetch /account/current:", response.status, bodyText);
+                throw new Error("Could not fetch member information.");
+            }
+
             const data = await response.json();
             document.getElementById("fullname").value = data.fullName || "";
             document.getElementById("email").value = data.notificationEmail || "";
             document.getElementById("phone").value = data.phoneNumber || "";
+            // store accountId in hidden libraryCard field (used by update/delete)
             document.getElementById("libraryCard").value = data.accountId || "";
             document.getElementById("password").value = "";
         } catch (error) {
+            // fixed: log the caught error (was previously console.error(response) which caused ReferenceError)
             console.error(error);
             alert("Could not fetch member information.");
         }
@@ -317,7 +322,7 @@
         };
 
         try {
-            const response = await fetch("http://localhost:8080/account", {
+            const response = await fetch("/account", {
                 method: "PUT",
                 credentials: "include",
                 headers: {"Content-Type": "application/json"},
@@ -352,7 +357,7 @@
         if (!confirm("Are you sure you want to delete this account?")) return;
 
         try {
-            const response = await fetch(`http://localhost:8080/account/${accountId}`, {
+            const response = await fetch(`/account/${accountId}`, {
                 method: "DELETE",
                 credentials: "include"
             });
@@ -361,8 +366,7 @@
                 // call logout to be safe (server-side session should be invalidated too)
                 try {
                     await fetch("/logout", {method: "POST", credentials: "include"});
-                } catch (e) { /* ignore */
-                }
+                } catch (e) { /* ignore */ }
                 alert("Account deleted. You will be signed out.");
                 window.location.href = "AccountLogin.html";
             } else {
@@ -384,6 +388,31 @@
         }
         window.location.href = "AccountLogin.html";
     }
+
+    async function applyRoleToNav() {
+        try {
+            const res = await fetch('/account/current', { credentials: 'include' });
+            if (!res.ok) {
+                // not authenticated or error -> hide admin links
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                return;
+            }
+            const me = await res.json();
+            const accountType = (me.accountType || '').toString().trim();
+            // case-insensitive check for admin
+            const isAdmin = accountType.toLowerCase() === 'admin';
+            if (!isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+            }
+        } catch (err) {
+            console.warn('applyRoleToNav error:', err);
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyRoleToNav);
 </script>
 </body>
 </html>

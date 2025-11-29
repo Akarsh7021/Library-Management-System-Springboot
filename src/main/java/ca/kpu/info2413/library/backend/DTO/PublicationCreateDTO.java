@@ -9,7 +9,7 @@ import java.util.List;
 public class PublicationCreateDTO
 {
     @JsonProperty("isbn13")
-    private Integer isbn13;
+    private Long isbn13;
     @JsonProperty("title")
     private String title;
     @JsonProperty("publicationDate")
@@ -22,7 +22,7 @@ public class PublicationCreateDTO
     private List<String> authors;
 
     @JsonCreator
-    public PublicationCreateDTO(@JsonProperty("isbn13") Integer isbn13, @JsonProperty("title") String title, @JsonProperty("publicationDate") LocalDate publicationDate, @JsonProperty("pageCount") Integer pageCount, @JsonProperty("genre") String genre, @JsonProperty("authors") List<String> authors)
+    public PublicationCreateDTO(@JsonProperty("isbn13") Long isbn13, @JsonProperty("title") String title, @JsonProperty("publicationDate") LocalDate publicationDate, @JsonProperty("pageCount") Integer pageCount, @JsonProperty("genre") String genre, @JsonProperty("authors") List<String> authors)
     {
         this.isbn13 = isbn13;
         this.title = title;
@@ -32,12 +32,12 @@ public class PublicationCreateDTO
         this.authors = authors;
     }
 
-    public Integer getIsbn13()
+    public Long getIsbn13()
     {
         return isbn13;
     }
 
-    public void setIsbn13(Integer isbn13)
+    public void setIsbn13(Long isbn13)
     {
         this.isbn13 = isbn13;
     }

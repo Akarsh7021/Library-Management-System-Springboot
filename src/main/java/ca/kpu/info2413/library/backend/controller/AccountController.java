@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -20,6 +21,9 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 public class AccountController
 {
+    // to validate pw
+    String passwordPolicy = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+    PasswordEncoder passwordEncoder;
 
     @Autowired
     private AccountService accountService;
@@ -82,8 +86,12 @@ public class AccountController
 
         if (incoming.getAccountType() != null) existing.setAccountType(incoming.getAccountType());
 
-        if (incoming.getPasswordHash() != null && !incoming.getPasswordHash().trim().isEmpty())
-            existing.setPasswordHash(incoming.getPasswordHash());
+        if (incoming.getPasswordHash() != null && !incoming.getPasswordHash().trim().isEmpty()) {
+            // validate password before calling Service to hash
+            if(incoming.getPasswordHash().matches(passwordPolicy))
+                existing.setPasswordHash(incoming.getPasswordHash());
+            else return ResponseEntity.badRequest().body("Password must contain at least 8 characters with at least 1 letter and 1 number");
+        }
 
         Account saved = accountService.save(existing);
         return ResponseEntity.ok(saved);
@@ -127,8 +135,7 @@ public class AccountController
                 deletedAccountIdentifier = String.valueOf(toDelete.getAccountId());
             }
 
-            if (currentPrincipalName != null && deletedAccountIdentifier != null &&
-                    currentPrincipalName.equalsIgnoreCase(deletedAccountIdentifier)) {
+            if (currentPrincipalName != null && currentPrincipalName.equalsIgnoreCase(deletedAccountIdentifier)) {
 
                 // Self-delete: invalidate
                 SecurityContextHolder.clearContext();
@@ -226,7 +233,7 @@ public class AccountController
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and password must be provided.");
 
         List<Account> accounts = accountService.findByNotificationEmailIgnoreCase(email.trim());
-        if (accounts.isEmpty() || !accounts.getFirst().getPasswordHash().equals(password.trim()))
+        if (accounts.isEmpty() || !passwordEncoder.matches(password, accounts.getFirst().getPasswordHash()))
         {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
         }
@@ -249,10 +256,12 @@ public class AccountController
             String fullName = userData.get("fullName");
             String email = userData.get("email");
             String password = userData.get("password");
-            String confirmPassword = userData.get("confirmPassword");
+            //String confirmPassword = userData.get("confirmPassword");
             String phone = userData.get("phone");
             String libraryCardStr = userData.get("libraryCard");
 
+            // already verified from front-end
+            /*
             if (fullName == null || email == null || password == null || confirmPassword == null ||
                     phone == null || libraryCardStr == null)
             {
@@ -263,6 +272,10 @@ public class AccountController
             {
                 return ResponseEntity.badRequest().body("Passwords do not match.");
             }
+
+             */
+
+            if(!password.matches(passwordPolicy)) return ResponseEntity.badRequest().body("Password must contain at least 8 characters with at least 1 letter and 1 number");
 
             Integer libraryCardId;
             try
@@ -297,7 +310,7 @@ public class AccountController
             Account account = new Account();
             account.setFullName(fullName);
             account.setNotificationEmail(email);
-            account.setPasswordHash(password); // plain-text for now; replace with hashing later
+            account.setPasswordHash(password);
             account.setPhoneNumber(phone);
             account.setAccountType("MEMBER");
 

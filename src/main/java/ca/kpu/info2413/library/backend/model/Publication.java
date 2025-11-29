@@ -20,7 +20,7 @@ public class Publication
     @Id
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "isbn_13")
-    private Integer isbn13;
+    private Long isbn13;
 
     private String title;
 
@@ -55,7 +55,8 @@ public class Publication
                 .toList();
     }
 
-    public Publication(Integer isbn13){
+    public Publication(Long isbn13)
+    {
         this.isbn13 = isbn13;
     }
 }

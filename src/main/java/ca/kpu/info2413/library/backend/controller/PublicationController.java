@@ -25,7 +25,7 @@ public class PublicationController
     }
 
     @GetMapping("/{isbn13}")
-    public List<PublicationDTO> findByIsbn13(@PathVariable Integer isbn13)
+    public List<PublicationDTO> findByIsbn13(@PathVariable Long isbn13)
     {
         return publicationService.findByIsbn13(isbn13);
     }
@@ -54,7 +54,7 @@ public class PublicationController
     }
 
     @DeleteMapping("/{isbn13}")
-    public void deleteById(@PathVariable Integer isbn13)
+    public void deleteById(@PathVariable Long isbn13)
     {
         publicationService.deleteByIsbn13(isbn13);
     }
