@@ -144,6 +144,7 @@
             font-size: 0.9em;
             color: #777;
             border-top: 1px solid #e0e0e0;
+            background-color: #ffffff;
         }
         nav a {
             text-decoration: none;
@@ -176,8 +177,8 @@
     <!-- FILTER -->
     <div class="form-box">
         <form id="reportForm">
-            <input type="date" id="startDate">
-            <input type="date" id="endDate">
+            <label for="startDate">Start Date</label><input id="startDate" type="date">
+            <label for="endDate">End Date</label><input id="endDate" type="date">
             <button type="submit">Generate Report</button>
         </form>
     </div>
