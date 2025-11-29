@@ -49,6 +49,7 @@ public class SecurityConfig
                         ).permitAll()
                         .requestMatchers(
                                 "/account",
+                                "/account/borrowed_rec",
                                 "/account/current",
                                 "/account/book_rec/{account_id}",
                                 "/publication/searchHomepage"

@@ -52,6 +52,19 @@
             color: #000;
         }
 
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* align the details to the top */
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            max-width: 800px;
+            margin: 15px auto;
+            gap: 0; /* remove gap reserved for image */
+        }
+
         nav {
             background-color: #ffffff;
             display: flex;
@@ -96,9 +109,16 @@
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 30px;
-            max-width: 450px;
             margin: 40px auto;
             text-align: left;
+            width: 350px;
+        }
+
+        .forms-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
         }
 
         .form-box label {
@@ -220,6 +240,10 @@
                 gap: 12px;
             }
         }
+
+        table, th, td {
+            border:1px solid black;
+        }
     </style>
 </head>
 <body>
@@ -237,8 +261,7 @@
 </nav>
 
 <main>
-    <div class="section-title">Edit Member Details</div>
-
+    <div class="section-title">Update Account Details</div>
     <div class="form-box">
         <form id="memberForm">
             <label for="fullname">Full Name</label>
@@ -260,6 +283,14 @@
                 <button class="delete" id="deleteBtn" type="button">Delete</button>
             </div>
         </form>
+    </div>
+    <div class="section-title">Currently Borrowed Books</div>
+    <div class="book-card">
+        <p id="borrowedBooksDefault" style="text-align: center">No Records</p>
+        <table id="borrowedBooksTable" style="display: none;width: 100%">
+            <tbody id="result_tbody"></tbody>
+        </table>
+        <p id="result_totalFine" style="display: none;margin-left: auto"></p>
     </div>
 </main>
 
@@ -301,7 +332,58 @@
         }
     }
 
+    async function loadBorrowRecords() {
+        try {
+            const response = await fetch("/account/borrowed_rec", {});
+            if (!response.ok) {
+                return;
+            }
+            let books = await response.json();
+            document.getElementById("borrowedBooksDefault").style.display = "none";
+            document.getElementById("borrowedBooksTable").style.display = "block";
+
+            let resultTotalFine = document.getElementById("result_totalFine");
+            let resultTbody = document.getElementById("result_tbody");
+            let totalFine = 0;
+            resultTbody.innerHTML = "<tr>\n" +
+                "                <th>Borrow ID</th>\n" +
+                "                <th>Serial Barcode</th>\n" +
+                "                <th>Title</th>\n" +
+                "<th>Borrow Date</th>" +
+                "<th>Due Date</th>" +
+                "<th>Fine Amount</th>" +
+                "            </tr>";
+
+            for(let i = 0; i < books.length; i++) {
+                let tr = "<tr>"
+
+                tr += `<td>${books[i].borrowId}</td>`
+                tr += `<td>${books[i].serialBarcode}</td>`
+                tr += `<td>${books[i].bookTitle}</td>`
+                tr += `<td>${books[i].borrowDate}</td>`
+                tr += `<td>${books[i].dueDate}</td>`
+                tr += `<td>$${books[i].amount}</td>`
+                tr += `</tr>`
+
+                resultTbody.innerHTML += tr
+                totalFine += Number(books[i].amount);
+            }
+            resultTotalFine.style.display = "block";
+            if(totalFine === 0){
+                resultTotalFine.style.color = "green"
+                resultTotalFine.innerHTML += `<b>Total Fine: $${totalFine}</b>`
+            } else {
+                resultTotalFine.style.color = "red";
+                resultTotalFine.innerHTML += `<b>Total Fine: $${totalFine}</b>`
+            }
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     window.addEventListener("DOMContentLoaded", loadCurrentAccount);
+    window.addEventListener("DOMContentLoaded", loadBorrowRecords);
 
     // Update
     document.getElementById("memberForm").addEventListener("submit", async function (e) {
