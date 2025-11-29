@@ -52,7 +52,8 @@ public class SecurityConfig
                                 "/account/borrowed_rec",
                                 "/account/current",
                                 "/account/book_rec/{account_id}",
-                                "/publication/searchHomepage"
+                                "/publication/searchHomepage",
+                                "/publication/search"
                         ).authenticated()
                         .requestMatchers(
                                 "/AdminPage.html",
