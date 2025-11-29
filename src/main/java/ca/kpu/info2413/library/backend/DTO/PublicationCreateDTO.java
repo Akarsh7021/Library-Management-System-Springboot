@@ -27,7 +27,6 @@ public class PublicationCreateDTO
     @JsonProperty("ebookUrl")
     private String ebookUrl;
 
-    @JsonCreator
     public PublicationCreateDTO(@JsonProperty("isbn13") Long isbn13, @JsonProperty("title") String title, @JsonProperty("publicationDate") LocalDate publicationDate, @JsonProperty("pageCount") Integer pageCount, @JsonProperty("genre") String genre, @JsonProperty("authors") List<String> authors)
     {
         this.isbn13 = isbn13;

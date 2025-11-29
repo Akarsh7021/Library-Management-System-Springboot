@@ -33,7 +33,10 @@ public class BookCopyController
     @PostMapping
     public BookCopy create(@RequestBody BookCopy bookCopy)
     {
-        return bookCopyService.save(bookCopy);
+        if (bookCopy.getPublication().getEbookUrl().isEmpty())
+            return bookCopyService.save(bookCopy);
+        else
+            return null;
     }
 
     @PutMapping
