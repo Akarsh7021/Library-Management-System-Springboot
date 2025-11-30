@@ -3,6 +3,7 @@ package ca.kpu.info2413.library.backend.service;
 import ca.kpu.info2413.library.backend.model.Hold;
 import ca.kpu.info2413.library.backend.repository.HoldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -77,6 +78,20 @@ public class HoldService
             return true;
         }
         return false;
+    }
+
+    // check and cancel all expired holds
+    @Scheduled(cron = "0 0 * * * *")
+    public void updateExpiredHolds()
+    {
+        LocalDate today = LocalDate.now();
+
+        // find all holds with expiry date before today
+        List<Hold> expiredHolds = holdRepository.findByHoldExpiryBefore(today);
+
+        if(expiredHolds.isEmpty()) return;
+
+        holdRepository.deleteAll(expiredHolds);
     }
 }
 
