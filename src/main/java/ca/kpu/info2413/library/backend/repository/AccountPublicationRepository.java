@@ -15,6 +15,10 @@ public interface AccountPublicationRepository extends JpaRepository<AccountPubli
     @Query("SELECT ap FROM AccountPublication ap WHERE ap.publication.isbn13 = :isbn ORDER BY ap.waitlistPosition")
     List<AccountPublication> findByPublicationIsbn13OrderByPosition(@Param("isbn") Long isbn);
 
+    // Return earliest waitlist entry for an ISBN
+    @Query("select ap from AccountPublication ap where ap.publication.isbn13 = :isbn order by ap.waitlistPosition asc")
+    Optional<AccountPublication> findFirstByPublicationIsbn13OrderByWaitlistPositionAsc(@Param("isbn") Long isbn);
+
     // All waitlist entries for a specific account
     List<AccountPublication> findByAccountAccountId(Integer accountId);
 

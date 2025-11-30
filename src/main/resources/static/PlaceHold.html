@@ -371,33 +371,64 @@
             }
         }
 
-        // show waitlist entries & positions
+        // show waitlist entries & positions (robust: handles DTOs or full entities)
         async function showWaitlist(accountId) {
             try {
                 const res = await fetch(`${API_WAITLIST}/account/${encodeURIComponent(accountId)}`, { credentials: "include" });
-                if (!res.ok) return;
-                const list = await res.json(); // array of AccountPublication
-                // each item should contain waitlistPosition and publication (title/isbn)
+                if (!res.ok) {
+                    console.warn("waitlist fetch failed:", res.status);
+                    return;
+                }
+                const list = await res.json(); // could be DTOs or full entities
+
+                // build UI
                 let html = `<h3>My Waitlist (${list.length}/${MAX_WAITS})</h3>`;
-                if (list.length === 0) html += "<p>No waitlist entries.</p>";
-                else {
+                if (!Array.isArray(list) || list.length === 0) {
+                    html += "<p>No waitlist entries.</p>";
+                } else {
                     html += "<ul>";
                     for (const ap of list) {
-                        const pos = ap.waitlistPosition ?? ap.waitlist_position ?? "(?)";
+                        // prefer DTO fields (title/isbn/waitlistPosition)
+                        const pos = ap.waitlistPosition ?? ap.waitlist_position ?? ap.position ?? "(?)";
+
+                        // title fallback logic:
+                        // 1) DTO: ap.title
+                        // 2) Full entity: ap.publication.title
+                        // 3) Id-based: ap.publication.isbn13 or ap.id.isbn13Publication or ap.id.isbn13_publication
+                        // 4) finally: "ISBN <value>" or "(unknown)"
                         let title = "(unknown)";
-                        if (ap.publication && (ap.publication.title || ap.publication.name)) {
+                        if (ap.title) {
+                            title = ap.title;
+                        } else if (ap.publication && (ap.publication.title || ap.publication.name)) {
                             title = ap.publication.title ?? ap.publication.name;
                         } else if (ap.publication && ap.publication.isbn13) {
                             title = "ISBN " + ap.publication.isbn13;
-                        } else if (ap.id && (ap.id.isbn13Publication || ap.id.isbn13_publication)) {
-                            title = "ISBN " + (ap.id.isbn13Publication ?? ap.id.isbn13_publication);
+                        } else if (ap.isbn13 || ap.isbn) {
+                            title = "ISBN " + (ap.isbn13 ?? ap.isbn);
+                        } else if (ap.id) {
+                            // different naming conventions in DB/DTOs
+                            title = "ISBN " + (ap.id.isbn13Publication ?? ap.id.isbn13_publication ?? ap.id.isbn13 ?? "(unknown)");
                         }
-                        html += `<li>${title} — Waitlist position: #${pos}</li>`;
+
+                        html += `<li><span class="book-id">${title}</span> <span class="wait-pos">#${pos}</span></li>`;
                     }
                     html += "</ul>";
                 }
-                // append or merge with existing myHoldsContainer
-                myHoldsContainer.innerHTML = (myHoldsContainer.innerHTML || "") + html;
+
+                // place into your visible container (myHoldsContainer used earlier)
+                // if you prefer separate areas, adjust accordingly.
+                // merge with active holds section if you'd like them together
+                // (myHoldsContainer was used by showActiveHolds earlier)
+                // Replace only waitlist part — keep active holds intact:
+                // find existing waitlist wrapper or append
+                const wrapperId = "waitlistHtmlBlock";
+                let wrapper = document.getElementById(wrapperId);
+                if (!wrapper) {
+                    wrapper = document.createElement("div");
+                    wrapper.id = wrapperId;
+                    myHoldsContainer.appendChild(wrapper);
+                }
+                wrapper.innerHTML = html;
             } catch (err) {
                 console.error("showWaitlist error", err);
             }

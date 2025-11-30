@@ -1,8 +1,10 @@
 package ca.kpu.info2413.library.backend.controller;
 
+import ca.kpu.info2413.library.backend.DTO.AccountPublicationDTO;
 import ca.kpu.info2413.library.backend.model.AccountPublication;
 import ca.kpu.info2413.library.backend.service.AccountPublicationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,18 +37,17 @@ public class AccountPublicationController
         }
     }
 
-    // Get waitlist for a book (isbn)
+    // Get waitlist for a book (isbn) — **OPTIONAL**: return DTOs to avoid proxy issues
     @GetMapping("/book/{isbn}")
     public ResponseEntity<?> getWaitlistForBook(@PathVariable Long isbn) {
-        List<AccountPublication> list = service.getWaitlistForIsbn(isbn);
-        return ResponseEntity.ok(list);
-    }
-
-    // Get waitlist items for an account
-    @GetMapping("/account/{accountId}")
-    public ResponseEntity<?> getWaitlistForAccount(@PathVariable Integer accountId) {
-        List<AccountPublication> list = service.getWaitlistForAccount(accountId);
-        return ResponseEntity.ok(list);
+        try {
+            // If you add a DTO-mapping method in service (recommended) use it.
+            List<AccountPublication> list = service.getWaitlistForIsbn(isbn);
+            return ResponseEntity.ok(list);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error getting waitlist for book.");
+        }
     }
 
     // Remove from waitlist (query params)
@@ -55,5 +56,17 @@ public class AccountPublicationController
         boolean ok = service.removeFromWaitlist(isbn, accountId);
         if (ok) return ResponseEntity.noContent().build();
         return ResponseEntity.status(404).body("Not found");
+    }
+
+    // *** FIXED: read accountId as a path variable, and return DTOs (safe to serialize) ***
+    @GetMapping("/account/{accountId}")
+    public ResponseEntity<?> getWaitlistForAccount(@PathVariable Integer accountId) {
+        try {
+            List<AccountPublicationDTO> dtos = service.getWaitlistForAccountDto(accountId);
+            return ResponseEntity.ok(dtos);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error reading waitlist");
+        }
     }
 }
