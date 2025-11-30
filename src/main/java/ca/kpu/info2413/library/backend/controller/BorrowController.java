@@ -4,10 +4,7 @@ import ca.kpu.info2413.library.backend.model.Account;
 import ca.kpu.info2413.library.backend.model.BookCopy;
 import ca.kpu.info2413.library.backend.model.Borrow;
 import ca.kpu.info2413.library.backend.repository.BookCopyRepository;
-import ca.kpu.info2413.library.backend.service.AccountPublicationService;
-import ca.kpu.info2413.library.backend.service.AccountService;
-import ca.kpu.info2413.library.backend.service.BookCopyService;
-import ca.kpu.info2413.library.backend.service.BorrowService;
+import ca.kpu.info2413.library.backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.data.DefaultRepositoryTagsProvider;
 import org.springframework.http.HttpStatus;
@@ -30,6 +27,8 @@ public class BorrowController
     private BookCopyService bookCopyService;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private HoldService holdService;
 
     @GetMapping
     public List<Borrow> findAll()
@@ -75,7 +74,11 @@ public class BorrowController
             return ResponseEntity.badRequest().body(String.format("The book \"%s\" is not available for borrowing.", bookName));
         }
 
-        //TODO: don't loan to anyone but the account with a hold, if applicable
+        // don't loan to anyone but the account with a hold, if applicable
+        assert b != null;
+        // if (the list of holds (should be only one ever) for this book copy is NOT empty) AND (the hold for this bookcopy has property AccountIdAccount that does NOT match the same property of the new borrow), return an error
+        if (!holdService.findBySerialBarcodeBookCopy(b.getSerialBarcodeBookCopy()).isEmpty() && !Objects.equals(holdService.findBySerialBarcodeBookCopy(b.getSerialBarcodeBookCopy()).getFirst().getAccountIdAccount(), borrow.getAccountIdAccount()))
+            return ResponseEntity.badRequest().body(String.format("The book \"%s\" is held for account \"%s\".", b.getSerialBarcodeBookCopy(),  holdService.findBySerialBarcodeBookCopy(b.getSerialBarcodeBookCopy()).getFirst().getAccountIdAccount()));
 
         // check if account exists
         Account borrowAccount;
