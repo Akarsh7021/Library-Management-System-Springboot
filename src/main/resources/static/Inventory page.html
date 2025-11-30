@@ -319,8 +319,7 @@
             body: JSON.stringify(payload)
         });
 
-
-        alert(res.ok ? "Book copy added!" : "Error adding book copy");
+        alert(res.ok ? "Book copy added!" : await res.text());
     });
 
     // DELETE BOOK COPY
@@ -352,7 +351,7 @@
             body: JSON.stringify(payload)
         });
 
-        alert(res.ok ? "Condition note added!" : "Error adding note");
+        alert(res.ok ? "Condition note added!" : await res.text());
     });
 
     // LOOKUP CONDITION NOTE
