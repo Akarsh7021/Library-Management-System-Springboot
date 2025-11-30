@@ -24,7 +24,12 @@ public class ConfigurationService
     {
         Configuration config = configurationRepository.findById(key).orElse(null);
 
-        if (config == null) return null;
+        //if (config == null) return null;
+        if (config == null)
+        {
+            config = new Configuration();
+            config.setConfigKey(key);
+        }
 
         config.setConfigValue(value);
 

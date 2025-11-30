@@ -53,7 +53,8 @@ public class SecurityConfig
                                 "/account/current",
                                 "/account/book_rec/{account_id}",
                                 "/publication/searchHomepage",
-                                "/publication/search"
+                                "/publication/search",
+                                "/config/**" //guh
                         ).authenticated()
                         .requestMatchers(
                                 "/AdminPage.html",
@@ -65,8 +66,7 @@ public class SecurityConfig
                                 // protect write operations - example REST endpoints:
                                 "/publication", "/publication/**",
                                 "/book_copy", "/book_copy/**",
-                                "/bookcopy/**", "/account/**", // if account management endpoints should be admin-only
-                                "/config/**"
+                                "/bookcopy/**", "/account/**" // if account management endpoints should be admin-only
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

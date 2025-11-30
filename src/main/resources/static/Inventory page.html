@@ -252,6 +252,19 @@
             </table>
         </div>
 
+        <div class="form-box">
+            <h2>Configuration</h2>
+            <form id="configurationForm">
+                <label for="holdLength">Hold Length (Days)</label>
+                <input id="holdLength" required>
+                <label for="defaultBorrowTime">Default Borrow Time (Days)</label>
+                <input id="defaultBorrowTime" required>
+
+                <button type="submit">Save Configuration</button>
+            </form>
+        </div>
+
+
     </div>
 </main>
 
@@ -415,6 +428,95 @@
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
         }
     }
+
+    async function getCurrentHoldLength() {
+        const response = await fetch("/config/holdLength")
+        const data = await response.json();
+        console.log(data);
+        if (!response.ok) {
+            console.error(response);
+            alert(data.message);
+        } else {
+            let currentHoldLengthField = document.getElementById("holdLength")
+            currentHoldLengthField.value = data.configValue
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', getCurrentHoldLength)
+
+    async function getCurrentBorrowTime() {
+        const response = await fetch("/config/borrowTime")
+        const data = await response.json();
+        console.log(data);
+        if (!response.ok) {
+            console.error(response);
+            alert(data.message);
+        } else {
+            let currentHoldLengthField = document.getElementById("defaultBorrowTimeime")
+            currentHoldLengthField.value = data.configValue
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', getCurrentBorrowTime)
+
+    async function saveSettings() {
+        let newHoldLengthField = document.getElementById("holdLength");
+        let newBorrowTimeField = document.getElementById("defaultBorrowTime");
+
+        const updates = [
+            {
+                configKey: "holdLength",
+                configValue: newHoldLengthField.value,
+            },
+            {
+                configKey: "defaultBorrowTime",
+                configValue: newBorrowTimeField.value,
+            }
+        ];
+
+        try {
+            const responses = await Promise.all(
+                updates.map(config =>
+                    fetch("/config", {
+                        method: "PUT",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify(config),
+                    })
+                )
+            );
+
+            const failedResponse = responses.find(r => !r.ok);
+            if (failedResponse) {
+                console.error("Update failed:", failedResponse);
+                const errorDetails = await failedResponse.text();
+
+                let alertMessage = `Error ${failedResponse.status}: ${failedResponse.statusText}.`;
+
+                if (errorDetails && errorDetails.length < 250) {
+                    alertMessage += ` Server response: ${errorDetails.trim()}`;
+                } else if (errorDetails) {
+                    alertMessage += " Server returned a large error message (logged to console).";
+                }
+
+                console.error("Full Server Error Body:", errorDetails);
+                alert(alertMessage);
+            } else {
+                await getCurrentHoldLength();
+                await getCurrentBorrowTime();
+                alert("Saved!");
+            }
+
+        } catch (error) {
+            console.error("Network error:", error);
+            alert("Network error occurred.");
+        }
+    }
+
+    document.getElementById("configurationForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            saveSettings();
+        }
+    )
 
     document.addEventListener('DOMContentLoaded', applyRoleToNav);
 
