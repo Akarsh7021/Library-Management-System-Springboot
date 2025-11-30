@@ -75,6 +75,8 @@ public class BorrowController
             return ResponseEntity.badRequest().body(String.format("The book \"%s\" is not available for borrowing.", bookName));
         }
 
+        //TODO: don't loan to anyone but the account with a hold, if applicable
+
         // check if account exists
         Account borrowAccount;
 
