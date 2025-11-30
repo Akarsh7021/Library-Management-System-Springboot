@@ -1,6 +1,8 @@
 package ca.kpu.info2413.library.backend.service;
 
+import ca.kpu.info2413.library.backend.model.Configuration;
 import ca.kpu.info2413.library.backend.model.Hold;
+import ca.kpu.info2413.library.backend.repository.ConfigurationRepository;
 import ca.kpu.info2413.library.backend.repository.HoldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,6 +17,8 @@ public class HoldService
 {
     @Autowired
     HoldRepository holdRepository;
+    @Autowired
+    ConfigurationRepository configurationRepository;
 
 
     public List<Hold> findAll()
@@ -63,8 +67,14 @@ public class HoldService
         LocalDate today = LocalDate.now();
         hold.setHeldSince(today);
 
-        // Set expiry to 2 weeks later
-        hold.setHoldExpiry(today.plusWeeks(2));
+        // Set expiry according to settings
+        Optional<Configuration> holdConfig = configurationRepository.findById("holdLength");
+
+        if(holdConfig.isPresent()) {
+            hold.setHoldExpiry(today.plusDays(Long.parseLong(holdConfig.get().getConfigValue())));
+        } else { // default 2 weeks
+            hold.setHoldExpiry(today.plusWeeks(2));
+        }
 
         return holdRepository.save(hold);
     }
