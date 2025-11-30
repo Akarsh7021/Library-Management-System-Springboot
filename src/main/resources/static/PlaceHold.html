@@ -557,6 +557,31 @@
             });
         }
 
+        async function applyRoleToNav() {
+            try {
+                const res = await fetch('/account/current', {credentials: 'include'});
+                if (!res.ok) {
+                    // not authenticated or error -> hide admin links
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                    return;
+                }
+                const me = await res.json();
+                const accountType = (me.accountType || '').toString().trim();
+                // case-insensitive check for admin
+                const isAdmin = accountType.toLowerCase() === 'admin';
+                if (!isAdmin) {
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                } else {
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+                }
+            } catch (err) {
+                console.warn('applyRoleToNav error:', err);
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', applyRoleToNav);
+
         // expose signOut for nav if needed
         window.signOut = async function() {
             try { await fetch("/logout", { method: "POST", credentials: "include" }); } catch(e){}
