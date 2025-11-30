@@ -267,7 +267,7 @@
         <div class="hold-box">
             <h2>Place Hold</h2>
             <div style="margin-bottom:10px; font-size:0.95em; color:#555;">
-                Placing holds for: <span id="meName" style="font-weight:600">…</span>
+                Placing holds for: <strong id="meName">…</strong>
             </div>
 
             <form id="placeHoldForm">
@@ -323,7 +323,9 @@
         // area to add lists (create these containers in the HTML if you want prettier render)
         const myHoldsContainer = document.createElement("div");
         myHoldsContainer.id = "myHoldsContainer";
+        myHoldsContainer.classList.add("hold-box");
         myHoldsContainer.style.marginTop = "20px";
+        myHoldsContainer.style.width = "auto";
         document.querySelector("main").appendChild(myHoldsContainer);
 
         // helper messages
@@ -338,7 +340,11 @@
         async function currentAccount() {
             try {
                 const res = await fetch("/account/current", { credentials: "include" });
-                if (!res.ok) return null;
+                if (!res.ok) {
+                    console.warn("account/current not ok", res);
+                    return null;
+                }
+                console.log("account/current ok", res);
                 return await res.json();
             } catch (err) {
                 console.warn("account/current failed", err);
@@ -353,7 +359,7 @@
                 if (!res.ok) { myHoldsContainer.innerHTML = ""; return; }
                 const list = await res.json(); // array of Hold
                 // Build UI
-                let html = `<h3>Active Holds (${list.length})</h3>`;
+                let html = `<h2>Active Holds (${list.length})</h2>`;
                 if (list.length === 0) html += "<p>No active holds.</p>";
                 else {
                     html += "<ul>";
@@ -382,7 +388,7 @@
                 const list = await res.json(); // could be DTOs or full entities
 
                 // build UI
-                let html = `<h3>My Waitlist (${list.length}/${MAX_WAITS})</h3>`;
+                let html = `<h2>My Waitlist (${list.length}/${MAX_WAITS})</h2>`;
                 if (!Array.isArray(list) || list.length === 0) {
                     html += "<p>No waitlist entries.</p>";
                 } else {
@@ -444,6 +450,15 @@
                 if (cancelForm) cancelForm.style.display = "none";
                 return;
             }
+
+            const displayName = `${me.fullName || ''} (ID: ${me.accountId})`;
+
+            const nameLabel1 = document.getElementById("meName");
+            const nameLabel2 = document.getElementById("meName2");
+
+            if (nameLabel1) nameLabel1.textContent = displayName;
+            if (nameLabel2) nameLabel2.textContent = displayName;
+
             const accountId = me.accountId;
             await showActiveHolds(accountId);
             await showWaitlist(accountId);
