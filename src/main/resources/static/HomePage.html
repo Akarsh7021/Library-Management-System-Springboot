@@ -233,7 +233,7 @@
 
 <div class="hero">
     <div class="search-box">
-        <p>Good evening</p>
+        <p id="greetings">Good evening</p>
         <h2>Find Your Next Book</h2>
         <form class="search-form" onsubmit="searchBook(event)">
             <input id="searchQuery" placeholder="Title, Author, or ISBN" type="text"/>
@@ -352,7 +352,21 @@
         }
     }
 
+    function greetings(){
+        const hours = new Date().getHours();
+        let greetings = document.getElementById("greetings");
+
+        if(hours < 12) {
+            greetings.innerHTML = "Good Morning"
+        } else if(hours < 18) {
+            greetings.innerHTML = "Good Afternoon"
+        } else {
+            greetings.innerHTML = "Good Evening"
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', applyRoleToNav);
+    document.addEventListener('DOMContentLoaded', greetings);
 </script>
 </body>
 </html>
