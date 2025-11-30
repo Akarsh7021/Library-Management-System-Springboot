@@ -284,7 +284,7 @@
                                 <p>Authors: ${pub.authors.join(", ")}<br>
                                    Genre: ${pub.genre || 'N/A'}<br>
                                    ISBN: ${pub.isbn13}</p>
-                                <button onclick="placeHold(${pub.isbn13})">Place Hold</button>
+                                <button onclick="goToPage('PlaceHold.html?isbn=${pub.isbn13}')">Place Hold</button>
                             </div>
                         `;
                     } else { //if is ebook
@@ -309,10 +309,11 @@
             });
     }
 
+    /**
     function placeHold(isbn13) {
-        console.log("Placing hold on ISBN:", isbn13);
-        alert("Hold request prepared for book ISBN: " + isbn13);
+        window.location.href = "" + isbn13;
     }
+        **/
 
     function goToPage(page) {
         window.location.href = page;

@@ -595,6 +595,18 @@
             }
         }
 
+        function getISBNFromURL() {
+            const query = window.location.search;
+            const urlParams = new URLSearchParams(query);
+            const isbn = urlParams.get('isbn');
+
+            if (isbn) {
+                let bookId = document.getElementById('bookId');
+                bookId.value = isbn;
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", getISBNFromURL);
         window.addEventListener('DOMContentLoaded', applyRoleToNav);
 
         // expose signOut for nav if needed
