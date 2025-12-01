@@ -422,7 +422,7 @@
                 if (!Array.isArray(list) || list.length === 0) {
                     html += "<p>No waitlist entries.</p>";
                 } else {
-                    html += "<ul>";
+                    html += "<table><tbody><tr><th>Book Title</th><th>Waitlist Position</th></tr>";
                     for (const ap of list) {
                         // prefer DTO fields (title/isbn/waitlistPosition)
                         const pos = ap.waitlistPosition ?? ap.waitlist_position ?? ap.position ?? "(?)";
@@ -446,9 +446,10 @@
                             title = "ISBN " + (ap.id.isbn13Publication ?? ap.id.isbn13_publication ?? ap.id.isbn13 ?? "(unknown)");
                         }
 
-                        html += `<li><span class="book-id">${title}</span> <span class="wait-pos">#${pos}</span></li>`;
+                        //html += `<li><span class="book-id">${title}</span> <span class="wait-pos">#${pos}</span></li>`;
+                        html += `<tr><td>${title}</td><td>#${pos}</td></tr>`
                     }
-                    html += "</ul>";
+                    html += "</tbody></table>";
                 }
 
                 // place into your visible container (myHoldsContainer used earlier)
