@@ -117,7 +117,7 @@
             outline: none;
         }
 
-        .hold-box button {
+        .hold-box button:not(.tableCancelBtn) {
             background-color: #0077b6;
             color: white;
             border: none;
@@ -128,7 +128,20 @@
             width: 100%;
         }
 
-        .hold-box button:hover {
+        .tableCancelBtn {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 80%;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .hold-box button:hover, .tableCancelBtn:hover {
             background-color: #005f8c;
         }
 
@@ -366,7 +379,7 @@
                 const res = await fetch(`${API_HOLD}/find/account_id/${encodeURIComponent(accountId)}`, { credentials: "include" });
                 if (!res.ok) { myHoldsContainer.innerHTML = ""; return; }
                 const list = await res.json(); // array of Hold
-                console.log(list);
+
                 // Build UI
                 let html = `<h2>Active Holds (${list.length})</h2>`;
                 if (list.length === 0) html += "<p>No active holds.</p>";
@@ -384,7 +397,7 @@
                     // table and table head setup
                     html += "<table>";
                     html += "<tbody>"
-                    html += "<tr><th>Serial Barcode</th><th>Book Title</th><th>Held Since</th><th>Expiry Date</th></tr>";
+                    html += "<tr><th>Serial Barcode</th><th>Book Title</th><th>Held Since</th><th>Expiry Date</th><th>Cancel Hold</th></tr>";
 
                     //table content
                     for (const h of list) {
@@ -394,7 +407,7 @@
                         const heldSince = h.heldSince ?? h.heldSince ?? "(unknown)";
                         const expiry = h.holdExpiry ?? h.hold_expiry ?? "(unknown)";
 
-                        html += `<tr><td>${serialBarcode}</td><td>${bookTitle}</td><td>${heldSince}</td><td>${expiry}</td></tr>`;
+                        html += `<tr><td>${serialBarcode}</td><td>${bookTitle}</td><td>${heldSince}</td><td>${expiry}</td><td><button class="tableCancelBtn" data-row="${serialBarcode}">Cancel</button></td></tr>`;
                     }
 
                     // table ends
@@ -402,6 +415,20 @@
 
                 }
                 myHoldsContainer.innerHTML = html;
+
+                const tableCancelBtns = document.querySelectorAll('.tableCancelBtn');
+                if(tableCancelBtns.length > 0) {
+                    tableCancelBtns.forEach(cancelBtn => {
+                        cancelBtn.addEventListener("click", () => {
+                            if (!confirm(`Are you sure you want to cancel?`)) {
+                                return;
+                            }
+                            cancelHold(event.target.getAttribute("data-row"))
+                        })
+                    })
+                }
+
+
             } catch (err) {
                 console.error("showActiveHolds error", err);
             }
@@ -499,58 +526,7 @@
         if (placeForm) {
             placeForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
-                setMessage(placeMsg, "", false);
-
-                const isbn = (document.getElementById("bookId")?.value || "").trim();
-                if (!isbn) { setMessage(placeMsg, "Enter ISBN to place a hold.", true); return; }
-
-                // get current account
-                const me = await currentAccount();
-                if (!me) { setMessage(placeMsg, "You must be signed in.", true); return; }
-                const accountId = me.accountId;
-
-                // enforce limit
-                try {
-                    const wlRes = await fetch(`${API_WAITLIST}/account/${encodeURIComponent(accountId)}`, { credentials: "include" });
-                    if (wlRes.ok) {
-                        const wl = await wlRes.json();
-                        if (Array.isArray(wl) && wl.length >= MAX_WAITS) {
-                            setMessage(placeMsg, `You already have ${wl.length} waitlist entries (limit ${MAX_WAITS}).`, true);
-                            return;
-                        }
-                    }
-                } catch (err) {
-                    console.warn("could not fetch waitlist for limit check", err);
-                }
-
-                // call server to add to waitlist
-                try {
-                    const res = await fetch(API_WAITLIST, {
-                        method: "POST",
-                        credentials: "include",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify({ isbn: isbn, accountId: String(me.accountId) })
-                    });
-
-                    const text = await res.text();
-                    if (!res.ok) {
-                        setMessage(placeMsg, `Failed: ${text || res.statusText}`, true);
-                        return;
-                    }
-                    // try parse JSON
-                    let json;
-                    try { json = JSON.parse(text); } catch(_) { json = null; }
-
-                    const position = json && json.position ? json.position : text || "added";
-                    setMessage(placeMsg, `Added to waitlist. Position: ${position}`);
-                    // refresh lists
-                    await showActiveHolds(me.accountId);
-                    await showWaitlist(me.accountId);
-                    placeForm.reset();
-                } catch (err) {
-                    console.error("Place waitlist error", err);
-                    setMessage(placeMsg, "Network or server error placing waitlist.", true);
-                }
+                await placeHold();
             });
         }
 
@@ -558,14 +534,68 @@
         if (cancelForm) {
             cancelForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
-                await cancelHold();
+                await cancelHold((document.getElementById("cancelBookId")?.value || "").trim());
             });
         }
 
-        async function cancelHold() {
+        async function placeHold() {
+            setMessage(placeMsg, "", false);
+
+            const isbn = (document.getElementById("bookId")?.value || "").trim();
+            if (!isbn) { setMessage(placeMsg, "Enter ISBN to place a hold.", true); return; }
+
+            // get current account
+            const me = await currentAccount();
+            if (!me) { setMessage(placeMsg, "You must be signed in.", true); return; }
+            const accountId = me.accountId;
+
+            // enforce limit
+            try {
+                const wlRes = await fetch(`${API_WAITLIST}/account/${encodeURIComponent(accountId)}`, { credentials: "include" });
+                if (wlRes.ok) {
+                    const wl = await wlRes.json();
+                    if (Array.isArray(wl) && wl.length >= MAX_WAITS) {
+                        setMessage(placeMsg, `You already have ${wl.length} waitlist entries (limit ${MAX_WAITS}).`, true);
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn("could not fetch waitlist for limit check", err);
+            }
+
+            // call server to add to waitlist
+            try {
+                const res = await fetch(API_WAITLIST, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ isbn: isbn, accountId: String(me.accountId) })
+                });
+
+                const text = await res.text();
+                if (!res.ok) {
+                    setMessage(placeMsg, `Failed: ${text || res.statusText}`, true);
+                    return;
+                }
+                // try parse JSON
+                let json;
+                try { json = JSON.parse(text); } catch(_) { json = null; }
+
+                const position = json && json.position ? json.position : text || "added";
+                setMessage(placeMsg, `Added to waitlist. Position: ${position}`);
+                // refresh lists
+                await showActiveHolds(me.accountId);
+                await showWaitlist(me.accountId);
+                placeForm.reset();
+            } catch (err) {
+                console.error("Place waitlist error", err);
+                setMessage(placeMsg, "Network or server error placing waitlist.", true);
+            }
+        }
+
+        async function cancelHold(isbn) {
             setMessage(cancelMsg, "", false);
 
-            const isbn = (document.getElementById("cancelBookId")?.value || "").trim();
             if (!isbn) { setMessage(cancelMsg, "Enter ISBN / Book ID to cancel.", true); return; }
             const me = await currentAccount();
             if (!me) { setMessage(cancelMsg, "You must be signed in.", true); return; }
@@ -630,7 +660,7 @@
             }
         }
 
-        function getISBNFromURL() {
+        async function getISBNFromURL() {
             const query = window.location.search;
             const urlParams = new URLSearchParams(query);
             const isbn = urlParams.get('isbn');
@@ -638,6 +668,7 @@
             if (isbn) {
                 let bookId = document.getElementById('bookId');
                 bookId.value = isbn;
+                await placeHold();
             }
         }
 
