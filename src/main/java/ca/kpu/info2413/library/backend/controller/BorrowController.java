@@ -44,56 +44,55 @@ public class BorrowController
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Borrow borrow)
+    public ResponseEntity<?> create(@RequestBody Borrow newBorrow)
     {
         // check if book copy exists by looking up barcode
-        Optional<BookCopy> bookCopy = bookCopyService.findBySerialBarcode(borrow.getSerialBarcodeBookCopy());
+        Optional<BookCopy> bookCopy = bookCopyService.findBySerialBarcode(newBorrow.getSerialBarcodeBookCopy());
 
         if (bookCopy.isEmpty())
         {
-            return ResponseEntity.badRequest().body(String.format("Book copy %s not Found!", borrow.getSerialBarcodeBookCopy()));
+            return ResponseEntity.badRequest().body(String.format("Book copy %s not Found!", newBorrow.getSerialBarcodeBookCopy()));
         }
 
         // get book title from publication
         String bookName = bookCopy.get().getPublication().getTitle();
 
         // get the latest borrow entry of the book copy
-        Borrow b = null;
+        Borrow latestBorrow = null;
 
         try
         {
-            b = findBySerialBarcodeBookCopy(borrow.getSerialBarcodeBookCopy()).getLast();
+            latestBorrow = findBySerialBarcodeBookCopy(newBorrow.getSerialBarcodeBookCopy()).getLast();
         }
         catch (Exception _)
         {
         }
 
         // check if book is already borrowed
-        if ((b != null) && Objects.equals(b.getStatus(), "Borrowed"))
+        if ((latestBorrow != null) && Objects.equals(latestBorrow.getStatus(), "Borrowed"))
         {
             return ResponseEntity.badRequest().body(String.format("The book \"%s\" is not available for borrowing.", bookName));
         }
 
         // don't loan to anyone but the account with a hold, if applicable
-        assert b != null;
-        // if (the list of holds (should be only one ever) for this book copy is NOT empty) AND (the hold for this bookcopy has property AccountIdAccount that does NOT match the same property of the new borrow), return an error
-        if (!holdService.findBySerialBarcodeBookCopy(b.getSerialBarcodeBookCopy()).isEmpty() && !Objects.equals(holdService.findBySerialBarcodeBookCopy(b.getSerialBarcodeBookCopy()).getFirst().getAccountIdAccount(), borrow.getAccountIdAccount()))
-            return ResponseEntity.badRequest().body(String.format("The book \"%s\" is held for account \"%s\".", b.getSerialBarcodeBookCopy(),  holdService.findBySerialBarcodeBookCopy(b.getSerialBarcodeBookCopy()).getFirst().getAccountIdAccount()));
+        // if (a borrow (the list of holds (should be only one ever) for this book copy is NOT empty) AND (the hold for this bookcopy has property AccountIdAccount that does NOT match the same property of the new borrow), return an error
+        if (!holdService.findBySerialBarcodeBookCopy(newBorrow.getSerialBarcodeBookCopy()).isEmpty() && !Objects.equals(holdService.findBySerialBarcodeBookCopy(newBorrow.getSerialBarcodeBookCopy()).getFirst().getAccountIdAccount(), newBorrow.getAccountIdAccount()))
+            return ResponseEntity.badRequest().body(String.format("The book \"%s\" is held for account \"%s\".", newBorrow.getSerialBarcodeBookCopy(),  holdService.findBySerialBarcodeBookCopy(newBorrow.getSerialBarcodeBookCopy()).getFirst().getAccountIdAccount()));
 
         // check if account exists
         Account borrowAccount;
 
         try
         {
-            borrowAccount = accountService.findByAccountId(borrow.getAccountIdAccount()).getFirst();
+            borrowAccount = accountService.findByAccountId(newBorrow.getAccountIdAccount()).getFirst();
         }
         catch (Exception _)
         {
-            return ResponseEntity.badRequest().body(String.format("Account ID %s not found.", borrow.getAccountIdAccount()));
+            return ResponseEntity.badRequest().body(String.format("Account ID %s not found.", newBorrow.getAccountIdAccount()));
         }
 
         // add borrow record
-        borrowService.save(borrow);
+        borrowService.save(newBorrow);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(String.format("Book \"%s\" successfully borrowed by %s.", bookName, borrowAccount.getFullName()));
     }
