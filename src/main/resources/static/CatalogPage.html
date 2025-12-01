@@ -427,8 +427,7 @@
 
     function placeHold(isbn13)
     {
-        console.log("Placing hold on ISBN:", isbn13);
-        alert("Hold request prepared for book ISBN: " + isbn13);
+        window.location.href = "PlaceHold.html?isbn=" + isbn13;
     }
 
     async function signOut()

@@ -286,7 +286,34 @@
         }
     }
 
+    async function applyDefaultBorrowTime() {
+        let dueDateField = document.getElementById("dueDate");
+        let dueDateVal = new Date();
+        try {
+            const res = await fetch('/config/defaultBorrowTime');
+
+            if(!res.ok) {
+                let errMsg = await res.text();
+                console.log("Error loading default Borrow Time: " + errMsg);
+                dueDateField.valueAsDate = dueDateVal;
+                return;
+            }
+
+            const result = await res.json();
+            const defaultBorrowTime = parseInt(result.configValue);
+
+            // update the due date field
+            dueDateVal.setDate(dueDateVal.getDate() + defaultBorrowTime);
+            dueDateField.valueAsDate = dueDateVal;
+
+        } catch (err) {
+            console.warn('applyDefaultBorrowTime error:', err);
+            dueDateField.valueAsDate = dueDateVal;
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', applyRoleToNav);
+    document.addEventListener('DOMContentLoaded', applyDefaultBorrowTime);
 </script>
 </body>
 </html>

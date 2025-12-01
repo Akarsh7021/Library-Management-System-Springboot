@@ -256,9 +256,9 @@
             <h2>Configuration</h2>
             <form id="configurationForm">
                 <label for="holdLength">Hold Length (Days)</label>
-                <input id="holdLength" required>
+                <input id="holdLength" required type="number">
                 <label for="defaultBorrowTime">Default Borrow Time (Days)</label>
-                <input id="defaultBorrowTime" required>
+                <input id="defaultBorrowTime" required type="number">
 
                 <button type="submit">Save Configuration</button>
             </form>
@@ -445,14 +445,14 @@
     document.addEventListener('DOMContentLoaded', getCurrentHoldLength)
 
     async function getCurrentBorrowTime() {
-        const response = await fetch("/config/borrowTime")
+        const response = await fetch("/config/defaultBorrowTime")
         const data = await response.json();
         console.log(data);
         if (!response.ok) {
             console.error(response);
             alert(data.message);
         } else {
-            let currentHoldLengthField = document.getElementById("defaultBorrowTimeime")
+            let currentHoldLengthField = document.getElementById("defaultBorrowTime")
             currentHoldLengthField.value = data.configValue
         }
     }
