@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+ Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel pgmodeler-ver="1.2.0" use-changelog="false" max-obj-count="20"
+	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
+	 last-position="0,-98" last-zoom="0.7" scene-rect="0,-140,3398.57,1445.72"
+	 default-schema="public" default-owner="postgres"
+	 layers="Default layer"
+	 active-layers="0"
+	 layer-name-colors="#000000"
+	 layer-rect-colors="#b4b4b4"
+	 show-layer-names="false" show-layer-rects="false">
+<role name="info2413"
+ superuser="true"
+ inherit="true"
+ login="true"
+ password="********">
+</role>
+
+<database name="info2413" encoding="UTF8" lc-collate="en_CA.UTF-8" lc-ctype="en_CA.UTF-8" is-template="false" allow-conns="true">
+	<role name="postgres"/>
+	<tablespace name="pg_default"/>
+</database>
+
+<schema name="public" layers="0" fill-color="#e1e1e1" name-color="#000000" sql-disabled="true">
+</schema>
+
+<schema name="schema_name" layers="0" rect-visible="true" fill-color="#06a40f" name-color="#000000">
+	<role name="info2413"/>
+</schema>
+
+<usertype name="full_name" configuration="composite">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<typeattrib name="middle_names">
+		<type name="smallint" length="0"/>
+	</typeattrib>
+	<typeattrib name="last_name">
+		<type name="smallint" length="0"/>
+	</typeattrib>
+	<typeattrib name="first_name">
+		<type name="smallint" length="0"/>
+	</typeattrib>
+</usertype>
+
+<sequence name="Account_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="Author_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="BookCopyConditionNotes_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="BookCopy_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="Borrow_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="Fine_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="Hold_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="LibraryCard_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="Payment_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="Publication_SEQ" cycle="false" start="1" increment="50" min-value="1" max-value="9223372036854775807" cache="1">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="Account_account_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1" sql-disabled="true">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<table name="AccountPublication" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="820" y="-40"/>
+	<column name="account_id_account" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="isbn_13_publication" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="waitlist_position">
+		<type name="smallint" length="0"/>
+	</column>
+	<constraint name="AccountPublication_pkey" type="pk-constr" table="public.&quot;AccountPublication&quot;">
+		<columns names="account_id_account,isbn_13_publication" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="Author_author_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1" sql-disabled="true">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<table name="BookCopy" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="600" y="360"/>
+	<column name="date_acquired">
+		<type name="date" length="0"/>
+	</column>
+	<column name="isbn_13_Publication" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="serial_barcode" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="BookCopy_pkey" type="pk-constr" table="public.&quot;BookCopy&quot;">
+		<columns names="serial_barcode" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="BookCopyConditionNotes_note_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1" sql-disabled="true">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="Borrow_borrow_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1" sql-disabled="true">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<table name="BorrowRenewalDate" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="3040" y="120"/>
+	<column name="borrow_id_Borrow">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="renewal_date" not-null="true">
+		<type name="date" length="0"/>
+	</column>
+	<constraint name="BorrowRenewalDate_pkey" type="pk-constr" table="public.&quot;BorrowRenewalDate&quot;">
+		<columns names="renewal_date" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="Fine_fine_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1" sql-disabled="true">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<sequence name="Hold_book_hold_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1" sql-disabled="true">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<table name="LibraryCard" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="1500" y="-120"/>
+	<column name="account_id_Account">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="card_number" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="valid" not-null="true">
+		<type name="boolean" length="0"/>
+	</column>
+	<constraint name="LibraryCard_pkey" type="pk-constr" table="public.&quot;LibraryCard&quot;">
+		<columns names="card_number" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="Payment_payment_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1" sql-disabled="true">
+	<schema name="public"/>
+	<role name="info2413"/>
+</sequence>
+
+<table name="Publication" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="60" y="60"/>
+	<column name="isbn_13" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="page_count">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="publication_date">
+		<type name="date" length="0"/>
+	</column>
+	<column name="genre">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="title">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="ebook_url">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="Publication_pkey" type="pk-constr" table="public.&quot;Publication&quot;">
+		<columns names="isbn_13" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="PublicationAuthor" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="520" y="1020"/>
+	<column name="author_id_Author" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="isbn_13_Publication" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<constraint name="PublicationAuthor_pkey" type="pk-constr" table="public.&quot;PublicationAuthor&quot;">
+		<columns names="author_id_Author,isbn_13_Publication" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="PublicationPublication" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="120" y="680"/>
+	<column name="isbn_13_publication" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="isbn_13_publication1" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<constraint name="PublicationPublication_pkey" type="pk-constr" table="public.&quot;PublicationPublication&quot;">
+		<columns names="isbn_13_publication,isbn_13_publication1" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="Account" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="1280" y="120"/>
+	<column name="account_id" not-null="true"
+	 identity-type="ALWAYS" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="account_type">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="full_name">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="notification_email">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="password_hash">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="phone_number">
+		<type name="character varying" length="255"/>
+	</column>
+	<constraint name="Account_pkey" type="pk-constr" table="public.&quot;Account&quot;">
+		<columns names="account_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="Borrow" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="2460" y="360"/>
+	<column name="account_id_Account">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="borrow_id" not-null="true"
+	 identity-type="ALWAYS" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="borrowed_date">
+		<type name="date" length="0"/>
+	</column>
+	<column name="due_date">
+		<type name="date" length="0"/>
+	</column>
+	<column name="returned_date">
+		<type name="date" length="0"/>
+	</column>
+	<column name="serial_barcode_BookCopy">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="status">
+		<type name="character varying" length="255"/>
+	</column>
+	<constraint name="Borrow_pkey" type="pk-constr" table="public.&quot;Borrow&quot;">
+		<columns names="borrow_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="Fine" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="2400" y="120"/>
+	<column name="borrow_id_Borrow">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="fine_amount">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="fine_id" not-null="true"
+	 identity-type="ALWAYS" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="issue_date">
+		<type name="date" length="0"/>
+	</column>
+	<column name="waived_reversed">
+		<type name="boolean" length="0"/>
+	</column>
+	<constraint name="Fine_pkey" type="pk-constr" table="public.&quot;Fine&quot;">
+		<columns names="fine_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="Payment" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="2500" y="640"/>
+	<column name="account_id_Account">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="payment_date">
+		<type name="date" length="0"/>
+	</column>
+	<column name="payment_id" not-null="true"
+	 identity-type="ALWAYS" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="payment_method">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="payment_amount" not-null="true" default-value="0">
+		<type name="numeric" length="10" precision="2"/>
+	</column>
+	<column name="processed_by">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="Payment_pkey" type="pk-constr" table="public.&quot;Payment&quot;">
+		<columns names="payment_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<view name="Balance" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="1820" y="400"/>
+	<reference object="public.&quot;Account&quot;" type="table" ref-name="Account" use-signature="true"/>
+	<reference object="public.&quot;Borrow&quot;" type="table" ref-name="Borrow" use-signature="true"/>
+	<reference object="public.&quot;Fine&quot;" type="table" ref-name="Fine" use-signature="true"/>
+	<reference object="public.&quot;Payment&quot;" type="table" ref-name="Payment" use-signature="true"/>
+	<simplecol name="account_id" type="integer"/>
+	<simplecol name="full_name" type="character varying(255)"/>
+	<simplecol name="total_fines" type="bigint"/>
+	<simplecol name="total_payments" type="numeric"/>
+	<simplecol name="current_balance" type="numeric"/>
+	<definition> <![CDATA[ SELECT a.account_id,
+    a.full_name,
+    COALESCE(sum(f.fine_amount), (0)::bigint) AS total_fines,
+    COALESCE(sum(p.total_paid), (0)::numeric) AS total_payments,
+    ((COALESCE(sum(f.fine_amount), (0)::bigint))::numeric - COALESCE(sum(p.total_paid), (0)::numeric)) AS current_balance
+   FROM ((("Account" a
+     LEFT JOIN "Borrow" b ON ((b."account_id_Account" = a.account_id)))
+     LEFT JOIN "Fine" f ON ((f."borrow_id_Borrow" = b.borrow_id)))
+     LEFT JOIN ( SELECT "Payment"."account_id_Account",
+            sum("Payment".payment_amount) AS total_paid
+           FROM "Payment"
+          GROUP BY "Payment"."account_id_Account") p ON ((p."account_id_Account" = a.account_id)))
+  GROUP BY a.account_id, a.full_name
+  ORDER BY a.account_id;]]> </definition>
+</view>
+
+<relationship name="&quot;rel_Balance_Account&quot;" type="reltv" layers="0"
+	 custom-color="#8e3f55"
+	 src-table="public.&quot;Balance&quot;"
+	 dst-table="public.&quot;Account&quot;"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="&quot;rel_Balance_Fine&quot;" type="reltv" layers="0"
+	 custom-color="#85ff52"
+	 src-table="public.&quot;Balance&quot;"
+	 dst-table="public.&quot;Fine&quot;"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="&quot;rel_Balance_Borrow&quot;" type="reltv" layers="0"
+	 custom-color="#d39bc3"
+	 src-table="public.&quot;Balance&quot;"
+	 dst-table="public.&quot;Borrow&quot;"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="&quot;rel_Balance_Payment&quot;" type="reltv" layers="0"
+	 custom-color="#fadc48"
+	 src-table="public.&quot;Balance&quot;"
+	 dst-table="public.&quot;Payment&quot;"
+	 src-required="false" dst-required="false"/>
+
+<table name="Hold" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="1400" y="520"/>
+	<column name="account_id_Account">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="book_hold_id" not-null="true"
+	 identity-type="ALWAYS" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="held_since">
+		<type name="date" length="0"/>
+	</column>
+	<column name="hold_expiry">
+		<type name="date" length="0"/>
+	</column>
+	<column name="serial_barcode_BookCopy" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="Hold_pkey" type="pk-constr" table="public.&quot;Hold&quot;">
+		<columns names="book_hold_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="BookCopyConditionNotes" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="720" y="680"/>
+	<column name="serial_barcode_BookCopy" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="condition_notes" not-null="true">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="note_id" not-null="true"
+	 identity-type="ALWAYS" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="created_at">
+		<type name="timestamp with time zone" length="0" with-timezone="true"/>
+	</column>
+	<constraint name="BookCopyConditionNotes_pkey" type="pk-constr" table="public.&quot;BookCopyConditionNotes&quot;">
+		<columns names="note_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="Author" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="1420" y="900"/>
+	<column name="author_id" not-null="true"
+	 identity-type="ALWAYS" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="author_name">
+		<type name="character varying" length="255"/>
+	</column>
+	<constraint name="Author_pkey" type="pk-constr" table="public.&quot;Author&quot;">
+		<columns names="author_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="Configuration" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="info2413"/>
+	<position x="60" y="1180"/>
+	<column name="config_key" not-null="true">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="config_value">
+		<type name="character varying" length="255"/>
+	</column>
+	<constraint name="Configuration_pkey" type="pk-constr" table="public.&quot;Configuration&quot;">
+		<columns names="config_key" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<constraint name="FKspo9uvamlykxcbxw0mk88add9" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.&quot;Account&quot;" table="public.&quot;AccountPublication&quot;">
+	<columns names="account_id_account" ref-type="src-columns"/>
+	<columns names="account_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="FKlhmejwq4esl2dxm5omf1tbf9k" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="CASCADE" del-action="NO ACTION" ref-table="public.&quot;Publication&quot;" table="public.&quot;AccountPublication&quot;">
+	<columns names="isbn_13_publication" ref-type="src-columns"/>
+	<columns names="isbn_13" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="FKq8easj3y9slf97ll5s0v1d8u3" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="CASCADE" del-action="NO ACTION" ref-table="public.&quot;Publication&quot;" table="public.&quot;BookCopy&quot;">
+	<columns names="isbn_13_Publication" ref-type="src-columns"/>
+	<columns names="isbn_13" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="serial_barcode" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.&quot;BookCopy&quot;" table="public.&quot;BookCopyConditionNotes&quot;">
+	<columns names="serial_barcode_BookCopy" ref-type="src-columns"/>
+	<columns names="serial_barcode" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="borrow_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.&quot;Borrow&quot;" table="public.&quot;BorrowRenewalDate&quot;">
+	<columns names="borrow_id_Borrow" ref-type="src-columns"/>
+	<columns names="borrow_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="account_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.&quot;Account&quot;" table="public.&quot;Hold&quot;">
+	<columns names="account_id_Account" ref-type="src-columns"/>
+	<columns names="account_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="serial_barcode" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.&quot;BookCopy&quot;" table="public.&quot;Hold&quot;">
+	<columns names="serial_barcode_BookCopy" ref-type="src-columns"/>
+	<columns names="serial_barcode" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="account_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.&quot;Account&quot;" table="public.&quot;LibraryCard&quot;">
+	<columns names="account_id_Account" ref-type="src-columns"/>
+	<columns names="account_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="FK6vjvhpy84qpeq072t1x4gkgfj" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.&quot;Author&quot;" table="public.&quot;PublicationAuthor&quot;">
+	<columns names="author_id_Author" ref-type="src-columns"/>
+	<columns names="author_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="FKspa3uysge6d7i9j5walgm9dbe" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="CASCADE" del-action="NO ACTION" ref-table="public.&quot;Publication&quot;" table="public.&quot;PublicationAuthor&quot;">
+	<columns names="isbn_13_Publication" ref-type="src-columns"/>
+	<columns names="isbn_13" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="FKgx46po00oqqjq95x10s2nqyy4" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="CASCADE" del-action="NO ACTION" ref-table="public.&quot;Publication&quot;" table="public.&quot;PublicationPublication&quot;">
+	<columns names="isbn_13_publication1" ref-type="src-columns"/>
+	<columns names="isbn_13" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="FKk40akwro2qvluqk3t4tmc8uwj" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="CASCADE" del-action="NO ACTION" ref-table="public.&quot;Publication&quot;" table="public.&quot;PublicationPublication&quot;">
+	<columns names="isbn_13_publication" ref-type="src-columns"/>
+	<columns names="isbn_13" ref-type="dst-columns"/>
+</constraint>
+
+<relationship name="&quot;rel_AccountPublication_Account&quot;" type="relfk" layers="0"
+	 custom-color="#7ac866"
+	 src-table="public.&quot;AccountPublication&quot;"
+	 dst-table="public.&quot;Account&quot;" reference-fk="FKspo9uvamlykxcbxw0mk88add9"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="&quot;rel_AccountPublication_Publication&quot;" type="relfk" layers="0"
+	 custom-color="#b860a1"
+	 src-table="public.&quot;AccountPublication&quot;"
+	 dst-table="public.&quot;Publication&quot;" reference-fk="FKlhmejwq4esl2dxm5omf1tbf9k"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="&quot;rel_BookCopy_Publication&quot;" type="relfk" layers="0"
+	 custom-color="#e6351a"
+	 src-table="public.&quot;BookCopy&quot;"
+	 dst-table="public.&quot;Publication&quot;" reference-fk="FKq8easj3y9slf97ll5s0v1d8u3"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="&quot;rel_PublicationAuthor_Author&quot;" type="relfk" layers="0"
+	 custom-color="#fbc909"
+	 src-table="public.&quot;PublicationAuthor&quot;"
+	 dst-table="public.&quot;Author&quot;" reference-fk="FK6vjvhpy84qpeq072t1x4gkgfj"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="&quot;rel_PublicationAuthor_Publication&quot;" type="relfk" layers="0"
+	 custom-color="#c9e2b4"
+	 src-table="public.&quot;PublicationAuthor&quot;"
+	 dst-table="public.&quot;Publication&quot;" reference-fk="FKspa3uysge6d7i9j5walgm9dbe"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="&quot;rel_PublicationPublication_Publication&quot;" type="relfk" layers="0"
+	 custom-color="#f27bea"
+	 src-table="public.&quot;PublicationPublication&quot;"
+	 dst-table="public.&quot;Publication&quot;" reference-fk="FKgx46po00oqqjq95x10s2nqyy4"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="&quot;rel_PublicationPublication_Publication1&quot;" type="relfk" layers="0"
+	 custom-color="#e13df5"
+	 src-table="public.&quot;PublicationPublication&quot;"
+	 dst-table="public.&quot;Publication&quot;" reference-fk="FKk40akwro2qvluqk3t4tmc8uwj"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="&quot;rel_LibraryCard_Account&quot;" type="relfk" layers="0"
+	 src-table="public.&quot;LibraryCard&quot;"
+	 dst-table="public.&quot;Account&quot;" reference-fk="account_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="&quot;rel_BookCopyConditionNotes_BookCopy&quot;" type="relfk" layers="0"
+	 src-table="public.&quot;BookCopyConditionNotes&quot;"
+	 dst-table="public.&quot;BookCopy&quot;" reference-fk="serial_barcode"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="&quot;rel_BorrowRenewalDate_Borrow&quot;" type="relfk" layers="0"
+	 src-table="public.&quot;BorrowRenewalDate&quot;"
+	 dst-table="public.&quot;Borrow&quot;" reference-fk="borrow_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="&quot;rel_Hold_Account&quot;" type="relfk" layers="0"
+	 src-table="public.&quot;Hold&quot;"
+	 dst-table="public.&quot;Account&quot;" reference-fk="account_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="&quot;rel_Hold_BookCopy&quot;" type="relfk" layers="0"
+	 src-table="public.&quot;Hold&quot;"
+	 dst-table="public.&quot;BookCopy&quot;" reference-fk="serial_barcode"
+	 src-required="false" dst-required="true"/>
+
+</dbmodel>
