@@ -1,15 +1,15 @@
 package ca.kpu.info2413.library.backend.controller;
 
+import ca.kpu.info2413.library.backend.model.BookCopy;
 import ca.kpu.info2413.library.backend.model.Hold;
+import ca.kpu.info2413.library.backend.service.BookCopyService;
 import ca.kpu.info2413.library.backend.service.HoldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/hold")
@@ -18,6 +18,8 @@ public class HoldController
 
     @Autowired
     private HoldService holdService;
+    @Autowired
+    private BookCopyService bookCopyService;
 
     @GetMapping
     public List<Hold> findAll()
@@ -42,9 +44,31 @@ public class HoldController
     }
 
     @GetMapping("/find/account_id/{account_id}")
-    public List<Hold> findByAccountId(@PathVariable Integer account_id)
+    public ResponseEntity<?> findByAccountId(@PathVariable Integer account_id)
     {
-        return holdService.findByAccountId(account_id);
+        List<Hold> holds = holdService.findByAccountId(account_id);
+        if(holds.isEmpty()) return ResponseEntity.ok(holds);
+
+        // get book copy and publications from hold records
+        List<Map<String, String>> result = new ArrayList<>();
+
+        for (Hold hold : holds)
+        {
+            Optional<BookCopy> bc = bookCopyService.findBySerialBarcode(hold.getSerialBarcodeBookCopy());
+            bc.ifPresent(bookCopy ->
+            {
+                // add to result
+                Map<String, String> map = new HashMap<>();
+                map.put("serialBarcodeBookCopy",hold.getSerialBarcodeBookCopy().toString());
+                map.put("heldSince", hold.getHeldSince().toString());
+                map.put("holdExpiry", hold.getHoldExpiry().toString());
+                map.put("bookTitle", bookCopy.getPublication().getTitle());
+
+                result.add(map);
+            });
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping

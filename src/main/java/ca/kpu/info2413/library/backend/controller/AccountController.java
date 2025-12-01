@@ -84,7 +84,6 @@ public class AccountController
         if (incoming.getAccountType() != null) existing.setAccountType(incoming.getAccountType());
 
         if (incoming.getPasswordHash() != null && !incoming.getPasswordHash().trim().isEmpty()) {
-            System.err.println("HASHING");
             // validate password before calling Service to hash
             if(incoming.getPasswordHash().matches(passwordPolicy))
                 existing.setPasswordHash(incoming.getPasswordHash());
@@ -381,10 +380,11 @@ public class AccountController
         if (borrows == null || borrows.isEmpty())
             return ResponseEntity.badRequest().body("No borrow records found."); // if no borrows return empty
 
-        // get book copy from borrow records
+        // get book copy and publication from borrow records
         List<Map<String, String>> result = new ArrayList<>();
 
         for (Borrow borrow : borrows) {
+            // if already returned
             if(!borrow.getStatus().equals("Borrowed")) continue;
             // get book from borrow record
             Optional<BookCopy> bc = bookCopyService.findBySerialBarcode(borrow.getSerialBarcodeBookCopy());

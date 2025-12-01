@@ -243,6 +243,14 @@
         .message.error {
             color: #c53030;
         }
+
+        table, th, td {
+            border:1px solid black;
+        }
+
+        table {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -358,10 +366,12 @@
                 const res = await fetch(`${API_HOLD}/find/account_id/${encodeURIComponent(accountId)}`, { credentials: "include" });
                 if (!res.ok) { myHoldsContainer.innerHTML = ""; return; }
                 const list = await res.json(); // array of Hold
+                console.log(list);
                 // Build UI
                 let html = `<h2>Active Holds (${list.length})</h2>`;
                 if (list.length === 0) html += "<p>No active holds.</p>";
                 else {
+                    /** REDO TO TABLE
                     html += "<ul>";
                     for (const h of list) {
                         // show serial barcode and holdExpiry if available
@@ -370,6 +380,26 @@
                         html += `<li>Copy: ${copyId} — Expires: ${expiry}</li>`;
                     }
                     html += "</ul>";
+                        **/
+                    // table and table head setup
+                    html += "<table>";
+                    html += "<tbody>"
+                    html += "<tr><th>Serial Barcode</th><th>Book Title</th><th>Held Since</th><th>Expiry Date</th></tr>";
+
+                    //table content
+                    for (const h of list) {
+                        // show info if available
+                        const serialBarcode = h.serialBarcodeBookCopy ?? h.serial_barcode_bookcopy ?? "(unknown)";
+                        const bookTitle = h.bookTitle ?? h.bookTitle ?? "(unknown)";
+                        const heldSince = h.heldSince ?? h.heldSince ?? "(unknown)";
+                        const expiry = h.holdExpiry ?? h.hold_expiry ?? "(unknown)";
+
+                        html += `<tr><td>${serialBarcode}</td><td>${bookTitle}</td><td>${heldSince}</td><td>${expiry}</td></tr>`;
+                    }
+
+                    // table ends
+                    html += "</tbody></table>";
+
                 }
                 myHoldsContainer.innerHTML = html;
             } catch (err) {
@@ -527,49 +557,53 @@
         if (cancelForm) {
             cancelForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
-                setMessage(cancelMsg, "", false);
-
-                const isbn = (document.getElementById("cancelBookId")?.value || "").trim();
-                if (!isbn) { setMessage(cancelMsg, "Enter ISBN / Book ID to cancel.", true); return; }
-                const me = await currentAccount();
-                if (!me) { setMessage(cancelMsg, "You must be signed in.", true); return; }
-                const accountId = me.accountId;
-
-                // Try cancelling waitlist first
-                try {
-                    const res = await fetch(`${API_WAITLIST}?isbn=${encodeURIComponent(isbn)}&accountId=${encodeURIComponent(accountId)}`, {
-                        method: "DELETE",
-                        credentials: "include"
-                    });
-                    if (res.ok || res.status === 204) {
-                        setMessage(cancelMsg, "Removed from waitlist/hold.");
-                        await showActiveHolds(accountId);
-                        await showWaitlist(accountId);
-                        cancelForm.reset();
-                        return;
-                    }
-                    // if not ok, try deleting active hold by calling /hold?bookId=...&accountId=...
-                    // Because your Hold DELETE endpoint is at /hold?bookId=&accountId=
-                    const holdDel = await fetch(`${API_HOLD}?bookId=${encodeURIComponent(isbn)}&accountId=${encodeURIComponent(accountId)}`, {
-                        method: "DELETE",
-                        credentials: "include"
-                    });
-                    if (holdDel.ok || holdDel.status === 204) {
-                        setMessage(cancelMsg, "Hold cancelled.");
-                        await showActiveHolds(accountId);
-                        await showWaitlist(accountId);
-                        cancelForm.reset();
-                        return;
-                    }
-
-                    const txt = await res.text();
-                    setMessage(cancelMsg, `Cancel failed: ${txt || res.statusText}`, true);
-
-                } catch (err) {
-                    console.error("Cancel error", err);
-                    setMessage(cancelMsg, "Network error cancelling hold/waitlist.", true);
-                }
+                await cancelHold();
             });
+        }
+
+        async function cancelHold() {
+            setMessage(cancelMsg, "", false);
+
+            const isbn = (document.getElementById("cancelBookId")?.value || "").trim();
+            if (!isbn) { setMessage(cancelMsg, "Enter ISBN / Book ID to cancel.", true); return; }
+            const me = await currentAccount();
+            if (!me) { setMessage(cancelMsg, "You must be signed in.", true); return; }
+            const accountId = me.accountId;
+
+            // Try cancelling waitlist first
+            try {
+                const res = await fetch(`${API_WAITLIST}?isbn=${encodeURIComponent(isbn)}&accountId=${encodeURIComponent(accountId)}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                });
+                if (res.ok || res.status === 204) {
+                    setMessage(cancelMsg, "Removed from waitlist/hold.");
+                    await showActiveHolds(accountId);
+                    await showWaitlist(accountId);
+                    cancelForm.reset();
+                    return;
+                }
+                // if not ok, try deleting active hold by calling /hold?bookId=...&accountId=...
+                // Because your Hold DELETE endpoint is at /hold?bookId=&accountId=
+                const holdDel = await fetch(`${API_HOLD}?bookId=${encodeURIComponent(isbn)}&accountId=${encodeURIComponent(accountId)}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                });
+                if (holdDel.ok || holdDel.status === 204) {
+                    setMessage(cancelMsg, "Hold cancelled.");
+                    await showActiveHolds(accountId);
+                    await showWaitlist(accountId);
+                    cancelForm.reset();
+                    return;
+                }
+
+                const txt = await res.text();
+                setMessage(cancelMsg, `Cancel failed: ${txt || res.statusText}`, true);
+
+            } catch (err) {
+                console.error("Cancel error", err);
+                setMessage(cancelMsg, "Network error cancelling hold/waitlist.", true);
+            }
         }
 
         async function applyRoleToNav() {
