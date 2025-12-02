@@ -178,7 +178,6 @@
             cursor: pointer;
         }
 
-        /* small nicety: disabled button style */
         button[disabled] {
             opacity: 0.6;
             cursor: not-allowed;
@@ -226,7 +225,7 @@
             <label for="libraryCard">Library card (ID)</label>
             <input id="libraryCard" placeholder="Optional: existing card #" type="text">
 
-            <!-- NEW: account type selector -->
+            <!-- account type selector -->
             <label for="accountType">Account type</label>
             <select aria-label="Account type" id="accountType">
                 <option selected value="member">Member</option>
@@ -247,7 +246,6 @@
             <input id="modifyAccountId" placeholder="e.g. 12" type="number">
 
             <button id="searchBtn">Search</button>
-            <!-- <button id="deleteBtn">Delete user</button> -->
             <div id="modifyAccountDiv" style="padding: 10px">
                 <label for="modifyFullName">Full Name</label>
                 <input id="modifyFullName" type="text" required>
@@ -283,10 +281,10 @@
 </footer>
 
 <script>
-    // Primary endpoints (adjust if your backend uses different routes)
-    const PRIMARY_REGISTER = 'http://localhost:8080/register';     // common custom register route
-    const FALLBACK_CREATE_ACCOUNT = 'http://localhost:8080/account'; // fallback endpoint if register isn't available
-    const DELETE_ACCOUNT_BASE = 'http://localhost:8080/account'; // DELETE /account/{id}
+
+    const PRIMARY_REGISTER = 'http://localhost:8080/register';
+    const FALLBACK_CREATE_ACCOUNT = 'http://localhost:8080/account';
+    const DELETE_ACCOUNT_BASE = 'http://localhost:8080/account';
 
     async function signOut() {
         try {
@@ -316,7 +314,7 @@
         const confirmPassword = document.getElementById('confirmPassword').value;
         const phone = document.getElementById('phone').value.trim();
         const libraryCard = document.getElementById('libraryCard').value.trim();
-        const accountType = document.getElementById('accountType').value; // NEW: selected role
+        const accountType = document.getElementById('accountType').value;
 
         setMessage(msgEl, '', '#333');
 
@@ -335,12 +333,10 @@
             if (!ok) return;
         }
 
-        // prepare payload that matches Account entity field names
+
         const payload = {
-            // If your backend's Account entity uses a different field name (e.g. "password"),
-            // update this key accordingly.
             passwordHash: password,
-            accountType: accountType, // sends 'member' or 'admin'
+            accountType: accountType,
             notificationEmail: email,
             phoneNumber: phone || null,
             fullName: fullName,
@@ -352,7 +348,6 @@
         btn.textContent = 'Creating...';
 
         try {
-            // try primary register endpoint first
             let res = await fetch(PRIMARY_REGISTER, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -360,7 +355,6 @@
                 body: JSON.stringify(payload)
             });
 
-            // If primary endpoint returns 404 or 405, try fallback
             if (res.status === 404 || res.status === 405) {
                 res = await fetch(FALLBACK_CREATE_ACCOUNT, {
                     method: 'POST',
@@ -371,14 +365,13 @@
             }
 
             if (res.ok) {
-                // Try to parse returned json for extra info
                 let info = '';
                 try {
                     const json = await res.json();
                     if (json && (json.accountId || json.id || json.account_id)) {
                         info = ` (ID: ${json.accountId || json.id || json.account_id})`;
                     }
-                } catch (_) { /* ignore parse errors */
+                } catch (_) {
                 }
 
                 setMessage(msgEl, 'User created successfully' + info + '.', 'green');
@@ -392,7 +385,6 @@
                 document.getElementById('libraryCard').value = '';
                 document.getElementById('accountType').value = 'member';
             } else {
-                // try to read text or json error message
                 let text = '';
                 try {
                     text = await res.text();

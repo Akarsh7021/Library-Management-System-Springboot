@@ -137,7 +137,6 @@
             margin-bottom: 12px;
         }
 
-        /* results panel spans full width */
         .results {
             margin-top: 30px;
             max-width: 980px;
@@ -293,7 +292,6 @@
     function setInlineMessage(id, text, color) {
         const el = document.getElementById(id);
         if (!el) {
-            // fallback to alert if inline element missing
             if (text) console.log(`Message [${id}]: ${text}`);
             return;
         }
@@ -310,12 +308,7 @@
         return obj.borrowId || obj.borrow_id || obj.id || null;
     }
 
-    /* --- API helpers for Borrow --- */
 
-    /**
-     * Query the correct endpoint for borrows by serial barcode.
-     * Returns array of borrow objects or null on failure.
-     */
     async function findBorrowsBySerial(serial) {
         if (serial === null || serial === undefined) return null;
         const url = `${BORROW_BASE}/find/serial_barcode_bookcopy/${encodeURIComponent(serial)}`;
@@ -332,7 +325,6 @@
             const json = await resp.json();
             // controller returns a List<Borrow> (array) - ensure it's an array
             if (Array.isArray(json)) return json;
-            // sometimes wrapper -> try common keys
             if (json && Array.isArray(json.items)) return json.items;
             if (json && Array.isArray(json.data)) return json.data;
             // if single object returned
@@ -344,26 +336,20 @@
         }
     }
 
-    /**
-     * Update a Borrow object to mark it returned by sending PUT /borrow
-     * Expects a full borrow object (will set returnedDate and status)
-     */
+
     async function updateBorrowToReturned(borrowObj) {
         if (!borrowObj) throw new Error('No borrow object provided');
 
         // ensure we have a borrow id
         const borrowId = parseBorrowId(borrowObj);
         if (!borrowId) {
-            // It's possible backend uses different key - fail early
             throw new Error('Could not determine borrow id for record.');
         }
 
-        // set returned date and status
-        // use property names matching your Borrow entity: returnedDate, status
         borrowObj.returnedDate = isoDateToday();
         borrowObj.status = 'Returned';
 
-        const url = `${BORROW_BASE}`; // PUT /borrow expects full object
+        const url = `${BORROW_BASE}`;
         const resp = await fetch(url, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
@@ -377,9 +363,8 @@
     document.getElementById('returnBookForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         const form = e.target;
-        // find the submit button in this form (so we can disable it while processing)
         const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button');
-        const msgId = 'returnMsg'; // inline message element (best if present in HTML)
+        const msgId = 'returnMsg';
         setInlineMessage(msgId, '', '#333');
 
         const raw = (document.getElementById('bookId')?.value || '').trim();
@@ -396,7 +381,6 @@
         }
 
         try {
-            // 1) Query borrows by serial using the correct API
             const borrows = await findBorrowsBySerial(serial);
 
             if (!borrows || borrows.length === 0) {
@@ -404,13 +388,11 @@
                 return;
             }
 
-            // 2) Prefer records with status indicating currently borrowed/overdue (case-insensitive)
             const candidates = borrows.filter(b => {
                 const status = (b.status || '').toString().toLowerCase();
                 return status.includes('borrow') || status.includes('overdue') || status === 'borrowed' || status === 'overdue';
             });
 
-            // If none match the "active" filter but there are records, use all returned records as candidates.
             const toUpdate = (candidates.length > 0) ? candidates : borrows;
 
             // Sort by borrowedDate descending (most recent first) so we update recent ones first
@@ -458,13 +440,8 @@
         }
     });
 
-    /* ---------------------------
-       NOTE: Condition notes code below is kept compatible with your earlier working code.
-       I left the notes handlers untouched (but added small robustness where helpful).
-       Replace or remove if you already have working handlers in your page.
-       --------------------------- */
 
-    /* Save Condition Notes (keeps previous behaviour) */
+    /* Save Condition Notes */
     document.getElementById('conditionForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         const form = e.target;
@@ -521,7 +498,7 @@
         }
     });
 
-    /* View Notes (keeps previous behaviour) */
+    /* View Notes */
     async function fetchConditionNotes(serial) {
         const headers = {'Accept': 'application/json'};
         // 1) path param
@@ -533,7 +510,6 @@
             console.debug('notes path attempt failed', e);
         }
 
-        // 2) query param serialBarcodeBookCopy
         try {
             const url2 = `${NOTES_BASE}?serialBarcodeBookCopy=${encodeURIComponent(serial)}`;
             const r2 = await fetch(url2, {method: 'GET', headers, credentials: 'include'});
@@ -542,7 +518,6 @@
             console.debug('notes query attempt failed', e);
         }
 
-        // 3) generic ?serial
         try {
             const url3 = `${NOTES_BASE}?serial=${encodeURIComponent(serial)}`;
             const r3 = await fetch(url3, {method: 'GET', headers, credentials: 'include'});

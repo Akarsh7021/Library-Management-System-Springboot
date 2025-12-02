@@ -379,7 +379,6 @@
 
         else {
             const notes = await res.json();
-            //console.log(notes);
 
             var tbody = document.getElementById("tbody");
             document.getElementById("result-container").style.display = "inline-block";
@@ -403,7 +402,6 @@
         }
 
 
-        //alert("Condition Notes:\n\n" + notes.join("\n"));
     });
 
     async function applyRoleToNav() {

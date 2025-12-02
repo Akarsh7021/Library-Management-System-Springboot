@@ -201,7 +201,6 @@
         // Log collected and converted data for debugging
         console.log("Borrow Request:", {bookId, accountId, dueDate});
 
-        // Create request payload (matching backend entity field names)
         const requestData = {
             serialBarcodeBookCopy: bookId,
             accountIdAccount: accountId,
@@ -221,28 +220,19 @@
         })
             .then(async response => {
                 if (response.status === 400) { // if a check fails for book copy or account
-                    //alert(await response.text());
                     labelBorrowStat.style.display = "block";
                     labelBorrowStat.style.color = "red";
                     labelBorrowStat.innerHTML = await response.text();
                 } else if (response.status === 201) { // if status is ok
-                    //console.log("Borrow: ", await response.body);
-                    //alert(await response.text());
                     labelBorrowStat.style.display = "block";
                     labelBorrowStat.style.color = "green";
                     labelBorrowStat.innerHTML = await response.text();
                 } else if (!response.ok) { // catch other errors
                     throw new Error('HTTP error! status:' + response.status)
                 }
-                //return response.json();
             })
-            /*
-            .then(data => {
-                console.log("Response from server:", data);
-                alert("Borrow request successfully sent!");
-            })
-             */
-            .catch(error => {
+
+                .catch(error => {
                 console.error("Error:", error);
                 alert("Unable to connect to server or request failed.");
             });

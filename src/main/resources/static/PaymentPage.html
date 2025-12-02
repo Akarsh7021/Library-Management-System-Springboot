@@ -241,10 +241,6 @@
         }
     });
 
-    // Print or Save Receipt
-    //document.getElementById("printReceipt").addEventListener("click", () => {
-    //window.print();
-    //});
 </script>
 <script>
     document.querySelector('button[type="button"]').addEventListener('click', generateInvoice);
@@ -400,7 +396,6 @@
     async function getCurrentFineMultiplier(){
         const res = await fetch("/config/fineMultiplier");
         const data = await res.json();
-        //console.log(data);
         if (!res.ok) { alert(data.message); }
 
         else

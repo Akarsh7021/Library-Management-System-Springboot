@@ -34,11 +34,6 @@
             background-size: cover;
             /* apply filter consistently across the whole image */
             filter: contrast(35%) brightness(1.5);
-            /* optional subtle overlay so white panels remain easy to read */
-            /* add an rgba overlay with linear-gradient if you want a tint:
-               background-image: linear-gradient(rgba(255,255,255,0.18), rgba(255,255,255,0.18)), url(...);
-            */
-            will-change: transform; /* performance hint */
         }
 
         header {
@@ -217,7 +212,6 @@
             border-top: 1px solid #e0e0e0;
             font-size: 0.9em;
             color: #555;
-            /* footer will naturally sit at the bottom because main is flexible */
             flex-shrink: 0;
         }
 
@@ -318,7 +312,6 @@
     <div class="slideshow-container">
         <h2 id="slide-title"></h2>
         <p id="slide-text"></p>
-        <!-- Optional navigation buttons -->
         <button onclick="plusSlides(-1)">Back &#10094</button>
         <button onclick="plusSlides(1)">Next &#10095</button>
         <button onclick="getRecBooks()">More suggestions</button>
@@ -443,7 +436,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", (event) => {
-        // Your code here to run on page load
         document.getElementById("catalogSearch").addEventListener('keydown',function (event) {
             if(event.key === 'Enter') {
                 event.preventDefault();
@@ -453,7 +445,7 @@
         getRecBooks();
     });
 
-    // recommend books based on borrow records. If not available, recommend random books
+    // recommend books based on borrow records
     async function getRecBooks()
     {
         // get signed-in user's account ID and fetch recommendations based on borrowing records
@@ -471,7 +463,7 @@
         console.log(books)
 
         // set the section title based on recommendations type
-        if (recType === "random" || recType === "") { // if recommending a random book
+        if (recType === "random" || recType === "") {
             bookRecSectionTitle.innerHTML = "Books you may like";
         } else { // recommend a book from borrow records
             bookRecSectionTitle.innerHTML = `Similar to <b>"${recType}"</b>`;
@@ -511,7 +503,7 @@
         setTimeout(() => {
             slideTitle.classList.remove('fade');
             slideText.classList.remove('fade');
-        }, 1500); // Must match CSS animation duration
+        }, 1500);
 
         const currentSlide = slideData[slideIndex];
         slideTitle.innerHTML = currentSlide.title;

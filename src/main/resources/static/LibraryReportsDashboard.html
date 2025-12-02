@@ -72,29 +72,20 @@
             margin-bottom: 40px;
         }
 
-        /* 1. The Container */
+
         form {
             display: flex;
-            flex-wrap: wrap; /* Allows items to wrap on small screens */
+            flex-wrap: wrap;
             gap: 20px;
-            justify-content: center; /* Keeps everything centered */
+            justify-content: center;
         }
 
-        /* 2. The Item Groups */
         .form-group {
             display: flex;
-            /* Default: Mobile style (Label on top) */
             flex-direction: column;
-
-            /* Flex Growth:
-               1 = Grow to fill space (removes empty column issue)
-               1 = Shrink if needed
-               300px = Ideal starting width (prevents them from getting too squashed)
-            */
             flex: 1 1 300px;
         }
 
-        /* 3. The Button */
         form button {
             background-color: #0077b6;
             color: white;
@@ -115,14 +106,12 @@
             background-color: #005f8c;
         }
 
-        /* 4. Input Styling */
         form input {
             padding: 10px;
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 1em;
             outline: none;
-            /* Input takes remaining space in the group */
             width: 100%;
             box-sizing: border-box;
             text-align: center;
@@ -133,26 +122,23 @@
             box-shadow: 0 0 4px rgba(0, 119, 182, 0.3);
         }
 
-        /* =========================================
-           MEDIA QUERY: DESKTOP / WIDE SCREENS
-           ========================================= */
+
         @media (min-width: 768px) {
             .form-group {
                 /* Switch to horizontal layout */
                 flex-direction: row;
-                align-items: center; /* Vertically align label and input */
+                align-items: center;
             }
 
             .form-group label {
-                /* Fixed width ensures inputs align perfectly vertically */
                 width: 100px;
-                text-align: right; /* Puts text next to the input */
-                margin-right: 15px; /* Space between label and input */
-                white-space: nowrap; /* Prevents "Start Date" from breaking */
+                text-align: right;
+                margin-right: 15px;
+                white-space: nowrap;
             }
 
             form input {
-                text-align: left; /* Usually looks better left-aligned on desktop */
+                text-align: left;
             }
         }
 

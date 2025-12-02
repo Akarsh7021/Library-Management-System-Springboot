@@ -5,7 +5,6 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>City Library | Account Registration</title>
     <style>
-        /* Restored original styles with minor additions for the debug panel */
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -125,7 +124,6 @@
             margin-top: 60px;
         }
 
-        /* Debug panel (collapsed by default) */
         #debugToggle {
             margin-top: 12px;
             background: transparent;
@@ -147,8 +145,6 @@
             overflow: auto;
             display: none; /* start collapsed */
         }
-
-        /* small responsive tweak */
         @media (max-width: 700px) {
             main {
                 padding: 20px;
@@ -206,7 +202,6 @@
 <footer>© 2025 City Library</footer>
 
 <script>
-    // endpoints to try (relative preferred; fallback to localhost absolute)
     const TRY_URLS = ['/api/register', 'http://localhost:8080/api/register'];
 
     // helper log to both console and the debug panel
@@ -320,9 +315,8 @@
                 } catch (err) {
                     lastError = err;
                     debugLog('Fetch error for', url, '-', err && err.name ? (err.name + ': ' + err.message) : String(err));
-                    // try next URL (maybe CORS or host mismatch)
                 }
-            } // end for
+            }
 
             // if we reach here, all attempts failed (network/CORS)
             debugLog('All endpoints unreachable. Last error:', lastError);
