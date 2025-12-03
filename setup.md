@@ -16,8 +16,8 @@ The minimum software required to build and run the software is as follows:
 
 - Oracle JDK 23 or newer (or any compatible JDK of
   choice): https://www.oracle.com/ca-en/java/technologies/downloads/#jdk25-windows
-    - PostgreSQL 18 (other versions may work but are
-      untested): https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+- PostgreSQL 18 (other versions may work but are
+  untested): https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 - Optionally, any Java IDE
 
 A script to automatically install the required software on Windows systems equipped with PowerShell and Winget is as
@@ -34,6 +34,9 @@ configuration asks which port to host the service, leave as the default (5432) o
 
 You may need to restart your computer to start all services and add all executables to the `$PATH`.
 
+On Windows, the Path variable is not always updated by the PostgreSQL installer. To fix this, run the PowerShell command
+when you open the terminal to run any commands in this guide: `$env:Path += ";C:\Program Files\PostgreSQL\18\bin\"`.
+
 ## Setting Up the Database
 
 First, ensure the database is working and running on your system by running the `psql`(`.exe`) utility from the
@@ -49,7 +52,7 @@ Next, load the example data file into the database. Follow these steps:
     2. On Unix-like Systems: `pg_restore ./extras/info2413-sample.sql`
 4. Observe the console output for any errors. If there are none, continue.
 5. Update the PostgreSQL section in `src/main/resources/application.properties` with the correct host, port, and
-   credentials. Example configuration is shown below.
+   credentials. An example configuration is shown below.
 
 Find this:
 
