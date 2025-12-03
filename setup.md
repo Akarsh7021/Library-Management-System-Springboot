@@ -14,8 +14,7 @@ Our software stack is as follows:
 
 The minimum software required to build and run the software is as follows:
 
-- Oracle JDK 23 or newer (or any compatible JDK of
-  choice): https://www.oracle.com/ca-en/java/technologies/downloads/#jdk25-windows
+- Oracle JDK 23: https://www.oracle.com/java/technologies/javase/jdk23-archive-downloads.html
 - PostgreSQL 18 (other versions may work but are
   untested): https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 - Optionally, any Java IDE
@@ -35,21 +34,25 @@ configuration asks which port to host the service, leave as the default (5432) o
 You may need to restart your computer to start all services and add all executables to the `$PATH`.
 
 On Windows, the Path variable is not always updated by the PostgreSQL installer. To fix this, run the PowerShell command
-when you open the terminal to run any commands in this guide: `$env:Path += ";C:\Program Files\PostgreSQL\18\bin\"`.
+when you open the terminal to run any commands in this guide:
+
+```bash
+$ $env:Path += ";C:\Program Files\PostgreSQL\18\bin\"
+```
 
 ## Setting Up the Database
 
 First, ensure the database is working and running on your system by running the `psql`(`.exe`) utility from the
-terminal. If the utility does not authenticate automatically, run with the `-u `(username)` -p `(password) arguments. If
-it connects with no error, exit with `\q`.
+terminal. If the utility does not authenticate automatically, append the `-U `(username) argument to this and all other
+PostgreSQL commands. If it connects with no error, exit with `\q`.
 
 Next, load the example data file into the database. Follow these steps:
 
 1. Open your terminal of choice (on Windows, usually CMD, PowerShell, or Windows Terminal)
 2. Navigate to the downloaded source code, ensuring you are in the folder containing the `extra` folder.
 3. Run the `pg_restore` utility to restore the backup data from the backup.
-    1. On Windows: `pg_restore.exe .\extras\info2413-sample.sql`
-    2. On Unix-like Systems: `pg_restore ./extras/info2413-sample.sql`
+    1. On Windows: `pg_restore.exe -C -d info2413 .\extra\info2413-sample.sql`
+    2. On Unix-like Systems: `pg_restore -C -d postgres ./extra/info2413-sample.sql`
 4. Observe the console output for any errors. If there are none, continue.
 5. Update the PostgreSQL section in `src/main/resources/application.properties` with the correct host, port, and
    credentials. An example configuration is shown below.
@@ -89,7 +92,7 @@ To build the software and connect to the interface, the database must be set up 
 2. Navigate to the downloaded source code, ensuring you are in the folder containing `gradlew`(`.bat`)
 3. Run the Gradle build
     1. On Windows: `.\gradlew.bat bootRun`
-    2. On Unix-like Systems: `./gradlew build`
+   2. On Unix-like Systems: `./gradlew bootRun`
 4. Connect your web browser to http://localhost:8080/
 
 To stop the server, focus the terminal window and press `^c` (Ctrl+C).
