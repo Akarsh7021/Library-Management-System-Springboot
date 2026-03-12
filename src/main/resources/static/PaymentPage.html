@@ -73,6 +73,18 @@
             margin: 40px auto;
         }
 
+        .container{
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 40px auto;
+        }
+
+        .payment-container{
+            display: flex;
+        }
+
         .payment-box label {
             display: block;
             text-align: left;
@@ -120,6 +132,7 @@
             border-top: 1px solid #e0e0e0;
             margin-top: 60px;
         }
+
         nav a {
             text-decoration: none;
             color: #333;
@@ -139,34 +152,52 @@
     <a href="CatalogPage.html">Catalog</a>
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
-    <div class="section-title">Payments and Fines</div>
+    <div class="payment-container">
+        <div class="container">
+            <div class="section-title">Payments and Fines</div>
+            <!--PAYMENT FORM-->
+            <div class="payment-box">
+                <form id="paymentForm">
+                    <label for="accountId">Account ID</label>
+                    <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
 
-    <div class="payment-box">
-        <form id="paymentForm">
-            <label for="accountId">Account ID</label>
-            <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
+                    <label for="paymentAmount">Payment Amount</label>
+                    <input id="paymentAmount" name="paymentAmount" placeholder="Enter amount" required type="number">
 
-            <label for="paymentAmount">Payment Amount</label>
-            <input id="paymentAmount" name="paymentAmount" placeholder="Enter amount" required type="number">
+                    <label for="paymentMethod">Payment Method</label>
+                    <select id="paymentMethod" name="paymentMethod" required>
+                        <option value="">--Select Method--</option>
+                        <option value="cash">Cash</option>
+                        <option value="credit">Credit</option>
+                        <option value="debit">Debit</option>
+                    </select>
 
-            <label for="paymentMethod">Payment Method</label>
-            <select id="paymentMethod" name="paymentMethod" required>
-                <option value="">--Select Method--</option>
-                <option value="cash">Cash</option>
-                <option value="credit">Credit</option>
-                <option value="debit">Debit</option>
-            </select>
-
-            <div class="button-group">
-                <button type="submit">Pay</button>
-                <button id="printReceipt" type="button">Print/Save Receipt</button>
+                    <div class="button-group">
+                        <button type="submit">Pay</button>
+                        <button id="printReceipt" type="button">Print/Save Receipt</button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
+
+        <!--FINE CONFIG FORM -->
+        <div class="container">
+            <div class="section-title">Fine Multiplier</div>
+            <div class="payment-box">
+                <form id="fineConfigForm">
+                    <label for="fineMultiplier_current">Current Fine Multiplier</label>
+                    <input id="fineMultiplier_current" name="fineMultiplier_current" disabled>
+                    <label for="fineMultiplier_new">New Fine Multiplier</label>
+                    <input id="fineMultiplier_new" name="fineMultiplier_new" placeholder="Enter a number" required type="number">
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
     </div>
 </main>
 
@@ -210,10 +241,6 @@
         }
     });
 
-    // Print or Save Receipt
-    //document.getElementById("printReceipt").addEventListener("click", () => {
-    //window.print();
-    //});
 </script>
 <script>
     document.querySelector('button[type="button"]').addEventListener('click', generateInvoice);
@@ -330,16 +357,90 @@
   `);
         invoiceWindow.document.close();
     }
+
     async function signOut() {
         try {
             // Call logout on server
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }
         // Redirect to login page
         window.location.href = "AccountLogin.html";
     }
+
+    async function applyRoleToNav() {
+        try {
+            const res = await fetch('/account/current', {credentials: 'include'});
+            if (!res.ok) {
+                // not authenticated or error -> hide admin links
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                return;
+            }
+            const me = await res.json();
+            const accountType = (me.accountType || '').toString().trim();
+            // case-insensitive check for admin
+            const isAdmin = accountType.toLowerCase() === 'admin';
+            if (!isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+            }
+        } catch (err) {
+            console.warn('applyRoleToNav error:', err);
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    // get fine multiplier from Configuration and update field
+    async function getCurrentFineMultiplier(){
+        const res = await fetch("/config/fineMultiplier");
+        const data = await res.json();
+        if (!res.ok) { alert(data.message); }
+
+        else
+        {
+            let currentMultiplierField= document.getElementById("fineMultiplier_current");
+            currentMultiplierField.value = "$" + data.configValue + "/Day";
+        }
+    }
+
+    // configure fine multiplier
+    async function updateFineMultiplier() {
+        let newFineMultiplierField = document.getElementById("fineMultiplier_new");
+
+        const newConfig = {
+            configKey: "fineMultiplier",
+            configValue: newFineMultiplierField.value,
+        };
+
+        // update
+        const res = await fetch("/config", {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(newConfig)
+        });
+
+        if(!res.ok) { alert(res.message); }
+
+        if(res.ok){ //if all good
+            // display the current value to field
+            document.getElementById("fineMultiplier_current").value = "$" + newFineMultiplierField.value + "/Day";
+            newFineMultiplierField.value = "";
+            alert("Fine Multiplier successfully updated!");
+            // trigger fine recalculation
+            await fetch("fine/recalc");
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyRoleToNav);
+    document.addEventListener('DOMContentLoaded', getCurrentFineMultiplier);
+
+    // submit action for Fine Config Form
+    document.getElementById("fineConfigForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        updateFineMultiplier();
+    });
 </script>
 
 </body>

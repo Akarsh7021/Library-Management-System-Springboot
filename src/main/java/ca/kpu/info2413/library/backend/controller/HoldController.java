@@ -1,15 +1,15 @@
 package ca.kpu.info2413.library.backend.controller;
 
+import ca.kpu.info2413.library.backend.model.BookCopy;
 import ca.kpu.info2413.library.backend.model.Hold;
+import ca.kpu.info2413.library.backend.service.BookCopyService;
 import ca.kpu.info2413.library.backend.service.HoldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/hold")
@@ -18,6 +18,8 @@ public class HoldController
 
     @Autowired
     private HoldService holdService;
+    @Autowired
+    private BookCopyService bookCopyService;
 
     @GetMapping
     public List<Hold> findAll()
@@ -32,7 +34,6 @@ public class HoldController
     }
 
 
-
     /// ///
 
 
@@ -43,32 +44,62 @@ public class HoldController
     }
 
     @GetMapping("/find/account_id/{account_id}")
-    public List<Hold> findByAccountId(@PathVariable Integer account_id)
+    public ResponseEntity<?> findByAccountId(@PathVariable Integer account_id)
     {
-        return holdService.findByAccountId(account_id);
+        List<Hold> holds = holdService.findByAccountId(account_id);
+        if(holds.isEmpty()) return ResponseEntity.ok(holds);
+
+        // get book copy and publications from hold records
+        List<Map<String, String>> result = new ArrayList<>();
+
+        for (Hold hold : holds)
+        {
+            Optional<BookCopy> bc = bookCopyService.findBySerialBarcode(hold.getSerialBarcodeBookCopy());
+            bc.ifPresent(bookCopy ->
+            {
+                // add to result
+                Map<String, String> map = new HashMap<>();
+                map.put("serialBarcodeBookCopy",hold.getSerialBarcodeBookCopy().toString());
+                map.put("heldSince", hold.getHeldSince().toString());
+                map.put("holdExpiry", hold.getHoldExpiry().toString());
+                map.put("bookTitle", bookCopy.getPublication().getTitle());
+
+                result.add(map);
+            });
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
-    public ResponseEntity<?> createHold(@RequestBody Map<String, String> body) {
-        try {
+    public ResponseEntity<?> createHold(@RequestBody Map<String, String> body)
+    {
+        try
+        {
             String bookIdStr = body.get("bookId");
             String accountIdStr = body.get("accountId");
-            if (bookIdStr == null || accountIdStr == null) {
+            if (bookIdStr == null || accountIdStr == null)
+            {
                 return ResponseEntity.badRequest().body("bookId and accountId are required.");
             }
             Integer bookId = Integer.parseInt(bookIdStr);
             Integer accountId = Integer.parseInt(accountIdStr);
 
             Optional<Hold> exists = holdService.findByBookAndAccount(bookId, accountId);
-            if (exists.isPresent()) {
+            if (exists.isPresent())
+            {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Hold already exists for that book/account.");
             }
 
             Hold created = holdService.createHold(bookId, accountId);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
-        } catch (NumberFormatException nfe) {
+        }
+        catch (NumberFormatException nfe)
+        {
             return ResponseEntity.badRequest().body("bookId and accountId must be numbers.");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating hold.");
         }
@@ -76,14 +107,18 @@ public class HoldController
 
     /**
      * Cancel a hold by bookId and accountId
-     * DELETE /api/holds?bookId=123&accountId=456
+     * DELETE /holds?bookId=123&accountId=456
      */
     @DeleteMapping
-    public ResponseEntity<?> cancelHold(@RequestParam Integer bookId, @RequestParam Integer accountId) {
+    public ResponseEntity<?> cancelHold(@RequestParam Integer bookId, @RequestParam Integer accountId)
+    {
         boolean removed = holdService.cancelHold(bookId, accountId);
-        if (removed) {
+        if (removed)
+        {
             return ResponseEntity.noContent().build();
-        } else {
+        }
+        else
+        {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Hold not found for that book/account.");
         }
     }

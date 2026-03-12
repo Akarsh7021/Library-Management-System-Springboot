@@ -94,10 +94,12 @@
             color: #333;
         }
 
+        .user-box input[type='number'],
         .user-box input[type="text"],
         .user-box input[type="email"],
         .user-box input[type="password"],
-        .user-box input[type="tel"] {
+        .user-box input[type="tel"],
+        .user-box select {
             width: 100%;
             padding: 10px;
             margin-bottom: 16px;
@@ -105,6 +107,25 @@
             border-radius: 6px;
             font-size: 1em;
             outline: none;
+            box-sizing: border-box;
+        }
+
+        .button-group button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 48%;
+            font-size: 1em;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
         }
 
         .user-box button {
@@ -122,6 +143,14 @@
 
         .user-box button:hover {
             background-color: #005f8c;
+        }
+
+        .button-group button.delete {
+            background-color: #d9534f;
+        }
+
+        .button-group button.delete:hover {
+            background-color: #c9302c;
         }
 
         .hint {
@@ -148,6 +177,11 @@
         nav a {
             cursor: pointer;
         }
+
+        button[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -160,8 +194,8 @@
     <a href="CatalogPage.html">Catalog</a>
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -174,39 +208,70 @@
             <p class="hint">Create a user and link to an existing library card (enter card ID if available).</p>
 
             <label for="fullName">Full name</label>
-            <input id="fullName" type="text" placeholder="Jane Doe" required>
+            <input id="fullName" placeholder="Jane Doe" required type="text">
 
             <label for="email">Email</label>
-            <input id="email" type="email" placeholder="jane@example.com" required>
+            <input id="email" placeholder="jane@example.com" required type="email">
 
             <label for="password">Password</label>
-            <input id="password" type="password" required>
+            <input id="password" required type="password">
 
             <label for="confirmPassword">Confirm password</label>
-            <input id="confirmPassword" type="password" required>
+            <input id="confirmPassword" required type="password">
 
             <label for="phone">Phone</label>
-            <input id="phone" type="tel" placeholder="(xxx) - xxx - xxxx">
+            <input id="phone" placeholder="(xxx) - xxx - xxxx" type="tel">
 
             <label for="libraryCard">Library card (ID)</label>
-            <input id="libraryCard" type="text" placeholder="Optional: existing card #">
+            <input id="libraryCard" placeholder="Optional: existing card #" type="text">
+
+            <!-- account type selector -->
+            <label for="accountType">Account type</label>
+            <select aria-label="Account type" id="accountType">
+                <option selected value="member">Member</option>
+                <option value="admin">Admin</option>
+            </select>
 
             <button id="createBtn">Create user</button>
 
-            <div id="createMsg" class="msg" aria-live="polite"></div>
+            <div aria-live="polite" class="msg" id="createMsg"></div>
         </div>
 
-        <!-- Delete user -->
+        <!-- Modify user -->
         <div class="user-box">
-            <h2>Delete user</h2>
-            <p class="hint">Delete an account by its Account ID.</p>
+            <h2>Modify user</h2>
+            <p class="hint">Modify/Delete an account by its Account ID.</p>
 
-            <label for="deleteAccountId">Account ID</label>
-            <input id="deleteAccountId" type="text" placeholder="e.g. 12">
+            <label for="modifyAccountId">Account ID</label>
+            <input id="modifyAccountId" placeholder="e.g. 12" type="number">
 
-            <button id="deleteBtn">Delete user</button>
+            <button id="searchBtn">Search</button>
+            <div id="modifyAccountDiv" style="padding: 10px">
+                <label for="modifyFullName">Full Name</label>
+                <input id="modifyFullName" type="text" required>
 
-            <div id="deleteMsg" class="msg" aria-live="polite"></div>
+                <label for="modifyEmail">Email</label>
+                <input id="modifyEmail" type="text" required>
+
+                <label for="modifyPassword">Password (leave blank to keep current)</label>
+                <input id="modifyPassword" type="password">
+
+                <label for="modifyPhone">Phone Number</label>
+                <input id="modifyPhone" type="text" required>
+
+                <label for="modifyAccountType">Account type</label>
+                <select aria-label="Account type" id="modifyAccountType">
+                    <option selected value="member">Member</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+                <div class="button-group">
+                    <button id="updateBtn" type="submit">Update</button>
+                    <button class="delete" id="deleteBtn" type="button">Delete</button>
+                </div>
+            </div>
+
+            <div aria-live="polite" class="msg" id="modifyMsg"></div>
         </div>
     </div>
 </main>
@@ -216,62 +281,101 @@
 </footer>
 
 <script>
-    // Update these if your backend uses different paths:
-    const REGISTER_URL = 'http://localhost:8080/register';     // POST { fullName, email, password, confirmPassword, phone, libraryCard }
-    const DELETE_ACCOUNT_BASE = 'http://localhost:8080/account'; // DELETE /account/{id}
+
+    const PRIMARY_REGISTER = 'http://localhost:8080/register';
+    const FALLBACK_CREATE_ACCOUNT = 'http://localhost:8080/account';
+    const DELETE_ACCOUNT_BASE = 'http://localhost:8080/account';
 
     async function signOut() {
         try {
-            await fetch('/logout', { method: 'POST', credentials: 'include' });
+            await fetch('/logout', {method: 'POST', credentials: 'include'});
         } catch (err) {
             console.warn('Logout request failed:', err);
         }
         window.location.href = 'AccountLogin.html';
     }
 
+    // helper to set message text and color
+    function setMessage(el, text, color) {
+        if (!el) return;
+        el.style.color = color || '#333';
+        el.textContent = text || '';
+    }
+
     // Create user
-    document.getElementById('createBtn').addEventListener('click', async () => {
+    document.getElementById('createBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const btn = e.currentTarget;
+        const msgEl = document.getElementById('createMsg');
+
         const fullName = document.getElementById('fullName').value.trim();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         const phone = document.getElementById('phone').value.trim();
         const libraryCard = document.getElementById('libraryCard').value.trim();
+        const accountType = document.getElementById('accountType').value;
 
-        const msgEl = document.getElementById('createMsg');
-        msgEl.style.color = '#333';
-        msgEl.textContent = '';
+        setMessage(msgEl, '', '#333');
 
         if (!fullName || !email || !password || !confirmPassword) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Please fill the required fields.';
+            setMessage(msgEl, 'Please fill the required fields.', 'crimson');
             return;
         }
         if (password !== confirmPassword) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Passwords do not match.';
+            setMessage(msgEl, 'Passwords do not match.', 'crimson');
             return;
         }
 
+        // if admin is selected, confirm it's intentional
+        if (accountType === 'admin') {
+            const ok = confirm('You selected Admin. Are you sure you want to create an admin account?');
+            if (!ok) return;
+        }
+
+
         const payload = {
-            fullName,
-            email,
-            password,
-            confirmPassword,
-            phone,
-            libraryCard
+            passwordHash: password,
+            accountType: accountType,
+            notificationEmail: email,
+            phoneNumber: phone || null,
+            fullName: fullName,
+            libraryCard: libraryCard || null
         };
 
+        // disable button while request in flight
+        btn.disabled = true;
+        btn.textContent = 'Creating...';
+
         try {
-            const res = await fetch(REGISTER_URL, {
+            let res = await fetch(PRIMARY_REGISTER, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
+                credentials: 'include',
                 body: JSON.stringify(payload)
             });
 
+            if (res.status === 404 || res.status === 405) {
+                res = await fetch(FALLBACK_CREATE_ACCOUNT, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+            }
+
             if (res.ok) {
-                msgEl.style.color = 'green';
-                msgEl.textContent = 'User created successfully.';
+                let info = '';
+                try {
+                    const json = await res.json();
+                    if (json && (json.accountId || json.id || json.account_id)) {
+                        info = ` (ID: ${json.accountId || json.id || json.account_id})`;
+                    }
+                } catch (_) {
+                }
+
+                setMessage(msgEl, 'User created successfully' + info + '.', 'green');
+
                 // clear inputs
                 document.getElementById('fullName').value = '';
                 document.getElementById('email').value = '';
@@ -279,49 +383,249 @@
                 document.getElementById('confirmPassword').value = '';
                 document.getElementById('phone').value = '';
                 document.getElementById('libraryCard').value = '';
+                document.getElementById('accountType').value = 'member';
             } else {
-                const text = await res.text();
-                msgEl.style.color = 'crimson';
-                msgEl.textContent = 'Failed: ' + (text || res.statusText || res.status);
+                let text = '';
+                try {
+                    text = await res.text();
+                } catch (err) {
+                    text = res.statusText || String(res.status);
+                }
+                setMessage(msgEl, 'Failed: ' + (text || res.statusText || res.status), 'crimson');
             }
         } catch (err) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Network error: ' + err.message;
+            setMessage(msgEl, 'Network error: ' + err.message, 'crimson');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Create user';
         }
     });
 
-    // Delete user
-    document.getElementById('deleteBtn').addEventListener('click', async () => {
-        const id = document.getElementById('deleteAccountId').value.trim();
-        const msgEl = document.getElementById('deleteMsg');
-        msgEl.style.color = '#333';
-        msgEl.textContent = '';
+    // to check if currently modified user is member or admin
+    let modifyingUserCurrentRole = "member";
 
-        if (!id) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Please enter an Account ID.';
+    // Search btn event
+    document.getElementById('searchBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await searchUser()
+    })
+
+    // Search user
+    async function searchUser(){
+        let modifyAccountIdfield = document.getElementById('modifyAccountId');
+        let modifyMsgField = document.getElementById('modifyMsg');
+        let btn = document.getElementById('searchBtn');
+
+        setMessage(modifyMsgField, '', '');
+
+        // Search account
+        if(btn.textContent === "Search") {
+            btn.textContent = 'Searching...';
+            btn.disabled = true;
+
+            // actual search
+            const res = await fetch("account/" + modifyAccountIdfield.value);
+            if(!res.ok){ // search fails
+                const error = await res.text();
+                setMessage(modifyMsgField, error, "red");
+                btn.textContent = 'Search';
+                btn.disabled = false;
+            } else{ // search ok
+                const result = await res.json();
+                console.log(result.fullName);
+                let modifyFullName = document.getElementById('modifyFullName');
+                let modifyEmail = document.getElementById('modifyEmail');
+                let modifyPhone = document.getElementById('modifyPhone');
+                let modifyAccountType = document.getElementById('modifyAccountType');
+
+                btn.textContent = "Reset Search";
+                btn.disabled = false;
+                modifyAccountIdfield.disabled = true;
+                setUserInfoFormState("Enabled");
+
+                modifyFullName.value = result.fullName;
+                modifyEmail.value = result.notificationEmail;
+                modifyPhone.value = result.phoneNumber;
+                modifyAccountType.value = result.accountType;
+                modifyingUserCurrentRole = result.accountType;
+            }
+        } else{ // Reset search
+            btn.textContent = 'Search';
+            btn.disabled = false;
+            modifyAccountIdfield.value = '';
+            modifyAccountIdfield.disabled = false;
+            modifyMsgField.disabled = false;
+            setMessage(modifyMsgField, '');
+            setUserInfoFormState("Disabled");
+        }
+    }
+
+    // update button event
+    document.getElementById('updateBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        await updateUser();
+    })
+
+    async function updateUser(){
+        let modifyAccountIdfield = document.getElementById('modifyAccountId');
+        let modifyFullName = document.getElementById('modifyFullName');
+        let modifyEmail = document.getElementById('modifyEmail');
+        let modifyPassword = document.getElementById('modifyPassword');
+        let modifyPhone = document.getElementById('modifyPhone');
+        let modifyAccountType = document.getElementById('modifyAccountType');
+        let modifyMsg = document.getElementById('modifyMsg');
+
+        if(modifyFullName.value === '' || modifyEmail.value === '' || modifyPhone.value === ''){
+            setMessage(modifyMsg, "Please fill in all required fields.", "crimson");
             return;
         }
 
+        // if promoting user to admin
+        if(modifyAccountType.value === 'admin' && modifyAccountType.value !== modifyingUserCurrentRole){
+            const ok = confirm('You are promoting this user to Admin. Do you want to proceed?');
+            if (!ok) return;
+        }
+
+        // if demoting user to member
+        if(modifyAccountType.value === 'member' && modifyAccountType.value !== modifyingUserCurrentRole){
+            const ok = confirm('You are demoting this user to Member. Do you want to proceed?');
+            if (!ok) return;
+        }
+
+        const userInfo = {
+            accountId: modifyAccountIdfield.value,
+            fullName: modifyFullName.value,
+            notificationEmail: modifyEmail.value,
+            phoneNumber: modifyPhone.value,
+            // send passwordHash only if user entered a value (server will ignore empty)
+            passwordHash: modifyPassword.value || null,
+            accountType: modifyAccountType.value
+        };
+
+        // update
+        const response = await fetch("/account", {
+            method: "PUT",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(userInfo)
+        });
+
+        if(!response.ok){
+            const error = await response.text();
+            setMessage(modifyMsg, error, "crimson");
+            return;
+        }
+
+        setMessage(modifyMsg, "Account successfully updated", "green");
+        setUserInfoFormState("Disabled");
+    }
+
+    function setUserInfoFormState(state){
+        let modifyFullName = document.getElementById('modifyFullName');
+        let modifyEmail = document.getElementById('modifyEmail');
+        let modifyPassword = document.getElementById('modifyPassword');
+        let modifyPhone = document.getElementById('modifyPhone');
+        let modifyAccountType = document.getElementById('modifyAccountType');
+        let updateBtn = document.getElementById('updateBtn');
+        let deleteBtn = document.getElementById('deleteBtn');
+
+        if(state === "Enabled"){
+            modifyFullName.disabled = false;
+            modifyEmail.disabled = false;
+            modifyPassword.disabled = false;
+            modifyPhone.disabled = false;
+            modifyAccountType.disabled = false;
+            updateBtn.disabled = false;
+            deleteBtn.disabled = false;
+        } else {
+            modifyFullName.disabled = true;
+            modifyFullName.value = "";
+            modifyEmail.disabled = true;
+            modifyEmail.value = "";
+            modifyPassword.disabled = true;
+            modifyPassword.value = "";
+            modifyPhone.disabled = true;
+            modifyPhone.value = "";
+            modifyAccountType.disabled = true;
+            updateBtn.disabled = true;
+            deleteBtn.disabled = true;
+            modifyingUserCurrentRole = "member";
+        }
+
+    }
+
+    // Delete user
+    document.getElementById('deleteBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const btn = e.currentTarget;
+        const msgEl = document.getElementById('modifyMsg');
+        const id = document.getElementById('modifyAccountId').value.trim();
+
+        setMessage(msgEl, '', '#333');
+
+        if (!id) {
+            setMessage(msgEl, 'Please enter an Account ID.', 'crimson');
+            return;
+        }
+
+        if (!confirm(`Delete account ${id}? This cannot be undone without recreating the account.`)) {
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Deleting...';
+
         try {
             const res = await fetch(`${DELETE_ACCOUNT_BASE}/${encodeURIComponent(id)}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'include'
             });
 
             if (res.ok || res.status === 204) {
-                msgEl.style.color = 'green';
-                msgEl.textContent = 'User deleted (or request accepted).';
-                document.getElementById('deleteAccountId').value = '';
+                setMessage(msgEl, 'User deleted.', 'green');
+                document.getElementById('modifyAccountId').value = '';
             } else {
-                const text = await res.text();
-                msgEl.style.color = 'crimson';
-                msgEl.textContent = 'Failed: ' + (text || res.statusText || res.status);
+                let text = '';
+                try {
+                    text = await res.text();
+                } catch (_) { /* ignore */
+                }
+                setMessage(msgEl, 'Failed: ' + (text || res.statusText || res.status), 'crimson');
             }
         } catch (err) {
-            msgEl.style.color = 'crimson';
-            msgEl.textContent = 'Network error: ' + err.message;
+            setMessage(msgEl, 'Network error: ' + err.message, 'crimson');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Delete user';
         }
     });
+
+    async function applyRoleToNav() {
+        try {
+            const res = await fetch('/account/current', {credentials: 'include'});
+            if (!res.ok) {
+                // not authenticated or error -> hide admin links
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                return;
+            }
+            const me = await res.json();
+            const accountType = (me.accountType || '').toString().trim();
+            // case-insensitive check for admin
+            const isAdmin = accountType.toLowerCase() === 'admin';
+            if (!isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+            }
+        } catch (err) {
+            console.warn('applyRoleToNav error:', err);
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyRoleToNav);
+    document.addEventListener('DOMContentLoaded', setUserInfoFormState("Disabled"));
 </script>
 </body>
 </html>

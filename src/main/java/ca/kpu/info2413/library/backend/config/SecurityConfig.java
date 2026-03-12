@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -18,15 +19,16 @@ import java.util.List;
  * Security configuration that wires our AccountUserDetailsService into the DaoAuthenticationProvider.
  */
 @Configuration
-public class SecurityConfig {
+public class SecurityConfig
+{
 
     @Autowired
     private AccountUserDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception
+    {
         http
-                // enable CORS (configured by corsConfigurationSource bean)
 
 
                 // authorisation rules
@@ -38,12 +40,34 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/PasswordRecoveryPage.html",
-                                "/RegisterationPage.html",
+                                "/RegistrationPage.html",
                                 "/register",
                                 // Allow registration endpoints (backend mappings vary in your project)
-                                "/api/register",
-                                "/account/register"
+                                "/register",
+                                "/account/register",
+                                "/api/register"
                         ).permitAll()
+                        .requestMatchers(
+                                "/account",
+                                "/account/borrowed_rec",
+                                "/account/current",
+                                "/account/book_rec/{account_id}",
+                                "/publication/searchHomepage",
+                                "/publication/search",
+                                "/config/**" //guh
+                        ).authenticated()
+                        .requestMatchers(
+                                "/AdminPage.html",
+                                "/AddDeleteUser.html",
+                                "/Inventory Page.html",
+                                "/LibraryReportsDashboard.html",
+                                "/admin/**",
+                                "/api/admin/**",
+                                // protect write operations - example REST endpoints:
+                                "/publication", "/publication/**",
+                                "/book_copy", "/book_copy/**",
+                                "/bookcopy/**", "/account/**" // if account management endpoints should be admin-only
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 // auth provider
@@ -75,7 +99,8 @@ public class SecurityConfig {
 
     // DaoAuthenticationProvider using our AccountUserDetailsService and provided PasswordEncoder
     @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder) {
+    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder)
+    {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService); // use our service
         provider.setPasswordEncoder(passwordEncoder);
@@ -84,18 +109,9 @@ public class SecurityConfig {
 
     // Plain-text encoder for development (replace with BCryptPasswordEncoder in prod)
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new PasswordEncoder() {
-            @Override
-            public String encode(CharSequence rawPassword) {
-                return rawPassword == null ? null : rawPassword.toString();
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return rawPassword != null && rawPassword.toString().equals(encodedPassword);
-            }
-        };
+    public PasswordEncoder passwordEncoder()
+    {
+        return new BCryptPasswordEncoder();
     }
 
     /**
@@ -104,7 +120,8 @@ public class SecurityConfig {
      * If you prefer to lock origins down, replace "*" with explicit origin(s).
      */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource()
+    {
         CorsConfiguration configuration = new CorsConfiguration();
         // allow any origin (development). Use List.of("http://localhost:5500") to restrict.
         configuration.setAllowedOrigins(List.of("*"));

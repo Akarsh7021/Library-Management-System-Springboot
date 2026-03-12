@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class BookCopy
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "serial_barcode")
     private Integer serialBarcode;
 

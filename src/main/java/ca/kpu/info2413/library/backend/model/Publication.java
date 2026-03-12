@@ -15,11 +15,12 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Publication {
+public class Publication
+{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "isbn_13")
-    private Integer isbn13;
+    private Long isbn13;
 
     private String title;
 
@@ -31,13 +32,31 @@ public class Publication {
 
     private String genre;
 
-    @OneToMany(mappedBy = "publication", fetch = FetchType.LAZY)
+    @Column(name = "ebook_url")
+    private String ebookUrl;
+
+    @OneToMany(mappedBy = "publication", cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<PublicationAuthor> publicationAuthors;
 
+    @Transient
+    @JsonProperty("authors")
+    private List<String> authors;
+
+    public Publication(Long isbn13)
+    {
+        this.isbn13 = isbn13;
+    }
+
+    public List<String> getInputAuthors()
+    {
+        return authors;
+    }
+
     // Derived property for JSON
     @JsonProperty("authors")
-    public List<String> getAuthors() {
+    public List<String> getAuthors()
+    {
         if (publicationAuthors == null) return List.of();
         return publicationAuthors.stream()
                 .map(pa -> pa.getAuthor().getAuthorName())

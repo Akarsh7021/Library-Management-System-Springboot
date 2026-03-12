@@ -125,6 +125,7 @@
             border-top: 1px solid #e0e0e0;
             margin-top: 60px;
         }
+
         nav a {
             text-decoration: none;
             color: #333;
@@ -144,8 +145,8 @@
     <a href="CatalogPage.html">Catalog</a>
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -156,14 +157,14 @@
             <h2>Borrow Book</h2>
             <form id="borrowForm" onsubmit="borrowBook(event)">
                 <label for="bookId">Book ID</label>
-                <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="text">
+                <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="number">
 
                 <label for="accountId">Account ID</label>
-                <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
+                <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="number">
 
                 <label for="dueDate">Due Date</label>
                 <input id="dueDate" name="dueDate" required type="date">
-
+                <label id="borrowStat" style="display: none"></label>
                 <button type="submit">Borrow</button>
             </form>
         </div>
@@ -198,9 +199,8 @@
         }
 
         // Log collected and converted data for debugging
-        console.log("Borrow Request:", { bookId, accountId, dueDate });
+        console.log("Borrow Request:", {bookId, accountId, dueDate});
 
-        // Create request payload (matching backend entity field names)
         const requestData = {
             serialBarcodeBookCopy: bookId,
             accountIdAccount: accountId,
@@ -209,23 +209,30 @@
 
         console.log("Payload sent to server:", requestData);
 
+        // prep label to report status
+        var labelBorrowStat = document.getElementById("borrowStat");
+
         // Fetch call to backend API
-        fetch("http://localhost:8080/api/borrow", {
+        fetch("http://localhost:8080/borrow", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(requestData)
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server responded with status ${response.status}`);
+            .then(async response => {
+                if (response.status === 400) { // if a check fails for book copy or account
+                    labelBorrowStat.style.display = "block";
+                    labelBorrowStat.style.color = "red";
+                    labelBorrowStat.innerHTML = await response.text();
+                } else if (response.status === 201) { // if status is ok
+                    labelBorrowStat.style.display = "block";
+                    labelBorrowStat.style.color = "green";
+                    labelBorrowStat.innerHTML = await response.text();
+                } else if (!response.ok) { // catch other errors
+                    throw new Error('HTTP error! status:' + response.status)
                 }
-                return response.json();
             })
-            .then(data => {
-                console.log("Response from server:", data);
-                alert("Borrow request successfully sent!");
-            })
-            .catch(error => {
+
+                .catch(error => {
                 console.error("Error:", error);
                 alert("Unable to connect to server or request failed.");
             });
@@ -233,16 +240,70 @@
         // Reset form after submission
         document.getElementById("borrowForm").reset();
     }
+
     async function signOut() {
         try {
             // Call logout on server
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }
         // Redirect to login page
         window.location.href = "AccountLogin.html";
     }
+
+
+    async function applyRoleToNav() {
+        try {
+            const res = await fetch('/account/current', {credentials: 'include'});
+            if (!res.ok) {
+                // not authenticated or error -> hide admin links
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                return;
+            }
+            const me = await res.json();
+            const accountType = (me.accountType || '').toString().trim();
+            // case-insensitive check for admin
+            const isAdmin = accountType.toLowerCase() === 'admin';
+            if (!isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+            }
+        } catch (err) {
+            console.warn('applyRoleToNav error:', err);
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    async function applyDefaultBorrowTime() {
+        let dueDateField = document.getElementById("dueDate");
+        let dueDateVal = new Date();
+        try {
+            const res = await fetch('/config/defaultBorrowTime');
+
+            if(!res.ok) {
+                let errMsg = await res.text();
+                console.log("Error loading default Borrow Time: " + errMsg);
+                dueDateField.valueAsDate = dueDateVal;
+                return;
+            }
+
+            const result = await res.json();
+            const defaultBorrowTime = parseInt(result.configValue);
+
+            // update the due date field
+            dueDateVal.setDate(dueDateVal.getDate() + defaultBorrowTime);
+            dueDateField.valueAsDate = dueDateVal;
+
+        } catch (err) {
+            console.warn('applyDefaultBorrowTime error:', err);
+            dueDateField.valueAsDate = dueDateVal;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyRoleToNav);
+    document.addEventListener('DOMContentLoaded', applyDefaultBorrowTime);
 </script>
 </body>
 </html>

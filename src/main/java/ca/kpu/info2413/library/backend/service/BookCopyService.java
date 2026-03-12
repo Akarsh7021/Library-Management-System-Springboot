@@ -46,12 +46,15 @@ public class BookCopyService
     }
 
     // Find by ISBN13
-    public List<BookCopy> findByIsbn13(Integer isbn13)
+    public List<BookCopy> findByIsbn13(Long isbn13)
     {
         Optional<Publication> publicationOpt = publicationRepository.findById(isbn13);
-        if (publicationOpt.isEmpty()) {
+        if (publicationOpt.isEmpty())
+        {
             throw new RuntimeException("Publication not found for ISBN: " + isbn13);
         }
         return findByPublication(publicationOpt.get());
     }
+
+    //public Optional<Publication>
 }

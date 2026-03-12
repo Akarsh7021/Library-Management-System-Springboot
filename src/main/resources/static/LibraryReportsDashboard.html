@@ -72,23 +72,18 @@
             margin-bottom: 40px;
         }
 
+
         form {
-            display: grid;
-            gap: 15px;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
         }
 
-        form input, form button {
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 1em;
-            outline: none;
-        }
-
-        form input:focus {
-            border-color: #0077b6;
-            box-shadow: 0 0 4px rgba(0, 119, 182, 0.3);
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 300px;
         }
 
         form button {
@@ -96,13 +91,55 @@
             color: white;
             border: none;
             cursor: pointer;
-            grid-column: 1 / -1;
+            padding: 10px;
+            border-radius: 6px;
             font-size: 1em;
             transition: background-color 0.2s;
+            margin-top: 10px;
+
+            /* Force button to take full width of the container */
+            width: 100%;
+            flex-basis: 100%;
         }
 
         form button:hover {
             background-color: #005f8c;
+        }
+
+        form input {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        form input:focus {
+            border-color: #0077b6;
+            box-shadow: 0 0 4px rgba(0, 119, 182, 0.3);
+        }
+
+
+        @media (min-width: 768px) {
+            .form-group {
+                /* Switch to horizontal layout */
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .form-group label {
+                width: 100px;
+                text-align: right;
+                margin-right: 15px;
+                white-space: nowrap;
+            }
+
+            form input {
+                text-align: left;
+            }
         }
 
         table {
@@ -122,26 +159,31 @@
             color: white;
         }
 
+        .table-scroll {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
         .charts {
             display: grid;
             gap: 30px;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
         }
 
-        .chart-box canvas {
-            width: 100%;
-            height: 300px;
+        canvas {
+            max-height: 300px;
         }
 
         footer {
             text-align: center;
             padding: 15px;
+            margin-top: 60px;
             font-size: 0.9em;
             color: #777;
-            background-color: #ffffff;
             border-top: 1px solid #e0e0e0;
-            margin-top: 60px;
+            background-color: #ffffff;
         }
+
         nav a {
             text-decoration: none;
             color: #333;
@@ -149,6 +191,8 @@
             transition: color 0.2s;
             cursor: pointer;
         }
+
+
     </style>
 </head>
 <body>
@@ -161,77 +205,67 @@
     <a href="CatalogPage.html">Catalog</a>
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
     <div class="section-title">📊 Library Reports Dashboard</div>
 
+    <!-- FILTER -->
     <div class="form-box">
-        <h2 style="color:#0077b6;">Generate New Report</h2>
         <form id="reportForm">
-            <input placeholder="User ID" required type="text"/>
-            <input placeholder="Full Name" required type="text"/>
-            <input placeholder="Book Title" required type="text"/>
-            <input required type="date"/>
-            <input required type="date"/>
-            <input placeholder="Fine ($)" required type="number"/>
+            <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input id="startDate" type="date">
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input id="endDate" type="date">
+            </div>
             <button type="submit">Generate Report</button>
         </form>
     </div>
 
+    <!-- Borrow table -->
     <div class="table-box">
-        <h2 style="color:#0077b6;">📘 Borrow & Return Table</h2>
-        <table id="generatedTable">
-            <thead>
-            <tr>
-                <th>User ID</th>
-                <th>Full Name</th>
-                <th>Book Title</th>
-                <th>Borrowed Date</th>
-                <th>Due Date</th>
-                <th>Fine ($)</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <h3>📘 Borrow & Return</h3>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Book</th>
+                    <th>Borrowed</th>
+                    <th>Due</th>
+                    <th>Fine</th>
+                </tr>
+                </thead>
+                <tbody id="borrowBody"></tbody>
+            </table>
+        </div>
     </div>
 
+    <!--Fine summary -->
     <div class="table-box">
-        <h2 style="color:#0077b6;">💸 Fine Summary</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>Account ID</th>
-                <th>Full Name</th>
-                <th>Fines</th>
-                <th>Last Fine Date</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>A001</td>
-                <td>John Smith</td>
-                <td>$20.00</td>
-                <td>2025-10-20</td>
-            </tr>
-            <tr>
-                <td>A002</td>
-                <td>Alice Johnson</td>
-                <td>$15.00</td>
-                <td>2025-10-19</td>
-            </tr>
-            <tr>
-                <td>A003</td>
-                <td>Emma Lee</td>
-                <td>$10.00</td>
-                <td>2025-10-21</td>
-            </tr>
-            </tbody>
-        </table>
+        <h3>💸 Fine Summary</h3>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Name</th>
+                    <th>Total</th>
+                    <th>Last Fine</th>
+                </tr>
+                </thead>
+                <tbody id="fineBody"></tbody>
+            </table>
+        </div>
     </div>
 
+    <!-- Charts -->
     <div class="charts">
         <div class="chart-box">
             <h3>Genre Popularity</h3>
@@ -240,7 +274,7 @@
 
         <div class="chart-box">
             <h3>Borrowing Trends</h3>
-            <canvas id="borrowTrendChart"></canvas>
+            <canvas id="borrowChart"></canvas>
         </div>
 
         <div class="chart-box">
@@ -250,79 +284,164 @@
     </div>
 </main>
 
-<footer>
-    © 2025 City Library
-</footer>
+<footer>© 2025 City Library</footer>
 
 <script>
-    // Generate new report
-    document.getElementById("reportForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const inputs = e.target.querySelectorAll("input");
-        const row = document.createElement("tr");
-        row.innerHTML = `
-        <td>${inputs[0].value}</td>
-        <td>${inputs[1].value}</td>
-        <td>${inputs[2].value}</td>
-        <td>${inputs[3].value}</td>
-        <td>${inputs[4].value}</td>
-        <td>$${inputs[5].value}</td>
-      `;
-        document.querySelector("#generatedTable tbody").appendChild(row);
-        e.target.reset();
-    });
+    /* ================== COLORS ================== */
+    const barColors = ['#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#073b4c', '#adb5bd'];
+    const pieColors = ['#6050DC', '#D52DB7', '#FF2E7E', '#FF6B45', '#FFAB05', '#b2bec3'];
 
-    // Charts
-    new Chart(document.getElementById('genreChart'), {
+    /* ================== CHARTS ================== */
+    let genreChart = new Chart(document.getElementById('genreChart'), {
         type: 'bar',
         data: {
-            labels: ['Fiction', 'Science', 'Programming', 'History', 'AI'],
+            labels: [],
             datasets: [{
-                label: 'Borrow Count',
-                data: [12, 9, 15, 6, 10],
-                backgroundColor: '#0077b6'
+                data: [],
+                backgroundColor: []
             }]
         },
-        options: {responsive: true, scales: {y: {beginAtZero: true}}}
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {display: false}
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {precision: 0}
+                }
+            }
+        }
     });
 
-    new Chart(document.getElementById('borrowTrendChart'), {
+
+    const borrowChart = new Chart(document.getElementById('borrowChart'), {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+            labels: [],
             datasets: [{
-                label: 'Books Borrowed',
-                data: [5, 10, 8, 15, 12],
-                borderColor: '#ff9800',
-                backgroundColor: 'rgba(255,152,0,0.2)',
-                fill: true,
-                tension: 0.4
+                data: [],
+                tension: 0.5,
+                backgroundColor: 'rgba(0,180,216,0.3)',
+                borderColor: '#bf3cea',
+                fill: true
             }]
         },
-        options: {responsive: true}
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {display: false}
+            },
+            scales: {
+                y: {
+                    beginAtZero: true, ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
     });
 
-    new Chart(document.getElementById('authorChart'), {
+    const authorChart = new Chart(document.getElementById('authorChart'), {
         type: 'pie',
-        data: {
-            labels: ['Jane Austen', 'J.K. Rowling', 'Dan Brown', 'Yuval Harari'],
-            datasets: [{
-                data: [10, 15, 8, 12],
-                backgroundColor: ['#0077b6', '#ff9800', '#4caf50', '#9c27b0']
-            }]
-        },
-        options: {responsive: true}
+        data: {labels: [], datasets: [{data: [], backgroundColor: []}]}
     });
-    async function signOut() {
-        try {
-            // Call logout on server
-            await fetch("/logout", { method: "POST", credentials: "include" });
-        } catch (err) {
-            console.warn("Logout request failed:", err);
+
+    /* ================== HELPERS ================== */
+    function top5WithOther(data, valueKey, labelKey, capRatio) {
+        const sorted = [...data].sort((a, b) => b[valueKey] - a[valueKey]);
+        const top = sorted.slice(0, 5);
+        const rest = sorted.slice(5);
+
+        let labels = top.map(x => x[labelKey]);
+        let values = top.map(x => x[valueKey]);
+
+        if (rest.length) {
+            const sum = rest.reduce((s, x) => s + x[valueKey], 0);
+            const cap = Math.min(sum, Math.floor(Math.min(...values) * capRatio));
+            labels.push("Other");
+            values.push(cap);
         }
-        // Redirect to login page
-        window.location.href = "AccountLogin.html";
+        return {labels, values};
+    }
+
+    /* ================== UPDATERS ================== */
+    function updateGenre(data) {
+        if (!data.length) return;
+        const r = top5WithOther(data, 'count', 'genre', 0.5);
+        genreChart.data.labels = r.labels;
+        genreChart.data.datasets[0].data = r.values;
+        genreChart.data.datasets[0].backgroundColor = barColors.slice(0, r.labels.length);
+        genreChart.update();
+    }
+
+    function updateAuthors(data) {
+        if (!data.length) return;
+        const r = top5WithOther(data, 'count', 'author', 0.3);
+        authorChart.data.labels = r.labels;
+        authorChart.data.datasets[0].data = r.values;
+        authorChart.data.datasets[0].backgroundColor = pieColors.slice(0, r.labels.length);
+        authorChart.update();
+    }
+
+    function updateBorrow(data) {
+        borrowChart.data.labels = data.map(x => x.month);
+        borrowChart.data.datasets[0].data = data.map(x => x.count);
+        borrowChart.update();
+    }
+
+    /* ================== TABLES ================== */
+    function fillTable(id, rows, mapper) {
+        const body = document.getElementById(id);
+        body.innerHTML = '';
+        rows.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = mapper(r);
+            body.appendChild(tr);
+        });
+    }
+
+    /* ================== FETCH ================== */
+    async function fetchDashboard(start, end) {
+        const res = await fetch("http://localhost:8080/api/reports/dashboard", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({startDate: start, endDate: end})
+        });
+        const d = await res.json();
+
+        fillTable('borrowBody', d.borrowReturn, r => `
+        <td>${r.accountId}</td>
+        <td>${r.fullName}</td>
+        <td>${r.bookTitle}</td>
+        <td>${r.borrowedDate}</td>
+        <td>${r.dueDate}</td>
+        <td>$${r.fine}</td>`);
+
+        fillTable('fineBody', d.fineSummary, r => `
+        <td>${r.accountId}</td>
+        <td>${r.fullName}</td>
+        <td>$${r.totalFine}</td>
+        <td>${r.lastFineDate}</td>`);
+
+        updateGenre(d.genreStats);
+        updateAuthors(d.authorStats);
+        updateBorrow(d.borrowTrend);
+    }
+
+    document.getElementById('reportForm').onsubmit = e => {
+        e.preventDefault();
+        fetchDashboard(startDate.value || null, endDate.value || null);
+    };
+
+    window.onload = () => fetchDashboard(null, null);
+
+    async function signOut() {
+        await fetch('/logout', {method: 'POST'});
+        location.href = 'AccountLogin.html';
     }
 </script>
+
 </body>
 </html>

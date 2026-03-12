@@ -66,4 +66,10 @@ public class FineController
     {
         return accountService.findByAccountId(account_id);
     }
+
+    @GetMapping("/recalc")
+    public void recalculateFineOnDemand()
+    {
+        fineService.updateAllFines();
+    }
 }

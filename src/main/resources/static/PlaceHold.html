@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>City Library | Place Hold</title>
     <style>
         /* page layout */
@@ -10,10 +10,11 @@
             height: 100%;
             margin: 0;
         }
+
         body {
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* ensures footer can be pushed to bottom */
+            min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg') no-repeat center center/cover;
             backdrop-filter: contrast(35%) brightness(1.5);
@@ -30,6 +31,7 @@
             align-items: center;
             justify-content: space-between;
         }
+
         header h1 {
             font-size: 1.5em;
             margin: 0;
@@ -45,6 +47,7 @@
             padding: 12px 40px;
             border-bottom: 1px solid #e0e0e0;
         }
+
         nav a {
             text-decoration: none;
             color: #333;
@@ -52,15 +55,18 @@
             transition: color 0.2s;
             cursor: pointer;
         }
-        nav a:hover { color: #0077b6; }
 
-        /* main - flexible area grows to fill */
+        nav a:hover {
+            color: #0077b6;
+        }
+
+
         main {
             padding: 40px 80px;
             max-width: 1200px;
             margin: 0 auto;
             text-align: center;
-            flex: 1 0 auto; /* allows main to grow and push footer to bottom */
+            flex: 1 0 auto;
         }
 
         .section-title {
@@ -111,7 +117,7 @@
             outline: none;
         }
 
-        .hold-box button {
+        .hold-box button:not(.tableCancelBtn) {
             background-color: #0077b6;
             color: white;
             border: none;
@@ -121,9 +127,57 @@
             transition: background-color 0.2s;
             width: 100%;
         }
-        .hold-box button:hover { background-color: #005f8c; }
 
-        /* footer — match other pages and stick to bottom via flex layout */
+        .tableCancelBtn {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 80%;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .hold-box button:hover, .tableCancelBtn:hover {
+            background-color: #005f8c;
+        }
+
+        /* list of my holds */
+        #myHolds {
+            margin-top: 24px;
+            text-align: left;
+        }
+        #myHolds h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.05em;
+            color: #0077b6;
+        }
+        #myHolds ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #myHolds li {
+            background: #fff;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            display:flex;
+            justify-content:space-between;
+            gap:12px;
+        }
+        .wait-pos {
+            font-weight:600;
+            color:#333;
+        }
+        .book-id {
+            color:#555;
+        }
+
         footer {
             background-color: #ffffff;
             border-top: 1px solid #e0e0e0;
@@ -158,21 +212,56 @@
             font-size: 0.9em;
             transition: color 0.2s;
         }
-        .footer-links a:hover { color: #0077b6; }
+
+        .footer-links a:hover {
+            color: #0077b6;
+        }
 
         /* small responsive tweak */
         @media (max-width: 760px) {
-            main { padding: 24px; }
-            nav { padding: 12px 20px; gap: 12px; }
-            .forms { gap: 20px; }
-            .hold-box { width: 100%; max-width: 420px; }
-            .footer-content { padding: 0 20px; }
+            main {
+                padding: 24px;
+            }
+
+            nav {
+                padding: 12px 20px;
+                gap: 12px;
+            }
+
+            .forms {
+                gap: 20px;
+            }
+
+            .hold-box {
+                width: 100%;
+                max-width: 420px;
+            }
+
+            .footer-content {
+                padding: 0 20px;
+            }
         }
 
-        /* optional message styling */
-        .message { margin-top: 8px; font-size: 0.95em; }
-        .message.success { color: #2b8a3e; }
-        .message.error { color: #c53030; }
+        .message {
+            margin-top: 8px;
+            font-size: 0.95em;
+        }
+
+        .message.success {
+            color: #2b8a3e;
+        }
+
+        .message.error {
+            color: #c53030;
+        }
+
+        table, th, td {
+            border:1px solid black;
+        }
+
+        table {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -185,8 +274,8 @@
     <a href="CatalogPage.html">Catalog</a>
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -196,30 +285,37 @@
         <!-- Place Hold -->
         <div class="hold-box">
             <h2>Place Hold</h2>
+            <div style="margin-bottom:10px; font-size:0.95em; color:#555;">
+                Placing holds for: <strong id="meName">…</strong>
+            </div>
+
             <form id="placeHoldForm">
                 <label for="bookId">Book ID</label>
                 <input id="bookId" name="bookId" placeholder="Enter Book ID" required type="text">
 
-                <label for="accountId">Account ID</label>
-                <input id="accountId" name="accountId" placeholder="Enter Account ID" required type="text">
-
                 <button type="submit">Place Hold</button>
-                <div id="placeMsg" class="message" aria-live="polite"></div>
+                <div aria-live="polite" class="message" id="placeMsg"></div>
             </form>
+
+            <div id="myHolds" aria-live="polite" style="display:none;">
+                <h3>My Holds (<span id="myHoldsCount">0</span>/10)</h3>
+                <ul id="myHoldsList"></ul>
+            </div>
         </div>
 
         <!-- Cancel Hold -->
         <div class="hold-box">
             <h2>Cancel Hold</h2>
+            <div style="margin-bottom:10px; font-size:0.95em; color:#555;">
+                Cancelling holds for: <strong id="meName2">…</strong>
+            </div>
+
             <form id="cancelHoldForm">
                 <label for="cancelBookId">Book ID</label>
                 <input id="cancelBookId" name="cancelBookId" placeholder="Enter Book ID" required type="text">
 
-                <label for="cancelAccountId">Account ID</label>
-                <input id="cancelAccountId" name="cancelAccountId" placeholder="Enter Account ID" required type="text">
-
                 <button type="submit">Cancel Hold</button>
-                <div id="cancelMsg" class="message" aria-live="polite"></div>
+                <div aria-live="polite" class="message" id="cancelMsg"></div>
             </form>
         </div>
     </div>
@@ -233,106 +329,328 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const API_BASE = "http://localhost:8080/hold";
+        const API_WAITLIST = "http://localhost:8080/waitlist";
+        const API_HOLD = "http://localhost:8080/hold";
+        const MAX_WAITS = 10;
 
-        // grab elements safely
+        // page elements
         const placeForm = document.getElementById("placeHoldForm");
         const cancelForm = document.getElementById("cancelHoldForm");
         const placeMsg = document.getElementById("placeMsg");
         const cancelMsg = document.getElementById("cancelMsg");
 
-        // helper to set message
-        function setMessage(elem, text, isError = false) {
-            if (!elem) return;
-            elem.textContent = text || "";
-            elem.classList.remove("success", "error");
-            if (isError) elem.classList.add("error");
-            else if (text) elem.classList.add("success");
+        const myHoldsContainer = document.createElement("div");
+        myHoldsContainer.id = "myHoldsContainer";
+        myHoldsContainer.classList.add("hold-box");
+        myHoldsContainer.style.marginTop = "20px";
+        myHoldsContainer.style.width = "auto";
+        document.querySelector("main").appendChild(myHoldsContainer);
+
+        // helper messages
+        function setMessage(el, text, isError = false) {
+            if (!el) return;
+            el.textContent = text || "";
+            el.classList.remove("success","error");
+            if (isError) el.classList.add("error");
+            else if (text) el.classList.add("success");
         }
 
-        // guard: if the form isn't on the page, do nothing (prevents null errors)
+        async function currentAccount() {
+            try {
+                const res = await fetch("/account/current", { credentials: "include" });
+                if (!res.ok) {
+                    console.warn("account/current not ok", res);
+                    return null;
+                }
+                console.log("account/current ok", res);
+                return await res.json();
+            } catch (err) {
+                console.warn("account/current failed", err);
+                return null;
+            }
+        }
+
+        // show holds (active Hold entries) for current user
+        async function showActiveHolds(accountId) {
+            try {
+                const res = await fetch(`${API_HOLD}/find/account_id/${encodeURIComponent(accountId)}`, { credentials: "include" });
+                if (!res.ok) { myHoldsContainer.innerHTML = ""; return; }
+                const list = await res.json(); // array of Hold
+
+                // Build UI
+                let html = `<h2>Active Holds (${list.length})</h2>`;
+                if (list.length === 0) html += "<p>No active holds.</p>";
+                else {
+                    html += "<table>";
+                    html += "<tbody>"
+                    html += "<tr><th>Serial Barcode</th><th>Book Title</th><th>Held Since</th><th>Expiry Date</th><th>Cancel Hold</th></tr>";
+
+                    //table content
+                    for (const h of list) {
+                        // show info if available
+                        const serialBarcode = h.serialBarcodeBookCopy ?? h.serial_barcode_bookcopy ?? "(unknown)";
+                        const bookTitle = h.bookTitle ?? h.bookTitle ?? "(unknown)";
+                        const heldSince = h.heldSince ?? h.heldSince ?? "(unknown)";
+                        const expiry = h.holdExpiry ?? h.hold_expiry ?? "(unknown)";
+
+                        html += `<tr><td>${serialBarcode}</td><td>${bookTitle}</td><td>${heldSince}</td><td>${expiry}</td><td><button class="tableCancelBtn" data-row="${serialBarcode}">Cancel</button></td></tr>`;
+                    }
+
+                    // table ends
+                    html += "</tbody></table>";
+
+                }
+                myHoldsContainer.innerHTML = html;
+
+                const tableCancelBtns = document.querySelectorAll('.tableCancelBtn');
+                if(tableCancelBtns.length > 0) {
+                    tableCancelBtns.forEach(cancelBtn => {
+                        cancelBtn.addEventListener("click", () => {
+                            if (!confirm(`Are you sure you want to cancel?`)) {
+                                return;
+                            }
+                            cancelHold(event.target.getAttribute("data-row"))
+                        })
+                    })
+                }
+
+
+            } catch (err) {
+                console.error("showActiveHolds error", err);
+            }
+        }
+
+        // show waitlist entries & positions
+        async function showWaitlist(accountId) {
+            try {
+                const res = await fetch(`${API_WAITLIST}/account/${encodeURIComponent(accountId)}`, { credentials: "include" });
+                if (!res.ok) {
+                    console.warn("waitlist fetch failed:", res.status);
+                    return;
+                }
+                const list = await res.json();
+
+                // build UI
+                let html = `<h2>My Waitlist (${list.length}/${MAX_WAITS})</h2>`;
+                if (!Array.isArray(list) || list.length === 0) {
+                    html += "<p>No waitlist entries.</p>";
+                } else {
+                    html += "<table><tbody><tr><th>Book Title</th><th>Waitlist Position</th></tr>";
+                    for (const ap of list) {
+                        // prefer DTO fields (title/isbn/waitlistPosition)
+                        const pos = ap.waitlistPosition ?? ap.waitlist_position ?? ap.position ?? "(?)";
+
+
+                        let title = "(unknown)";
+                        if (ap.title) {
+                            title = ap.title;
+                        } else if (ap.publication && (ap.publication.title || ap.publication.name)) {
+                            title = ap.publication.title ?? ap.publication.name;
+                        } else if (ap.publication && ap.publication.isbn13) {
+                            title = "ISBN " + ap.publication.isbn13;
+                        } else if (ap.isbn13 || ap.isbn) {
+                            title = "ISBN " + (ap.isbn13 ?? ap.isbn);
+                        } else if (ap.id) {
+                            title = "ISBN " + (ap.id.isbn13Publication ?? ap.id.isbn13_publication ?? ap.id.isbn13 ?? "(unknown)");
+                        }
+
+                        html += `<tr><td>${title}</td><td>#${pos}</td></tr>`
+                    }
+                    html += "</tbody></table>";
+                }
+
+                const wrapperId = "waitlistHtmlBlock";
+                let wrapper = document.getElementById(wrapperId);
+                if (!wrapper) {
+                    wrapper = document.createElement("div");
+                    wrapper.id = wrapperId;
+                    myHoldsContainer.appendChild(wrapper);
+                }
+                wrapper.innerHTML = html;
+            } catch (err) {
+                console.error("showWaitlist error", err);
+            }
+        }
+
+        // get current user and populate lists
+        (async function init() {
+            const me = await currentAccount();
+            if (!me) {
+                setMessage(placeMsg, "You must be signed in to place holds.", true);
+                if (placeForm) placeForm.style.display = "none";
+                if (cancelForm) cancelForm.style.display = "none";
+                return;
+            }
+
+            const displayName = `${me.fullName || ''} (ID: ${me.accountId})`;
+
+            const nameLabel1 = document.getElementById("meName");
+            const nameLabel2 = document.getElementById("meName2");
+
+            if (nameLabel1) nameLabel1.textContent = displayName;
+            if (nameLabel2) nameLabel2.textContent = displayName;
+
+            const accountId = me.accountId;
+            await showActiveHolds(accountId);
+            await showWaitlist(accountId);
+        })();
+
+        // Place on waitlist (uses publication ISBN value in the Book ID field)
         if (placeForm) {
             placeForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
-                setMessage(placeMsg, "", false);
-
-                const bookId = (document.getElementById("bookId")?.value || "").trim();
-                const accountId = (document.getElementById("accountId")?.value || "").trim();
-
-                if (!bookId || !accountId) {
-                    setMessage(placeMsg, "Book ID and Account ID are required.", true);
-                    return;
-                }
-
-                const payload = { bookId: bookId, accountId: accountId };
-
-                try {
-                    const res = await fetch(API_BASE, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
-                        body: JSON.stringify(payload)
-                    });
-
-                    const text = await res.text();
-                    if (res.ok) {
-                        setMessage(placeMsg, "Hold placed successfully.");
-                        placeForm.reset();
-                    } else {
-                        // show server message or fallback status
-                        setMessage(placeMsg, `Failed to place hold: ${text || res.statusText}`, true);
-                        console.warn("Place hold failed:", res.status, text);
-                    }
-                } catch (err) {
-                    console.error("Network error placing hold:", err);
-                    setMessage(placeMsg, "Could not connect to the server.", true);
-                }
+                await placeHold();
             });
         }
 
         if (cancelForm) {
             cancelForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
-                setMessage(cancelMsg, "", false);
+                await cancelHold((document.getElementById("cancelBookId")?.value || "").trim());
+            });
+        }
 
-                const bookId = (document.getElementById("cancelBookId")?.value || "").trim();
-                const accountId = (document.getElementById("cancelAccountId")?.value || "").trim();
+        async function placeHold() {
+            setMessage(placeMsg, "", false);
 
-                if (!bookId || !accountId) {
-                    setMessage(cancelMsg, "Book ID and Account ID are required.", true);
+            const isbn = (document.getElementById("bookId")?.value || "").trim();
+            if (!isbn) { setMessage(placeMsg, "Enter ISBN to place a hold.", true); return; }
+
+            // get current account
+            const me = await currentAccount();
+            if (!me) { setMessage(placeMsg, "You must be signed in.", true); return; }
+            const accountId = me.accountId;
+
+            // enforce limit
+            try {
+                const wlRes = await fetch(`${API_WAITLIST}/account/${encodeURIComponent(accountId)}`, { credentials: "include" });
+                if (wlRes.ok) {
+                    const wl = await wlRes.json();
+                    if (Array.isArray(wl) && wl.length >= MAX_WAITS) {
+                        setMessage(placeMsg, `You already have ${wl.length} waitlist entries (limit ${MAX_WAITS}).`, true);
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn("could not fetch waitlist for limit check", err);
+            }
+
+            // call server to add to waitlist
+            try {
+                const res = await fetch(API_WAITLIST, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ isbn: isbn, accountId: String(me.accountId) })
+                });
+
+                const text = await res.text();
+                if (!res.ok) {
+                    setMessage(placeMsg, `Failed: ${text || res.statusText}`, true);
+                    return;
+                }
+                // try parse JSON
+                let json;
+                try { json = JSON.parse(text); } catch(_) { json = null; }
+
+                const position = json && json.position ? json.position : text || "added";
+                setMessage(placeMsg, `Added to waitlist. Position: ${position}`);
+                // refresh lists
+                await showActiveHolds(me.accountId);
+                await showWaitlist(me.accountId);
+                placeForm.reset();
+            } catch (err) {
+                console.error("Place waitlist error", err);
+                setMessage(placeMsg, "Network or server error placing waitlist.", true);
+            }
+        }
+
+        async function cancelHold(isbn) {
+            setMessage(cancelMsg, "", false);
+
+            if (!isbn) { setMessage(cancelMsg, "Enter ISBN / Book ID to cancel.", true); return; }
+            const me = await currentAccount();
+            if (!me) { setMessage(cancelMsg, "You must be signed in.", true); return; }
+            const accountId = me.accountId;
+
+            // Try cancelling waitlist first
+            try {
+                const res = await fetch(`${API_WAITLIST}?isbn=${encodeURIComponent(isbn)}&accountId=${encodeURIComponent(accountId)}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                });
+                if (res.ok || res.status === 204) {
+                    setMessage(cancelMsg, "Removed from waitlist/hold.");
+                    await showActiveHolds(accountId);
+                    await showWaitlist(accountId);
+                    cancelForm.reset();
                     return;
                 }
 
-                try {
-                    const res = await fetch(`${API_BASE}?bookId=${encodeURIComponent(bookId)}&accountId=${encodeURIComponent(accountId)}`, {
-                        method: "DELETE",
-                        credentials: "include"
-                    });
-
-                    const text = await res.text();
-                    if (res.ok) {
-                        setMessage(cancelMsg, "Hold cancelled successfully.");
-                        cancelForm.reset();
-                    } else {
-                        setMessage(cancelMsg, `Failed to cancel hold: ${text || res.statusText}`, true);
-                        console.warn("Cancel hold failed:", res.status, text);
-                    }
-                } catch (err) {
-                    console.error("Network error cancelling hold:", err);
-                    setMessage(cancelMsg, "Could not connect to the server.", true);
+                const holdDel = await fetch(`${API_HOLD}?bookId=${encodeURIComponent(isbn)}&accountId=${encodeURIComponent(accountId)}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                });
+                if (holdDel.ok || holdDel.status === 204) {
+                    setMessage(cancelMsg, "Hold cancelled.");
+                    await showActiveHolds(accountId);
+                    await showWaitlist(accountId);
+                    cancelForm.reset();
+                    return;
                 }
-            });
-        }
-    });
 
-    async function signOut() {
-        try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
-        } catch (err) {
-            console.warn("Logout request failed:", err);
+                const txt = await res.text();
+                setMessage(cancelMsg, `Cancel failed: ${txt || res.statusText}`, true);
+
+            } catch (err) {
+                console.error("Cancel error", err);
+                setMessage(cancelMsg, "Network error cancelling hold/waitlist.", true);
+            }
         }
-        window.location.href = "AccountLogin.html";
-    }
+
+        async function applyRoleToNav() {
+            try {
+                const res = await fetch('/account/current', {credentials: 'include'});
+                if (!res.ok) {
+                    // not authenticated or error -> hide admin links
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                    return;
+                }
+                const me = await res.json();
+                const accountType = (me.accountType || '').toString().trim();
+                // case-insensitive check for admin
+                const isAdmin = accountType.toLowerCase() === 'admin';
+                if (!isAdmin) {
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                } else {
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+                }
+            } catch (err) {
+                console.warn('applyRoleToNav error:', err);
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            }
+        }
+
+        async function getISBNFromURL() {
+            const query = window.location.search;
+            const urlParams = new URLSearchParams(query);
+            const isbn = urlParams.get('isbn');
+
+            if (isbn) {
+                let bookId = document.getElementById('bookId');
+                bookId.value = isbn;
+                await placeHold();
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", getISBNFromURL);
+        window.addEventListener('DOMContentLoaded', applyRoleToNav);
+
+        window.signOut = async function() {
+            try { await fetch("/logout", { method: "POST", credentials: "include" }); } catch(e){}
+            window.location.href = "AccountLogin.html";
+        };
+    });
 </script>
 </body>
 </html>

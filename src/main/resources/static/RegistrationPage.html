@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>City Library | Account Registration</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        main {
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 30px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+            text-align: left;
+        }
+
+        .register-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            max-width: 500px;
+            margin: 40px auto;
+            text-align: left;
+        }
+
+        .register-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .register-box input[type="text"],
+        .register-box input[type="email"],
+        .register-box input[type="password"],
+        .register-box input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .register-box button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            font-size: 1em;
+        }
+
+        .register-box button:hover {
+            background-color: #005f8c;
+        }
+
+        .msg {
+            margin-top: 12px;
+            font-weight: 600;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9em;
+            color: #777;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 60px;
+        }
+
+        #debugToggle {
+            margin-top: 12px;
+            background: transparent;
+            border: none;
+            color: #0077b6;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        #debugPanel {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #f7f9fb;
+            border: 1px solid #e1e6ea;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+            max-height: 220px;
+            overflow: auto;
+            display: none; /* start collapsed */
+        }
+        @media (max-width: 700px) {
+            main {
+                padding: 20px;
+            }
+
+            .register-box {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<header><h1>City Library</h1></header>
+
+<nav>
+    <a href="HomePage.html">Home</a>
+    <a href="CatalogPage.html">Catalog</a>
+    <a href="PlaceHold.html">Hold</a>
+    <a href="EditUserInformation.html">Account</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
+</nav>
+
+<main>
+    <div class="section-title">Account Registration Form</div>
+
+    <div class="register-box">
+        <form id="registerForm">
+            <label for="fullname">Full Name</label>
+            <input id="fullname" name="fullname" placeholder="Enter your full name" required type="text">
+
+            <label for="email">Email</label>
+            <input id="email" name="email" placeholder="Enter your email" required type="email">
+
+            <label for="password">Password</label>
+            <input id="password" name="password" placeholder="Enter password" required type="password">
+
+            <label for="confirmPassword">Confirm Password</label>
+            <input id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required type="password">
+
+            <label for="phone">Phone Number</label>
+            <input id="phone" name="phone" placeholder="(xxx) - xxx - xxx" required type="tel">
+
+            <label for="libraryCard">Library Card (optional)</label>
+            <input id="libraryCard" name="libraryCard" placeholder="Enter Library Card ID (if you have one)"
+                   type="text">
+
+            <button id="registerBtn" type="submit">Register</button>
+        </form>
+
+        <div aria-live="polite" class="msg" id="msg"></div>
+
+    </div>
+</main>
+
+<footer>© 2025 City Library</footer>
+
+<script>
+    const TRY_URLS = ['/api/register', 'http://localhost:8080/api/register'];
+
+    // helper log to both console and the debug panel
+    function debugLog(...args) {
+        const s = args.map(a => {
+            if (typeof a === 'object') {
+                try {
+                    return JSON.stringify(a, null, 2);
+                } catch (e) {
+                    return String(a);
+                }
+            }
+            return String(a);
+        }).join(' ');
+        console.log('[REG]', ...args);
+        const panel = document.getElementById('debugPanel');
+        if (panel) {
+            panel.textContent = panel.textContent + s + '\n';
+            panel.scrollTop = panel.scrollHeight;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('registerForm');
+        const msgEl = document.getElementById('msg');
+        const btn = document.getElementById('registerBtn');
+
+
+        function setMessage(text, color) {
+            msgEl.textContent = text || '';
+            msgEl.style.color = color || '#333';
+        }
+
+        function getVal(id) {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() : '';
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setMessage('');
+            debugLog('Form submit clicked. Collecting values...');
+
+            const payload = {
+                fullName: getVal('fullname'),
+                email: getVal('email'),
+                password: getVal('password'),
+                confirmPassword: getVal('confirmPassword'),
+                phone: getVal('phone'),
+                libraryCard: getVal('libraryCard') || null
+            };
+
+            debugLog('Prepared payload:', payload);
+
+            // simple client validation
+            if (!payload.fullName || !payload.email || !payload.password || !payload.confirmPassword) {
+                setMessage('Please complete required fields.', 'crimson');
+                debugLog('Validation failed: missing fields');
+                return;
+            }
+            if (payload.password !== payload.confirmPassword) {
+                setMessage('Passwords do not match.', 'crimson');
+                debugLog('Validation failed: password mismatch');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Registering...';
+
+            let lastError = null;
+            for (const url of TRY_URLS) {
+                debugLog('Attempting POST ->', url);
+                try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(payload),
+                        credentials: 'include',
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeout);
+
+                    debugLog('Response status:', res.status, 'ok:', res.ok);
+                    let bodyText = '';
+                    try {
+                        bodyText = await res.text();
+                    } catch (err) {
+                        bodyText = '<no body>';
+                    }
+                    debugLog('Response body:', bodyText || '<empty>');
+
+                    if (res.ok) {
+                        setMessage('Registration successful!', 'green');
+                        debugLog('Registration succeeded for', url);
+                        form.reset();
+                        btn.disabled = false;
+                        btn.textContent = 'Register';
+                        return;
+                    } else {
+                        // server returned an error; show it and stop trying further endpoints
+                        let message = bodyText || `Server returned ${res.status}`;
+                        setMessage('Registration failed: ' + message, 'crimson');
+                        debugLog('Server error; stopping attempts. Message:', message);
+                        btn.disabled = false;
+                        btn.textContent = 'Register';
+                        return;
+                    }
+                } catch (err) {
+                    lastError = err;
+                    debugLog('Fetch error for', url, '-', err && err.name ? (err.name + ': ' + err.message) : String(err));
+                }
+            }
+
+            // if we reach here, all attempts failed (network/CORS)
+            debugLog('All endpoints unreachable. Last error:', lastError);
+            setMessage('Network error: could not contact server. Open debug output for details.', 'crimson');
+            btn.disabled = false;
+            btn.textContent = 'Register';
+        });
+    });
+
+    async function applyRoleToNav() {
+        try {
+            const res = await fetch('/account/current', {credentials: 'include'});
+            if (!res.ok) {
+                // not authenticated or error -> hide admin links
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                return;
+            }
+            const me = await res.json();
+            const accountType = (me.accountType || '').toString().trim();
+            // case-insensitive check for admin
+            const isAdmin = accountType.toLowerCase() === 'admin';
+            if (!isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+            }
+        } catch (err) {
+            console.warn('applyRoleToNav error:', err);
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyRoleToNav);
+</script>
+</body>
+</html>

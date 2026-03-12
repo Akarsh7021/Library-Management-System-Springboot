@@ -3,7 +3,6 @@ package ca.kpu.info2413.library.backend.controller;
 import ca.kpu.info2413.library.backend.model.Payment;
 import ca.kpu.info2413.library.backend.security.AccountUserDetails;
 import ca.kpu.info2413.library.backend.service.PaymentService;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,7 +36,7 @@ public class PaymentController
     public Payment create(@RequestBody Payment payment, @AuthenticationPrincipal AccountUserDetails userDetails)
     {
         payment.setPaymentDate(LocalDate.now());
-        payment.setProcessedBy(userDetails.getAccount().getAccountId());
+        payment.setProcessedBy(userDetails.account().getAccountId());
         return paymentService.save(payment);
     }
 

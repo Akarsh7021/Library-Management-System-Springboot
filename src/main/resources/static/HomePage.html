@@ -144,14 +144,13 @@
             align-items: flex-start; /* align details to top-left */
             background-color: #fff;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 20px;
             max-width: 700px;
             margin: 15px auto;
             gap: 0; /* remove gap reserved for image */
         }
 
-        /* Hide the cover image element (no HTML change required) */
         .book-image {
             display: none !important;
             width: 0;
@@ -161,7 +160,6 @@
             visibility: hidden;
         }
 
-        /* Left-align all details and make them breathe */
         .book-info {
             text-align: left;
             flex: 1 1 auto;
@@ -192,14 +190,19 @@
             background-color: #005f8c;
         }
 
-        /* Ensure layout looks good on small screens */
         @media (max-width: 520px) {
             .book-card {
                 padding: 14px;
                 max-width: 92%;
             }
-            .search-box { padding: 24px; }
-            input[type="text"] { width: calc(100% - 72px); }
+
+            .search-box {
+                padding: 24px;
+            }
+
+            input[type="text"] {
+                width: calc(100% - 72px);
+            }
         }
 
         nav a {
@@ -221,13 +224,13 @@
     <a href="CatalogPage.html">Catalog</a>
     <a href="PlaceHold.html">Holds</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <div class="hero">
     <div class="search-box">
-        <p>Good evening</p>
+        <p id="greetings">Good evening</p>
         <h2>Find Your Next Book</h2>
         <form class="search-form" onsubmit="searchBook(event)">
             <input id="searchQuery" placeholder="Title, Author, or ISBN" type="text"/>
@@ -269,16 +272,31 @@
                 data.forEach(pub => {
                     const card = document.createElement("div");
                     card.className = "book-card";
-                    card.innerHTML = `
-                    <div class="book-image"></div>
-                    <div class="book-info">
-                        <h3>${pub.title}</h3>
-                        <p>Authors: ${pub.authors.join(", ")}<br>
-                           Genre: ${pub.genre || 'N/A'}<br>
-                           ISBN: ${pub.isbn13}</p>
-                        <button onclick="placeHold(${pub.isbn13})">Place Hold</button>
-                    </div>
-                `;
+                    // if not an ebook
+                    if(pub.ebookUrl === null || pub.ebookUrl === undefined) {
+                            card.innerHTML = `
+                            <div class="book-image"></div>
+                            <div class="book-info">
+                                <h3>${pub.title}</h3>
+                                <p>Authors: ${pub.authors.join(", ")}<br>
+                                   Genre: ${pub.genre || 'N/A'}<br>
+                                   ISBN: ${pub.isbn13}</p>
+                                <button onclick="goToPage('PlaceHold.html?isbn=${pub.isbn13}')">Place Hold</button>
+                            </div>
+                        `;
+                    } else { //if is ebook
+                        card.innerHTML = `
+                            <div class="book-image"></div>
+                            <div class="book-info">
+                                <h3>${pub.title}</h3>
+                                <p>Authors: ${pub.authors.join(", ")}<br>
+                                   Genre: ${pub.genre || 'N/A'}<br>
+                                   ISBN: ${pub.isbn13}</p>
+                                <button onclick="document.location='${pub.ebookUrl}'">Open Ebook</button>
+                            </div>
+                        `;
+                    }
+
                     resultsDiv.appendChild(card);
                 });
             })
@@ -288,24 +306,65 @@
             });
     }
 
+    /**
     function placeHold(isbn13) {
-        console.log("Placing hold on ISBN:", isbn13);
-        alert("Hold request prepared for book ISBN: " + isbn13);
+        window.location.href = "" + isbn13;
     }
+        **/
 
     function goToPage(page) {
         window.location.href = page;
     }
+
     async function signOut() {
         try {
             // Call logout on server
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }
         // Redirect to login page
         window.location.href = "AccountLogin.html";
     }
+
+    async function applyRoleToNav() {
+        try {
+            const res = await fetch('/account/current', {credentials: 'include'});
+            if (!res.ok) {
+                // not authenticated or error -> hide admin links
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                return;
+            }
+            const me = await res.json();
+            const accountType = (me.accountType || '').toString().trim();
+            // case-insensitive check for admin
+            const isAdmin = accountType.toLowerCase() === 'admin';
+            if (!isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+            }
+        } catch (err) {
+            console.warn('applyRoleToNav error:', err);
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    function greetings(){
+        const hours = new Date().getHours();
+        let greetings = document.getElementById("greetings");
+
+        if(hours < 12) {
+            greetings.innerHTML = "Good Morning"
+        } else if(hours < 18) {
+            greetings.innerHTML = "Good Afternoon"
+        } else {
+            greetings.innerHTML = "Good Evening"
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyRoleToNav);
+    document.addEventListener('DOMContentLoaded', greetings);
 </script>
 </body>
 </html>

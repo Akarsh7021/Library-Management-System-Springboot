@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>City Library | Catalog</title>
     <style>
         /* overall layout so footer stays at bottom */
@@ -26,19 +26,14 @@
         body::before {
             content: "";
             position: fixed;
-            inset: 0;                           /* top/right/bottom/left: 0 */
-            z-index: -1;                        /* put behind page content */
+            inset: 0; /* top/right/bottom/left: 0 */
+            z-index: -1; /* put behind page content */
             background-image: url('jessica-ruscello-OQSCtabGkSY-unsplash.jpg');
             background-position: center center;
             background-repeat: no-repeat;
             background-size: cover;
             /* apply filter consistently across the whole image */
             filter: contrast(35%) brightness(1.5);
-            /* optional subtle overlay so white panels remain easy to read */
-            /* add an rgba overlay with linear-gradient if you want a tint:
-               background-image: linear-gradient(rgba(255,255,255,0.18), rgba(255,255,255,0.18)), url(...);
-            */
-            will-change: transform; /* performance hint */
         }
 
         header {
@@ -49,7 +44,12 @@
             align-items: center;
             justify-content: space-between;
         }
-        header h1 { font-size: 1.5em; margin: 0; color: #000; }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
 
         nav {
             background-color: #ffffff;
@@ -59,8 +59,18 @@
             padding: 12px 40px;
             border-bottom: 1px solid #e0e0e0;
         }
-        nav a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.2s; cursor: pointer; }
-        nav a:hover { color: #0077b6; }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
 
         /* Make main stretch to take remaining space so footer goes to bottom */
         main {
@@ -72,15 +82,64 @@
             box-sizing: border-box;
         }
 
-        .section-title { font-size: 1.8em; color: #0077b6; margin-bottom: 20px; border-left: 4px solid #0077b6; padding-left: 10px; }
-        .tab-container { display: flex; gap: 15px; margin-bottom: 20px; }
-        .tab-container button { background-color: #fff; border: 1px solid #ccc; padding: 10px 20px; cursor: pointer; border-radius: 6px; font-weight: 500; transition: all 0.2s ease; }
-        .tab-container button.active, .tab-container button:hover { background-color: #0077b6; color: #fff; border-color: #0077b6; }
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 20px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+        }
 
-        .search-bar { display: flex; margin-bottom: 30px; }
-        .search-bar input { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 8px; outline: none; font-size: 1em; }
-        .search-bar button { background-color: #0077b6; color: white; border: none; border-radius: 8px; padding: 10px 15px; margin-left: 10px; cursor: pointer; transition: 0.2s; }
-        .search-bar button:hover { background-color: #005f8c; }
+        .tab-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tab-container button, .slideshow-container button {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tab-container button.active, .tab-container button:hover, .slideshow-container button:hover {
+            background-color: #0077b6;
+            color: #fff;
+            border-color: #0077b6;
+        }
+
+        .search-bar {
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            font-size: 1em;
+        }
+
+        .search-bar button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .search-bar button:hover {
+            background-color: #005f8c;
+        }
 
         /* Book card layout */
         .book-card {
@@ -88,7 +147,7 @@
             align-items: flex-start; /* align the details to the top */
             background-color: #fff;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 20px;
             max-width: 800px;
             margin: 15px auto;
@@ -96,13 +155,17 @@
         }
 
 
-
         /* left-align details and allow them to grow */
         .book-info {
             text-align: left;
         }
 
-        .form-box label { display: block; margin-bottom: 6px; font-weight: 500; }
+        .form-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
         .form-box input[type="text"],
         .form-box input[type="email"],
         .form-box input[type="password"],
@@ -116,10 +179,30 @@
             outline: none;
         }
 
-        .book-info h3 { margin: 0; color: #333; }
-        .book-info p { margin: 6px 0 12px 0; color: #555; line-height: 1.4; }
-        .book-info button { background-color: #0077b6; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        .book-info button:hover { background-color: #005f8c; }
+        .book-info h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .book-info p {
+            margin: 6px 0 12px 0;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .book-info button {
+            background-color: #0077b6;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .book-info button:hover {
+            background-color: #005f8c;
+        }
 
         /* footer — match other pages and remain at bottom */
         footer {
@@ -129,22 +212,84 @@
             border-top: 1px solid #e0e0e0;
             font-size: 0.9em;
             color: #555;
-            /* footer will naturally sit at the bottom because main is flexible */
             flex-shrink: 0;
         }
-        .footer-content p { margin: 0; font-size: 0.9em; color: #777; }
-        .footer-links { display: flex; gap: 20px; }
-        .footer-links a { text-decoration: none; color: #333; font-size: 0.9em; transition: color 0.2s; }
-        .footer-links a:hover { color: #0077b6; }
+
+        .footer-content p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: #333;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #0077b6;
+        }
 
         /* responsive */
         @media (max-width: 760px) {
-            main { padding: 24px; }
-            nav { padding: 12px 20px; gap: 12px; }
-            .form-box { margin: 20px auto; width: 100%; max-width: 420px; }
-            .footer-content { padding: 0 20px; }
-            .button-group button { width: 100%; }
-            .button-group { flex-direction: column; gap: 12px; }
+            main {
+                padding: 24px;
+            }
+
+            nav {
+                padding: 12px 20px;
+                gap: 12px;
+            }
+
+            .form-box {
+                margin: 20px auto;
+                width: 100%;
+                max-width: 420px;
+            }
+
+            .footer-content {
+                padding: 0 20px;
+            }
+
+            .button-group button {
+                width: 100%;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        .slideshow-container {
+            background: rgba(255, 255, 255, 0.85);
+            max-width: 600px;
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+            min-height: 150px; /* Helps prevent layout shifts */
+        }
+
+        .fade {
+            animation-name: fade;
+            animation-duration: 1.5s;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: .4
+            }
+            to {
+                opacity: 1
+            }
         }
     </style>
 </head>
@@ -158,11 +303,21 @@
     <a href="CatalogPage.html">Catalog</a>
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
+    <div class="section-title" id="bookRecSectionTitle"></div>
+    <div class="slideshow-container">
+        <h2 id="slide-title"></h2>
+        <p id="slide-text"></p>
+        <button onclick="plusSlides(-1)">Back &#10094</button>
+        <button onclick="plusSlides(1)">Next &#10095</button>
+        <button onclick="getRecBooks()">More suggestions</button>
+    </div>
+
+
     <div class="section-title">Catalog</div>
 
     <div class="tab-container">
@@ -186,6 +341,9 @@
 
 <script>
     let currentType = "book";
+    let slideIndex = 0;
+    var slideData;
+    let slideTimeout;
 
     function escapeHtml(unsafe) {
         return unsafe
@@ -225,16 +383,32 @@
                     const authorsText = (pub.authors && pub.authors.length) ? pub.authors.join(', ') : 'Unknown';
                     const card = document.createElement("div");
                     card.className = "book-card";
-                    card.innerHTML = `
-                        <div class="book-image"></div>
-                        <div class="book-info">
-                            <h3>${escapeHtml(pub.title || 'Untitled')}</h3>
-                            <p><strong>Author:</strong> ${escapeHtml(authorsText)}<br>
-                               <strong>Genre:</strong> ${escapeHtml(pub.genre || 'N/A')}<br>
-                               <strong>Pages:</strong> ${escapeHtml(pub.pageCount?.toString() || 'N/A')}</p>
-                            <button onclick="placeHold(${pub.isbn13})">Place Hold</button>
-                        </div>
-                    `;
+
+                    // if not ebook
+                    if(pub.ebookUrl === null || pub.ebookUrl === undefined) {
+                            card.innerHTML = `
+                            <div class="book-image"></div>
+                            <div class="book-info">
+                                <h3>${escapeHtml(pub.title || 'Untitled')}</h3>
+                                <p><strong>Author:</strong> ${escapeHtml(authorsText)}<br>
+                                   <strong>Genre:</strong> ${escapeHtml(pub.genre || 'N/A')}<br>
+                                   <strong>Pages:</strong> ${escapeHtml(pub.pageCount?.toString() || 'N/A')}</p>
+                                <button onclick="placeHold(${pub.isbn13})">Place Hold</button>
+                            </div>
+                        `;
+                    } else { // if is ebook
+                        card.innerHTML = `
+                            <div class="book-image"></div>
+                            <div class="book-info">
+                                <h3>${escapeHtml(pub.title || 'Untitled')}</h3>
+                                <p><strong>Author:</strong> ${escapeHtml(authorsText)}<br>
+                                   <strong>Genre:</strong> ${escapeHtml(pub.genre || 'N/A')}<br>
+                                   <strong>Pages:</strong> ${escapeHtml(pub.pageCount?.toString() || 'N/A')}</p>
+                                <button onclick="document.location='${pub.ebookUrl}'">Open Ebook</button>
+                            </div>
+                        `;
+                    }
+
                     resultsDiv.appendChild(card);
                 });
             })
@@ -244,21 +418,147 @@
             });
     }
 
-    function placeHold(isbn13) {
-        console.log("Placing hold on ISBN:", isbn13);
-        alert("Hold request prepared for book ISBN: " + isbn13);
+    function placeHold(isbn13)
+    {
+        window.location.href = "PlaceHold.html?isbn=" + isbn13;
     }
 
-    async function signOut() {
+    async function signOut()
+    {
         try {
             // Call logout on server
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }
         // Redirect to login page
         window.location.href = "AccountLogin.html";
     }
+
+    document.addEventListener("DOMContentLoaded", (event) => {
+        document.getElementById("catalogSearch").addEventListener('keydown',function (event) {
+            if(event.key === 'Enter') {
+                event.preventDefault();
+                searchCatalog();
+            }
+        })
+        getRecBooks();
+    });
+
+    // recommend books based on borrow records
+    async function getRecBooks()
+    {
+        // get signed-in user's account ID and fetch recommendations based on borrowing records
+        let accountId = parseInt(await loadCurrentAccountId());
+        if (!accountId) {
+            accountId = 0;
+        }
+        const res = await fetch(`http://localhost:8080/account/book_rec/${accountId}`, {});
+        let recType = res.headers.get("Rec-Type")
+        let books = await res.json();
+        let bookRecSectionTitle = document.getElementById("bookRecSectionTitle");
+
+        console.log("Account ID: " + accountId);
+        console.log("Rec-Type: ", recType);
+        console.log(books)
+
+        // set the section title based on recommendations type
+        if (recType === "random" || recType === "") {
+            bookRecSectionTitle.innerHTML = "Books you may like";
+        } else { // recommend a book from borrow records
+            bookRecSectionTitle.innerHTML = `Similar to <b>"${recType}"</b>`;
+        }
+
+        // data for slide
+        slideData = books;
+        autoSlideshow();
+    }
+
+    // get account id for book rec
+    async function loadCurrentAccountId()
+    {
+        try {
+            const response = await fetch("http://localhost:8080/account/current", {});
+            if (!response.ok) alert("Could not fetch member information.");
+            const data = await response.json();
+            return data.accountId || "";
+        } catch (error) {
+            console.error(error);
+            alert("Could not fetch member information.");
+        }
+    }
+
+
+    // populate data for the book recommendation slide
+    function showSlides()
+    {
+        const slideTitle = document.getElementById("slide-title");
+        const slideText = document.getElementById("slide-text");
+        // Clear existing content and add fade class for transition
+        slideTitle.textContent = '';
+        slideText.textContent = '';
+        slideTitle.classList.add('fade');
+        slideText.classList.add('fade');
+
+        setTimeout(() => {
+            slideTitle.classList.remove('fade');
+            slideText.classList.remove('fade');
+        }, 1500);
+
+        const currentSlide = slideData[slideIndex];
+        slideTitle.innerHTML = currentSlide.title;
+        slideText.innerHTML = `<b>Genre:</b> ${(currentSlide.genre)}<br><b>Page Count:</b> ${currentSlide.pageCount}<br><b>Authors:</b> ${currentSlide.authors.join(', ')}`;
+    }
+
+    // Function for manual navigation (used by buttons in HTML)
+    function plusSlides(n)
+    {
+        slideIndex += n;
+        if (slideIndex > slideData.length - 1) {
+            slideIndex = 0;
+        } else if (slideIndex < 0) {
+            slideIndex = slideData.length - 1;
+        }
+        showSlides();
+    }
+
+    // auto advancing slide
+    function autoSlideshow()
+    {
+        slideIndex++;
+        clearTimeout(slideTimeout);
+        if (slideIndex > slideData.length - 1) {
+            slideIndex = 0;
+        }
+        showSlides();
+        slideTimeout = setTimeout(autoSlideshow, 10000); // Change slide every 10 seconds
+    }
+
+    async function applyRoleToNav()
+    {
+        try {
+            const res = await fetch('/account/current', {credentials: 'include'});
+            if (!res.ok) {
+                // not authenticated or error -> hide admin links
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                return;
+            }
+            const me = await res.json();
+            const accountType = (me.accountType || '').toString().trim();
+            // case-insensitive check for admin
+            const isAdmin = accountType.toLowerCase() === 'admin';
+            if (!isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+            }
+        } catch (err) {
+            console.warn('applyRoleToNav error:', err);
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyRoleToNav);
 </script>
 </body>
 </html>

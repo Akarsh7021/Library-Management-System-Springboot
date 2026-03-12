@@ -5,27 +5,131 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>City Library | Admin Account</title>
     <style>
-        body {
+        html, body {
+            height: 100%;
             margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('gabriel-sollmann-Y7d265_7i08-unsplash.jpg') no-repeat center center/cover;
             backdrop-filter: contrast(20%) brightness(1.7);
-        background-color: #f9fafc; color: #333; }
-        header { background-color: #ffffff; padding: 10px 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:space-between; }
-        header h1 { font-size:1.5em; margin:0; color:#000; }
-        nav { background-color:#ffffff; display:flex; justify-content:flex-start; gap:30px; padding:12px 40px; border-bottom:1px solid #e0e0e0; }
-        nav a { text-decoration:none; color:#333; font-weight:500; transition:color 0.2s; cursor:pointer; }
-        nav a:hover { color:#0077b6; }
-        main { padding:40px 80px; max-width:1200px; margin:auto; text-align:center; }
-        .section-title { font-size:1.8em; color:#0077b6; margin-bottom:30px; border-left:4px solid #0077b6; padding-left:10px; text-align:left; }
-        .card-container { display:flex; justify-content:center; gap:40px; flex-wrap:wrap; margin-top:50px; }
-        .card { background:#fff; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.1); width:300px; padding:25px; transition:transform .2s, box-shadow .2s; }
-        .card:hover { transform:translateY(-5px); box-shadow:0 5px 12px rgba(0,0,0,0.15); }
-        .card h2 { color:#0077b6; font-size:1.2em; margin-bottom:10px; }
-        .card p { color:#555; margin-bottom:20px; }
-        .card button { background-color:#0077b6; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; transition:background-color .2s; }
-        .card button:hover { background-color:#005f8c; }
-        footer { text-align:center; padding:15px; font-size:.9em; color:#777; background:#fff; border-top:1px solid #e0e0e0; margin-top:60px; }
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            color: #000;
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            padding: 12px 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        main {
+            flex: 1;
+            padding: 40px 80px;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 30px;
+            border-left: 4px solid #0077b6;
+            padding-left: 10px;
+            text-align: left;
+        }
+
+        .card-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 50px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 25px;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: #0077b6;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .card button {
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color .2s;
+        }
+
+        .card button:hover {
+            background-color: #005f8c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: .9em;
+            color: #777;
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 60px;
+        }
     </style>
 </head>
 <body>
@@ -38,8 +142,8 @@
     <a href="CatalogPage.html">Catalog</a>
     <a href="PlaceHold.html">Hold</a>
     <a href="EditUserInformation.html">Account</a>
-    <a href="AdminPage.html">Admin</a>
-    <a style="margin-left:12px; color:#d9534f;" onclick="signOut()">Sign Out</a>
+    <a class="admin-only" href="AdminPage.html">Admin</a>
+    <a onclick="signOut()" style="margin-left:12px; color:#d9534f;">Sign Out</a>
 </nav>
 
 <main>
@@ -49,7 +153,6 @@
         <div class="card">
             <h2>Inventory</h2>
             <p>Add / update book details</p>
-            <!-- kept filename with space because older code used it; change if your file is named differently -->
             <button onclick="location.href='Inventory Page.html'">Open</button>
         </div>
 
@@ -92,12 +195,37 @@
 <script>
     async function signOut() {
         try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch("/logout", {method: "POST", credentials: "include"});
         } catch (err) {
             console.warn("Logout request failed:", err);
         }
         window.location.href = "AccountLogin.html";
     }
+
+    async function applyRoleToNav() {
+        try {
+            const res = await fetch('/account/current', {credentials: 'include'});
+            if (!res.ok) {
+                // not authenticated or error -> hide admin links
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                return;
+            }
+            const me = await res.json();
+            const accountType = (me.accountType || '').toString().trim();
+            // case-insensitive check for admin
+            const isAdmin = accountType.toLowerCase() === 'admin';
+            if (!isAdmin) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+            }
+        } catch (err) {
+            console.warn('applyRoleToNav error:', err);
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', applyRoleToNav);
 </script>
 </body>
 </html>

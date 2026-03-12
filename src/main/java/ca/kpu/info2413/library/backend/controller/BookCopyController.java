@@ -1,9 +1,13 @@
 package ca.kpu.info2413.library.backend.controller;
 
+import ca.kpu.info2413.library.backend.DTO.PublicationDTO;
 import ca.kpu.info2413.library.backend.model.BookCopy;
+import ca.kpu.info2413.library.backend.model.Publication;
 import ca.kpu.info2413.library.backend.service.BookCopyService;
+import ca.kpu.info2413.library.backend.service.PublicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +20,8 @@ public class BookCopyController
 
     @Autowired
     private BookCopyService bookCopyService;
+    @Autowired
+    private PublicationService publicationService;
 
     @GetMapping
     public List<BookCopy> findAll()
@@ -31,9 +37,19 @@ public class BookCopyController
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public BookCopy create(@RequestBody BookCopy bookCopy)
+    public ResponseEntity<?> create(@RequestBody BookCopy bookCopy)
     {
-        return bookCopyService.save(bookCopy);
+        List<PublicationDTO> p = publicationService.findByIsbn13(bookCopy.getPublication().getIsbn13());
+        if(p.isEmpty())
+        {
+            return ResponseEntity.badRequest().body("Publication not found");
+        }
+
+        if (p.getFirst().getEbookUrl() == null || p.getFirst().getEbookUrl().isEmpty())
+            return ResponseEntity.ok(bookCopyService.save(bookCopy));
+        else
+            return ResponseEntity.badRequest().body("Cannot create book copy. Publication is an Ebook.");
+
     }
 
     @PutMapping
@@ -53,7 +69,7 @@ public class BookCopyController
 
 
     @GetMapping("/find/isbn/{isbn}")
-    public List<BookCopy> findByIsbn13(@PathVariable Integer isbn)
+    public List<BookCopy> findByIsbn13(@PathVariable Long isbn)
     {
         return bookCopyService.findByIsbn13(isbn);
     }

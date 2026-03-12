@@ -2,6 +2,9 @@
   <dictionary name="project">
     <words>
       <w>freefair</w>
+      <w>postgre</w>
+      <w>registeration</w>
+      <w>winget</w>
     </words>
   </dictionary>
 </component>

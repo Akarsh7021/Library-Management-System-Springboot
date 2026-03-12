@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface LibraryCardRepository extends JpaRepository<LibraryCard, Integer> {
+public interface LibraryCardRepository extends JpaRepository<LibraryCard, Integer>
+{
 
     // find by card number (your column is named card_number)
     List<LibraryCard> findByCardNumber(Integer cardNumber);
