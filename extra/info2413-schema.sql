@@ -2,8 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\
-restrict F3yGhoBQhoBomshnajNToT2kNffum7LY1xbasIqbl4vcxaTq0qze3mn5AX7tJ7W
 
 -- Dumped from database version 15.14 (Debian 15.14-0+deb12u1)
 -- Dumped by pg_dump version 18.0
@@ -31,8 +29,6 @@ client_min_messages = warning;
 SET
 row_security = off;
 
-DROP
-DATABASE info2413;
 --
 -- TOC entry 3476 (class 1262 OID 16389)
 -- Name: info2413; Type: DATABASE; Schema: -; Owner: postgres
@@ -45,10 +41,6 @@ DATABASE info2413 WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = 
 ALTER
 DATABASE info2413 OWNER TO postgres;
 
-\unrestrict
-F3yGhoBQhoBomshnajNToT2kNffum7LY1xbasIqbl4vcxaTq0qze3mn5AX7tJ7W
-\connect info2413
-\restrict F3yGhoBQhoBomshnajNToT2kNffum7LY1xbasIqbl4vcxaTq0qze3mn5AX7tJ7W
 
 SET statement_timeout = 0;
 SET
@@ -819,6 +811,4 @@ ALTER TABLE ONLY public."AccountPublication"
 -- PostgreSQL database dump complete
 --
 
-\unrestrict
-F3yGhoBQhoBomshnajNToT2kNffum7LY1xbasIqbl4vcxaTq0qze3mn5AX7tJ7W
 

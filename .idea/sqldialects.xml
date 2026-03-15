@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/extra/info2413-sample.sql" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/extra/info2413-schema.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/extra/info2413-sample.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/extra/info2413-schema.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/java/ca/kpu/info2413/library/backend/repository/ReportRepository.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/migration/update-schema.sql" dialect="PostgreSQL" />
   </component>
 </project>
