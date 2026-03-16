@@ -64,7 +64,7 @@ public class BorrowController
         {
             latestBorrow = findBySerialBarcodeBookCopy(newBorrow.getSerialBarcodeBookCopy()).getLast();
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
         }
 
@@ -86,7 +86,7 @@ public class BorrowController
         {
             borrowAccount = accountService.findByAccountId(newBorrow.getAccountIdAccount()).getFirst();
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
             return ResponseEntity.badRequest().body(String.format("Account ID %s not found.", newBorrow.getAccountIdAccount()));
         }
