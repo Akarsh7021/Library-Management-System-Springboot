@@ -368,7 +368,7 @@
             return;
         }
 
-        fetch(`http://localhost:8080/publication/search?type=${currentType}&query=${encodeURIComponent(query)}`)
+        fetch(`/publication/search?type=${currentType}&query=${encodeURIComponent(query)}`)
             .then(res => res.json())
             .then(data => {
                 const resultsDiv = document.getElementById("searchResults");
@@ -453,7 +453,7 @@
         if (!accountId) {
             accountId = 0;
         }
-        const res = await fetch(`http://localhost:8080/account/book_rec/${accountId}`, {});
+        const res = await fetch(`/account/book_rec/${accountId}`, {});
         let recType = res.headers.get("Rec-Type")
         let books = await res.json();
         let bookRecSectionTitle = document.getElementById("bookRecSectionTitle");
@@ -478,7 +478,7 @@
     async function loadCurrentAccountId()
     {
         try {
-            const response = await fetch("http://localhost:8080/account/current", {});
+            const response = await fetch("/account/current", {});
             if (!response.ok) alert("Could not fetch member information.");
             const data = await response.json();
             return data.accountId || "";
